@@ -205,6 +205,8 @@ module Autumn
     attr :server
     # The remote port that this stem is connecting to.
     attr :port
+    # The local IP to bind to (virtual hosting).
+    attr :local_ip
     # The global configuration options plus those for the current season and
     # this stem.
     attr :options
@@ -230,6 +232,8 @@ module Autumn
     # given nick. Valid options:
     #
     # +port+:: The port that the IRC client should connect on (default 6667).
+    # +local_ip+:: Set this if you want to bind to an IP other than your default
+    #              (for virtual hosting).
     # +logger+:: Specifies a logger instance to use. If none is specified, a new
     #            LogFacade instance is created for the current season.
     # +ssl+:: If true, indicates that the connection will be made over SSL.
@@ -269,6 +273,7 @@ module Autumn
       @server = server
       @port = opts.delete(:port)
       @port ||= 6667
+      @local_ip = opts.delete(:local_ip)
       @options = opts
       @listeners = [ self ]
       @leaves = Array.new
@@ -676,7 +681,7 @@ module Autumn
   
     def connect
       logger.debug "Connecting to #{@server}:#{@port}..."
-      socket = TCPSocket.new @server, @port
+      socket = TCPSocket.new @server, @port, @local_ip
       return socket unless options[:ssl]
       ssl_context = OpenSSL::SSL::SSLContext.new
       unless ssl_context.verify_mode
