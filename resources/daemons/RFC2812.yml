@@ -1,0 +1,36 @@
+--- 
+event: 
+  478: :err_banlistfull
+  346: :rpl_invitelist
+  247: :rpl_statsbline
+  5: :rpl_bounce
+  484: :err_restricted
+  209: :rpl_traceclass
+  347: :rpl_endofinvitelist
+  325: :rpl_uniqopis
+  485: :err_uniqoprivsneeded
+  408: :err_nosuchservice
+  210: :rpl_tracereconnect
+  1: :rpl_welcome
+  348: :rpl_exceptlist
+  2: :rpl_yourhost
+  437: :err_unavailresource
+  415: :err_badmask
+  349: :rpl_endofexceptlist
+  250: :rpl_statsdline
+  476: :err_badchanmask
+  234: :rpl_servlist
+  3: :rpl_created
+  383: :rpl_youreservice
+  262: :rpl_traceend
+  240: :rpl_statsvline
+  207: :rpl_traceservice
+  477: :err_nochanmodes
+  246: :rpl_statsping
+  235: :rpl_servlistend
+  4: :rpl_myinfo
+  263: :rpl_tryagain
+usermode: 
+  a: :away
+  O: :local_operator
+  r: :restricted

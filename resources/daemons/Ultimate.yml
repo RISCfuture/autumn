@@ -1,0 +1,24 @@
+--- 
+event: 
+  621: :rpl_rules
+  610: :rpl_isoper
+  434: :err_norules
+  616: :rpl_whoishost
+  275: :rpl_statsdline
+  622: :rpl_endofrules
+  611: :rpl_islocop
+  617: :rpl_whoisbot
+  386: :rpl_ircops
+  623: :rpl_mapmore
+  612: :rpl_isnotoper
+  387: :rpl_endofircops
+  624: :rpl_omotdstart
+  613: :rpl_endofisoper
+  630: :rpl_settings
+  619: :rpl_whowashost
+  608: :rpl_watchclear
+  625: :rpl_omotd
+  631: :rpl_endofsettings
+  620: :rpl_rulesstart
+  626: :rpl_endofo
+  615: :rpl_whoismodes

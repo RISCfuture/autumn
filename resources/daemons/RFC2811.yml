@@ -1,0 +1,16 @@
+--- 
+channel_mode: 
+  a: :anonymous
+  O: :creator
+  e: :ban_exception
+  q: :quiet
+  r: :reop
+  h: :halfop
+  I: :invitation_mask
+channel_prefix: 
+  +: :network_unmoderated
+  "!": :network_safe
+privilege: 
+  O: :creator
+usermode:
+  "@": :creator

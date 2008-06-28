@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+#
+# Runs Autumn from the command line. This script will not exit until all leaves
+# have exited. To use this script as a daemon, see the script/daemon script.
+
+AL_ROOT = File.expand_path("#{File.dirname(__FILE__)}/..")
+Dir.chdir AL_ROOT
+
+require 'libs/genesis'
+
+Autumn::Genesis.new.boot!

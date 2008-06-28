@@ -1,0 +1,33 @@
+--- 
+event: 
+  379: :rpl_kicklinked
+  291: :rpl_chaninfo_banned
+  269: :rpl_end_netstat
+  308: :rpl_notifyaction
+  286: :rpl_chaninfo_users
+  380: :rpl_banlinked
+  292: :rpl_chaninfo_bans
+  50: :rpl_attemptingjunc
+  419: :err_lengthtruncated
+  309: :rpl_nicktrace
+  287: :rpl_chaninfo_chops
+  265: :rpl_localusers
+  210: :rpl_stats
+  293: :rpl_chaninfo_invite
+  51: :rpl_attemptingreroute
+  299: :rpl_end_chaninfo
+  288: :rpl_chaninfo_voices
+  266: :rpl_globalusers
+  470: :err_kickedfromchan
+  294: :rpl_chaninfo_invites
+  377: :rpl_kickexpired
+  289: :rpl_chaninfo_away
+  267: :rpl_start_netstat
+  295: :rpl_chaninfo_kick
+  273: :rpl_notify
+  378: :rpl_banexpired
+  290: :rpl_chaninfo_opers
+  268: :rpl_netstat
+  296: :rpl_chaninfo_kicks
+  285: :rpl_chaninfo_handle
+  274: :rpl_endnotify

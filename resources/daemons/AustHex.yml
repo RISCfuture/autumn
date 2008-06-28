@@ -1,0 +1,29 @@
+--- 
+channel_mode: 
+  e: :event
+event: 
+  434: :err_servicenameinuse
+  357: :rpl_map
+  385: :rpl_notoperanymore
+  380: :rpl_yourhelper
+  358: :rpl_mapmore
+  430: :err_eventnickchange
+  320: :rpl_whoisvirt
+  309: :rpl_whoishelper
+  480: :err_nouline
+  359: :rpl_mapend
+  310: :rpl_whoisservice
+  503: :err_vworldwarn
+  520: :err_whotrunc
+  377: :rpl_spam
+  328: :rpl_channel_url
+  240: :rpl_statsxline
+  378: :rpl_motd
+  307: :rpl_suserhost
+usermode: 
+  v: :host_hiding
+  l: :listall
+  a: :errors
+  h: :helper
+  T: :w_lined
+  t: :z_lined

@@ -1,0 +1,67 @@
+--- 
+server_mode: 
+  s: :service
+  h: :hub
+channel_mode: 
+  r: :regonly
+event: 
+  511: :err_silelistfull
+  280: :rpl_glist
+  247: :rpl_statsgline
+  236: :rpl_statsverbose
+  16: :rpl_mapmore
+  517: :err_disabled
+  495: :err_badlogtype
+  330: :rpl_whoisaccount
+  275: :rpl_statsdline
+  468: :err_invalidusername
+  391: :rpl_time
+  281: :rpl_endofglist
+  270: :rpl_privs
+  248: :rpl_statsuline
+  237: :rpl_statsengine
+  17: :rpl_mapend
+  518: :err_longmask
+  496: :err_badlogsys
+  524: :err_quarantined
+  513: :err_badping
+  282: :rpl_jupelist
+  271: :rpl_silelist
+  238: :rpl_statsfline
+  519: :err_toomanyusers
+  497: :err_badlogvalue
+  354: :rpl_whospcrpl
+  514: :err_invalid_error
+  437: :err_bannickchange
+  338: :rpl_whoisactually
+  283: :rpl_endofjupelist
+  272: :rpl_endofsilelist
+  250: :rpl_statsconn
+  228: :rpl_statsqline
+  217: :rpl_statspline
+  8: :rpl_snomask
+  520: :err_masktoowide
+  498: :err_isoperlchan
+  333: :rpl_topicwhotime
+  515: :err_badexpire
+  493: :err_nofeature
+  438: :err_nicktoofast
+  416: :err_querytoolong
+  284: :rpl_feature
+  9: :rpl_statmemtot
+  477: :err_needreggednick
+  334: :rpl_listusage
+  246: :rpl_statstline
+  15: :rpl_map
+  516: :err_dontcheat
+  494: :err_badfeature
+  439: :err_targettoofast
+  340: :rpl_userip
+  10: :rpl_statmem
+usermode: 
+  k: :service
+  x: :host_hiding
+  d: :deaf
+  r: :registered
+  g: :debug
+  s: :server_notices

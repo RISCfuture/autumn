@@ -1,0 +1,8 @@
+--- 
+channel_mode: 
+  R: :regonly
+  u: :founder
+user_prefix: 
+  .: :founder
+privilege: 
+  u: :founder

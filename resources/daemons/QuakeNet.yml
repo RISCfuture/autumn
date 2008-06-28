@@ -1,0 +1,20 @@
+--- 
+channel_mode: 
+  D: :deljoins
+  d: :has_hidden
+  u: :noquitparts
+event: 
+  291: :rpl_endofcheck
+  550: :err_badhostmask
+  286: :rpl_chkhead
+  551: :err_hostunavail
+  485: :err_isrealservice
+  287: :rpl_chanuser
+  552: :err_usingsline
+  486: :err_accountonly
+  288: :rpl_patchhead
+  553: :err_statssline
+  355: :rpl_namreply_
+  289: :rpl_patchcon
+  290: :rpl_datastr
+  285: :rpl_newhostis

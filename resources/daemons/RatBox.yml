@@ -1,0 +1,25 @@
+--- 
+event: 
+  720: :rpl_omotdstart
+  709: :rpl_etrace
+  726: :rpl_notestline
+  715: :err_knockdisabled
+  704: :rpl_helpstart
+  721: :rpl_omotd
+  710: :rpl_knock
+  716: :rpl_targumodeg
+  705: :rpl_helptxt
+  722: :rpl_endofomotd
+  711: :rpl_knockdlvr
+  717: :rpl_targnotify
+  706: :rpl_endofhelp
+  723: :err_noprivs
+  712: :err_toomanyknock
+  718: :rpl_umodegmsg
+  724: :rpl_testmark
+  713: :err_chanopen
+  702: :rpl_modlist
+  708: :rpl_etracefull
+  725: :rpl_testline
+  714: :err_knockonchan
+  703: :rpl_endofmodlist

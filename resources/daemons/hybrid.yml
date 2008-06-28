@@ -1,0 +1,38 @@
+--- 
+channel_mode: 
+  a: :hideops
+  p: :private
+event: 
+  247: :rpl_statsxline
+  225: :rpl_statsdline
+  484: :err_desync
+  385: :rpl_notoperanymore
+  220: :rpl_statspline
+  479: :err_badchanname
+  265: :rpl_localusers
+  249: :rpl_statsdebug
+  266: :rpl_globalusers
+  503: :err_ghostedclient
+  245: :rpl_statssline
+  14: :rpl_yourcookie
+  246: :rpl_statsuline
+  224: :rpl_statsfline
+user_prefix: 
+  "%": :half_operator
+usermode: 
+  k: :kills
+  l: :locops
+  a: :admin
+  x: :external
+  b: :bots
+  y: :spy
+  n: :nchange
+  c: :client_conns
+  z: :operwall
+  d: :debug
+  f: :full
+  r: :rej
+  g: :callerid
+  u: :unauth
+privilege: 
+  h: :half_operator

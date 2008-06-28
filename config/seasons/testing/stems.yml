@@ -1,0 +1,8 @@
+--- 
+Example: 
+  nick: Yournick
+  leaves: 
+  - Scorekeeper
+  rejoin: true
+  channel: "#yourchannel"
+  server: irc.yourircserver.com

@@ -1,0 +1,56 @@
+--- 
+server_mode: 
+  L: :default_language
+  l: :lazy_leaf
+  A: :auto_tbs
+  a: :autoconnect
+  M: :modes_locked
+  n: :no_oper
+  D: :debugging
+  F: :full
+  H: :hidden
+  T: :testlink
+channel_mode: 
+  "!": :service
+event: 
+  973: :err_cannotchangeumode
+  687: :rpl_yourlanguageis
+  665: :rpl_otherumodeis
+  979: :err_servermodelock
+  682: :rpl_networks
+  671: :rpl_whoissecure
+  660: :rpl_traceroute_hop
+  974: :err_cannotchangechanmode
+  688: :rpl_language
+  666: :rpl_endof_generic
+  980: :err_badcharencoding
+  661: :rpl_traceroute_start
+  975: :err_cannotchangeservermode
+  689: :rpl_whoisstaff
+  678: :rpl_luserstaff
+  981: :err_toomanylanguages
+  662: :rpl_modechangewarn
+  976: :err_cannotsendtonick
+  690: :rpl_whoislanguage
+  679: :rpl_timeonserveris
+  982: :err_nolanguage
+  663: :rpl_chanredir
+  977: :err_unknownservermode
+  983: :err_texttooshort
+  664: :rpl_servmodeis
+  301: :rpl_away
+  4: :rpl_myinfo
+  670: :rpl_whowasdetails
+user_prefix: 
+  "!": :service
+usermode: 
+  d: :deaf
+  R: :no_non_registered
+  g: :callerid
+  s: :server_notices
+  h: :helper
+channel_prefix: 
+  .: :softchan
+  "~": :global
+privilege: 
+  "!": :service

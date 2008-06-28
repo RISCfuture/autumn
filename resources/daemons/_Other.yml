@@ -1,0 +1,7 @@
+--- 
+privilege:
+  a: :admin # Compatibility with irc.utonet.org
+user_prefix: 
+  "~": :channel_owner # Compatibility with irc.utonet.org
+  "&": :admin # Compatibility with irc.utonet.org
+

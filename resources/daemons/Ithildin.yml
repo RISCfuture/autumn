@@ -1,0 +1,7 @@
+--- 
+event: 
+  771: :rpl_xinfo
+  672: :rpl_unknownmodes
+  673: :rpl_cannotsetmodes
+  773: :rpl_xinfostart
+  774: :rpl_xinfoend

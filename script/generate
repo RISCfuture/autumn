@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+#
+# == Synopsis
+#
+# Generates template files for leaves, seasons, and other Autumn objects.
+#
+# == Usage
+#
+# script/generate <options> <template> <name>
+#
+# <template>:: The template to create. Valid templates are "leaf" and "season".
+# <name>:: The name to give the created template. For example, you can call
+#          "script/generate leaf Scorekeeper" to create a leaf named
+#          Scorekeeper.
+#
+# == Options
+#
+# --help, -h:: Displays this usage information.
+# --vcs, -c:: Add any created files or directories to the project's version
+#             control system. (Autodetects CVS and Subversion.)
+
+require 'libs/script'
+
+opts = GetoptLong.new(
+  [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+  [ '--vcs', '-c', GetoptLong::NO_ARGUMENT ]
+)
+
+script = Autumn::Script.new
+
+begin
+  opts.each do |opt, arg|
+    case opt
+      when '--help' then RDoc::usage
+      when '--vcs' then script.use_vcs
+    end
+  end
+rescue GetoptLong::InvalidOption
+  RDoc::usage
+  exit 0
+end
+
+exit(0) unless script.parse_argv(ARGV)
+
+case script.object
+  when 'leaf' then script.call_generator(:leaf)
+  when 'season' then script.call_generator(:season)
+end

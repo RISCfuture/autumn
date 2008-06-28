@@ -1,0 +1,6 @@
+--- 
+event: 
+  247: :rpl_statsxline
+  484: :err_desync
+  485: :err_cantkickadmin
+  615: :rpl_mapmore
