@@ -525,7 +525,7 @@ module Autumn
     def parse_for_command(stem, sender, arguments)
       if arguments[:channel] or options[:respond_to_private_messages] then
         reply_to = arguments[:channel] ? arguments[:channel] : sender[:nick]
-        if arguments[:message] =~ /^#{options[:command_prefix]}(\w+)\s*(.*)$/ then
+        if arguments[:message] =~ /^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/ then
           name = $1.to_sym
           meth = "#{name}_command".to_sym
           msg = $2
