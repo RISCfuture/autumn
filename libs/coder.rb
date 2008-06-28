@@ -1,6 +1,3 @@
-require 'facets/array/only'
-require 'facets/symbol/to_proc'
-
 module Autumn # :nodoc:
   
   # Helper class that generates shell Ruby code. This class knows how to

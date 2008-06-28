@@ -1,18 +1,8 @@
 # Miscellaneous extra methods and objects used by Autumn.
 
 require 'thread'
-require 'facets/string/case'
-require 'facets/stylize'
-
-module Kernel # :nodoc:
-  
-  # Bugfix for the Facets implementation of +respond+.
-  
-  def respond(sym, *args)
-    return nil if not respond_to?(sym)
-    send(sym, *args)
-  end
-end
+require 'facets/style'
+require 'facets/string/words'
 
 class Numeric # :nodoc:
   
@@ -39,6 +29,8 @@ class Numeric # :nodoc:
 end
 
 class String # :nodoc:
+  include Style
+  include Words
   
   # Returns a copy of this string with the first character dropped.
   

@@ -16,7 +16,7 @@ support.
 == Requirements
 
 Autumn requires RubyGems (http://www.rubygems.org) and the Daemons and Facets*
-gems. Install RubyGems then run <tt>sudo gem install daemons ; sudo gem install facets -v '=2.3'</tt> in a
+gems. Install RubyGems then run <tt>sudo gem install daemons facets</tt> in a
 command line in order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
@@ -960,6 +960,10 @@ operator could be taken from your leaf in the middle of executing the command.
 Write data in critical blocks, use transactions in your database calls ... you
 know the deal. Don't assume things will be the same between one line of code and
 the next.
+
+If you require thread synchronization at the expense of performance, you can use
+the <tt>:stem_sync</tt> annotation. See the Autumn::Stem class docs under
+"Synchronous Methods" for more information.
 
 == Getting Ready for Deployment
 

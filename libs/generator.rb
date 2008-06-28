@@ -1,8 +1,3 @@
-require 'yaml'
-require 'facets/stylize'
-require 'libs/misc'
-require 'libs/coder'
-
 module Autumn # :nodoc:
   
   # Generates the files for Autumn templates such as leaves and seasons. The

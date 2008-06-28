@@ -1,7 +1,4 @@
 require 'singleton'
-require 'facets/hash/rekey'
-require 'facets/hash/autonew'
-require 'facets/symbol/to_proc'
 
 module Autumn
 

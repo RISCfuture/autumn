@@ -1,7 +1,3 @@
-require 'facets/string/partitions'
-require 'facets/string/indexable'
-require 'facets/array/only'
-
 module Autumn
   
   # Describes an IRC server daemon program. Different IRC servers run off of
@@ -175,8 +171,8 @@ module Autumn
       end
       case privs.size
         when 0 then :unvoiced
-  when 1 then privs.only
-  else privs
+        when 1 then privs.only
+        else privs
       end
     end
     
@@ -184,12 +180,20 @@ module Autumn
       if meth.to_s =~ /^([a-z_]+)\?$/ then
         base = $1
         if (instance_variables.include?("@#{base}") or instance_variables.include?("@#{base}".to_sym)) and args.size == 1 then
-          char = args.only.kind_of?(Numeric) ? args.only : args.only[0]
-          eval "#{base}.include? #{args.only.inspect}"
+          if base.end_with?('_prefix') and args.only.kind_of?(Numeric) then
+            arg = args.only.chr
+          else
+            arg = args.only
+          end
+          eval "#{base}.include? #{arg.inspect}"
         end
       else
         super
       end
+    end
+    
+    def inspect # :nodoc:
+      "#<#{self.class.to_s} #{@@instances.index self}>"
     end
     
     private

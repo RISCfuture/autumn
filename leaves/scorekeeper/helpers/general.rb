@@ -1,8 +1,6 @@
-require 'facets/conversion'
-
 # Utility methods used by Scorekeeper.
 
-module ScorekeeperHelper
+module GeneralHelper
   def parse_date(str)
     date = nil
     begin
@@ -58,15 +56,6 @@ module ScorekeeperHelper
     return if delta.zero?
     chan = Channel.find_or_create :server => server_identifier(stem), :name => channel
     chan.scores.create :giver => giver, :receiver => receiver, :change => delta, :note => note
-  end
-  
-  def announce_change(giver, receiver, delta)
-    points = (delta == 1 or delta == -1) ? 'point' : 'points'
-    if delta > 0 then
-      "#{giver.name} gave #{receiver.name} #{delta} #{points}."
-    else
-      "#{giver.name} docked #{receiver.name} #{-delta} #{points}."
-    end
   end
   
   def server_identifier(stem)

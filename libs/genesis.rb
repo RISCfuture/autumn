@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'yaml'
 require 'logger'
+require 'facets'
 require 'libs/misc'
 require 'libs/speciator'
 
@@ -111,11 +112,18 @@ module Autumn # :nodoc:
     # PREREQS: load_season_settings
     
     def load_databases
-      return unless File.exist? "config/seasons/#{config.global :season}/database.yml"
+      db_file = "#{@season_dir}/database.yml"
+      return unless File.exist? db_file
+      gem 'dm-core'
       require 'data_mapper'
-      dbconfig = YAML.load(File.open("config/seasons/#{config.global :season}/database.yml", 'r'))
+      require 'libs/datamapper_hacks'
+      
+      # Set up a fake default database to stop DM from whining
+      DataMapper.setup :default, 'sqlite3::memory:'
+      
+      dbconfig = YAML.load(File.open(db_file, 'r'))
       dbconfig.each do |db, config|
-        DataMapper::Database.setup(db.to_sym, config)
+        DataMapper.setup(db.to_sym, config)
       end
     end
     
@@ -129,12 +137,12 @@ module Autumn # :nodoc:
     def invoke_foliater(invoke=true)
       begin
         begin
-          stem_config = YAML.load(File.open("config/seasons/#{config.global :season}/stems.yml", 'r'))
+          stem_config = YAML.load(File.open("#{@season_dir}/stems.yml", 'r'))
         rescue Errno::ENOENT
           raise "Couldn't find stems.yml file for season #{config.global :season}"
         end
         begin
-          leaf_config = YAML.load(File.open("config/seasons/#{config.global :season}/leaves.yml", 'r'))
+          leaf_config = YAML.load(File.open("#{@season_dir}/leaves.yml", 'r'))
         rescue Errno::ENOENT
           raise "Couldn't find leaves.yml file for season #{config.global :season}"
         end

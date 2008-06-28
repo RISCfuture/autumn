@@ -1,12 +1,6 @@
 require 'thread'
 require 'socket'
 require 'openssl'
-require 'facets/array/only'
-require 'facets/symbol/to_proc'
-require 'facets/enumerable/mash'
-#require 'facets/kernel/respond'
-require 'facets/string/indexable'
-require 'facets/string/partitions'
 require 'facets/annotations'
 
 module Autumn
@@ -311,17 +305,6 @@ module Autumn
       @chan_mutex = Mutex.new
       @join_mutex = Mutex.new
       @socket_mutex = Mutex.new
-      
-      # Synchronous (mutual exclusion) message processing is handled by a
-      # producer-consumer approach. The socket pushes messages onto this queue,
-      # which are processed by a consumer thread one at a time.
-      @messages = Queue.new
-      @message_consumer = Thread.new do
-        loop do
-          meths = @messages.pop
-          meths.each { |meth, args| broadcast_sync meth, *args }
-	end
-      end
     end
   
     # Adds an object that will receive notifications of incoming IRC messages.
@@ -441,9 +424,9 @@ module Autumn
         Thread.new do
           begin
             listener.respond meth, *args
-          rescue
-            message("Listener #{listener.inspect} raised an exception responding to #{meth}: " + $!.to_s) rescue nil # Try to report the error if possible
-            options[:logger].fatal $!
+          rescue Exception
+            options[:logger].error $!
+            message("Listener #{listener.class.to_s} raised an exception responding to #{meth}: " + $!.to_s) rescue nil # Try to report the error if possible
           end
         end
       end
@@ -465,6 +448,17 @@ module Autumn
     # be called.
   
     def start
+      # Synchronous (mutual exclusion) message processing is handled by a
+      # producer-consumer approach. The socket pushes messages onto this queue,
+      # which are processed by a consumer thread one at a time.
+      @messages = Queue.new
+      @message_consumer = Thread.new do
+        loop do
+          meths = @messages.pop
+          meths.each { |meth, args| broadcast_sync meth, *args }
+        end
+      end
+      
       @socket = connect
       username = @options[:user]
       username ||= @nick
@@ -500,7 +494,7 @@ module Autumn
     def normalized_channel_name(channel, add_prefix=true)
       norm_chan = channel.dup
       norm_chan.downcase! unless options[:case_sensitive_channel_names]
-      norm_chan.first = "#" unless server_type.channel_prefix?(channel.first)
+      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0])
       return norm_chan
     end
   
@@ -549,6 +543,10 @@ module Autumn
 
     def nickname
       @nick
+    end
+    
+    def inspect # :nodoc:
+      "#<#{self.class.to_s} #{@server}:#{@port}>"
     end
   
     protected
@@ -803,7 +801,7 @@ module Autumn
     def split_out_message(arg_str)
       arg_str, *msg = arg_str.split(':')
       msg = msg.join(':')
-      arg_array = arg_str ? arg_str.strip.words : Array.new
+      arg_array = arg_str.strip.words
       return arg_array, msg
     end
     

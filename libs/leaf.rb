@@ -1,9 +1,7 @@
 require 'yaml'
 require 'timeout'
-require 'facets/string/partitions'
-require 'facets/array/only'
-require 'facets/stylize'
 require 'libs/formatting'
+require 'erb'
 
 module Autumn
   
@@ -154,8 +152,8 @@ module Autumn
     # Simplifies method calls for one-stem leaves.
     
     def method_missing(meth, *args) # :nodoc:
-      if stems.size == 1 then
-        stems.only.respond meth, *args
+      if stems.size == 1 and stems.only.respond_to? meth then
+        stems.only.send meth, *args
       else
         super
       end
@@ -262,10 +260,10 @@ module Autumn
     # If the database connection cannot be found, the block is executed with no
     # database scope.
     
-    def database(dbname=nil)
+    def database(dbname=nil, &block)
       dbname ||= database_name
       if dbname then
-        DataMapper.database(dbname) { yield }
+        repository dbname, &block
       else
         yield
       end
@@ -277,20 +275,25 @@ module Autumn
     
     def database_name # :nodoc:
       return nil unless Module.constants.include? 'DataMapper' or Module.constants.include? :DataMapper
-      raise "No such database connection #{options[:database]}" if options[:database] and DataMapper::Database[options[:database]].nil?
+      raise "No such database connection #{options[:database]}" if options[:database] and DataMapper::Repository.adapters[options[:database]].nil?
       # Custom database connection specified
       return options[:database].to_sym if options[:database]
       # Leaf config name
-      return leaf_name.to_sym if DataMapper::Database[leaf_name.to_sym]
+      return leaf_name.to_sym if DataMapper::Repository.adapters[leaf_name.to_sym]
       # Leaf config name, underscored
-      return leaf_name.methodize.to_sym if DataMapper::Database[leaf_name.methodize.to_sym]
+      return leaf_name.methodize.to_sym if DataMapper::Repository.adapters[leaf_name.methodize.to_sym]
       # Leaf class name
-      return self.class.to_s.to_sym if DataMapper::Database[self.class.to_s.to_sym]
+      return self.class.to_s.to_sym if DataMapper::Repository.adapters[self.class.to_s.to_sym]
       # Leaf class name, underscored
-      return self.class.methodize.to_sym if DataMapper::Database[self.class.methodize.to_sym]
+      return self.class.methodize.to_sym if DataMapper::Repository.adapters[self.class.methodize.to_sym]
       # I give up
       return nil
     end
+    
+    def inspect # :nodoc:
+      "#<#{self.class.to_s} #{leaf_name}>"
+    end
+    
 
     protected
 
@@ -500,7 +503,7 @@ module Autumn
     # sharing the same name, you should not use this command.
     
     def reload_command(stem, sender, reply_to, msg)
-      "#{leaf_name}: Reload complete; #{reload.pluralize('file')} couldn't be reloaded."
+      stem.message "#{leaf_name}: Reload complete; #{reload.pluralize('file')} couldn't be reloaded.", reply_to
     end
     
     def quit_command(stem, sender, reply_to, msg)
@@ -513,7 +516,35 @@ module Autumn
     def autumn_command(stem, sender, reply_to, msg)
       "Autumn version 2.0.3 (3-22-08), an IRC bot framework for Ruby (http://autumn-leaves.googlecode.com)."
     end
-
+    
+    # Sets a custom view name to render. Example:
+    
+    def render(view)
+      # Since only one command is executed per thread, we can store the view to
+      # render as a thread-local variable.
+      raise "The render method should be called at most once per command" if Thread.current[:render_view]
+      Thread.current[:render_view] = view.to_s
+    end
+    
+    # Gets or sets a variable for use in the view. Use this method in
+    # <tt>*_command</tt> methods to pass data to the view ERb file, and in the
+    # ERb file to retrieve these values. For example, in your controller.rb
+    # file:
+    #
+    #  def my_command(stem, sender, reply_to, msg)
+    #    var :num_lights => 4
+    #  end
+    #
+    # And in your my.txt.erb file:
+    #
+    #  THERE ARE <%= view_get :num_lights %> LIGHTS!
+    
+    def var(vars)
+      return Thread.current[:vars][vars] if vars.kind_of? Symbol
+      return vars.each { |var, val| Thread.current[:vars][var] = val } if vars.kind_of? Hash
+      raise ArgumentError, "var must take a symbol or a hash"
+    end
+    
     private
     
     def startup_check
@@ -525,48 +556,51 @@ module Autumn
     def parse_for_command(stem, sender, arguments)
       if arguments[:channel] or options[:respond_to_private_messages] then
         reply_to = arguments[:channel] ? arguments[:channel] : sender[:nick]
-        if arguments[:message] =~ /^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/ then
-          name = $1.to_sym
-          meth = "#{name}_command".to_sym
-          msg = $2
-          msg = nil if msg.empty?
+        matches = arguments[:message].match(/^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/)
+        if matches then
+          name = matches[1].to_sym
+          msg = matches[2]
           origin = sender.merge(:stem => stem)
-          if run_before_filters(name, stem, arguments[:channel], sender, name, msg) then
-            response = respond meth, stem, sender, reply_to, msg
-            run_after_filters name, stem, arguments[:channel], sender, name, msg if respond_to? meth
-            if response and not response.empty? then
-              stem.message response, reply_to
-            end
-          end
+          run_command name, stem, arguments[:channel], sender, msg, reply_to
         end
       end
+    end
+    
+    def run_command(name, stem, channel, sender, msg, reply_to)
+      cmd_sym = "#{name}_command".to_sym
+      return unless respond_to? cmd_sym
+      msg = nil if msg.empty?
+      
+      if run_before_filters(name, stem, channel, sender, name, msg) then
+        Thread.current[:vars] = Hash.new
+        send cmd_sym, stem, sender, reply_to, msg
+        view = Thread.current[:render_view]
+        view ||= name.to_s
+        stem.message parse_view(view), reply_to
+        Thread.current[:vars] = nil
+        Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
+        run_after_filters name, stem, channel, sender, name, msg
+      end
+    end
+    
+    def parse_view(name)
+      return nil unless options[:views][name]
+      ERB.new(options[:views][name]).result(binding)
     end
 
     def reload
-      # Not all files reload well, so we're going to take the (very rare) step
-      # of catching every Exception and letting them all die silently.
-      exceptions = 0
-      Dir.glob("#{options[:root]}/leaves/*.rb").each do |file|
-        begin
-          load file
-        rescue Exception
-          exceptions += 1
-        end
-      end
-      Dir.glob("#{options[:root]}/support/**/*.rb").each do |file|
-        begin
-          load file
-        rescue Exception
-          exceptions += 1
-        end
-      end
-      #TODO it's slow to reload everything in leaves/ and support/ for every leaf, but there's not really a better way for now
-      logger.info "Reloading"
-      return exceptions
+      type = Module.nesting.last.to_s
+      Foliater.instance.load_leaf_controller type
+      Foliater.instance.load_leaf_helper type
+      Foliater.instance.load_leaf_models self
+      Foliater.instance.load_leaf_views type
+      
+      logger.info "Reloaded"
+      return 0 #TODO
     end
     
     def leaf_name
-      Foliater.instance.leaves.index(self)
+      Foliater.instance.leaves.index self
     end
 
     def run_before_filters(cmd, stem, channel, sender, command, msg)

@@ -1,5 +1,3 @@
-require 'facets/array/only'
-
 module Autumn
   
   # This class is a facade for Ruby's +Logger+ that adds additional information
