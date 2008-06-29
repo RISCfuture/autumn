@@ -163,7 +163,7 @@ end
 # Load any custom Rake tasks in the bot's 'support/<bot_name>/tasks' directory.
 FileList["leaves/*.rb"].each do |leaf|
   leaf_name = leaf.split('/').last  # Grab filename from the full path
-  leaf_name.slice!(-3, 3).downcase! # and remove '.rb'
+  leaf_name.slice!(-3, 3).downcase! # remove '.rb' and downcase
   namespace leaf_name.to_sym do     # to create a nice namespace.
     FileList["support/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
       load task
