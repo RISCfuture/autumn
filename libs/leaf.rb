@@ -291,6 +291,10 @@ module Autumn
       # I give up
       return nil
     end
+    
+    def inspect # :nodoc:
+      puts "#<#{self.class.to_s} #{leaf_name}>"
+    end
 
     protected
 
