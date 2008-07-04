@@ -287,7 +287,7 @@ module Autumn
       # Leaf class name
       return self.class.to_s.to_sym if DataMapper::Database[self.class.to_s.to_sym]
       # Leaf class name, underscored
-      return self.class.methodize.to_sym if DataMapper::Database[self.class.methodize.to_sym]
+      return self.class.to_s.methodize.to_sym if DataMapper::Database[self.class.to_s.methodize.to_sym]
       # I give up
       return nil
     end
