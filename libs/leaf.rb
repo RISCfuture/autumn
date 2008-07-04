@@ -607,9 +607,9 @@ module Autumn
         Thread.current[:vars] = Hash.new
         return_val = send(cmd_sym, stem, sender, reply_to, msg)
         view = Thread.current[:render_view]
-        view ||= name.to_s
-        if options[:views][name] then
-          stem.message parse_view(view), reply_to
+        view ||= name
+        if options[:views][view.to_s] then
+          stem.message parse_view(view.to_s), reply_to
         else
           stem.message return_val, reply_to
         end
@@ -626,10 +626,14 @@ module Autumn
 
     def reload
       type = Module.nesting.last.to_s
-      Foliater.instance.load_leaf_controller type
-      Foliater.instance.load_leaf_helper type
-      Foliater.instance.load_leaf_models self
-      Foliater.instance.load_leaf_views type
+      begin
+        Foliater.instance.load_leaf_controller type
+        Foliater.instance.load_leaf_helper type
+        Foliater.instance.load_leaf_models self
+        Foliater.instance.load_leaf_views type
+      rescue
+        logger.error $!
+      end
       
       logger.info "Reloaded"
       return 0 #TODO
