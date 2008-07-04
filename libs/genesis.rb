@@ -116,7 +116,7 @@ module Autumn # :nodoc:
       db_file = "#{@season_dir}/database.yml"
       return unless File.exist? db_file
       require 'dm-core'
-      #require 'libs/datamapper_hacks'
+      require 'libs/datamapper_hacks'
       
       # Set up a fake default database to stop DM from whining
       DataMapper.setup :default, 'sqlite3::memory:'

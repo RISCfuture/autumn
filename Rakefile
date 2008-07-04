@@ -78,16 +78,6 @@ end
 namespace :db do
   desc "Create or update database tables according to the model objects"
   task :migrate => :full_bootstrap do
-    
-  DataMapper::Adapters::DataObjectsAdapter.class_eval {
-    alias_method :old_execute, :execute
-    def execute(statement, *args)
-      puts statement
-      p args
-      old_execute statement, *args
-    end
-    }
-    
     lname = ENV['LEAF']
     raise "Usage: LEAF=[Leaf name] rake db:migrate" unless lname
     raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]

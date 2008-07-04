@@ -169,7 +169,7 @@ module Autumn
         # Need to manually set the table names of the models because we loaded
         # them inside a module
         mod.constants.map { |const_name| mod.const_get(const_name) }.select { |const| const.ancestors.include? DataMapper::Resource }.each do |model|
-          model.storage_names[leaf.database_name] = model.to_s.demodulize
+          model.storage_names[leaf.database_name] = model.to_s.demodulize.snakecase.pluralize
         end
       end
     end
