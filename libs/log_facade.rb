@@ -32,7 +32,7 @@ module Autumn
       @type = type
       @name = name
       @logger = logger
-      @stdout = Speciator.instance.global(:debug)
+      @stdout = Speciator.instance.season(:logging) == 'debug'
     end
     
     def method_missing(meth, *args) # :nodoc:

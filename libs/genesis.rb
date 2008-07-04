@@ -66,7 +66,6 @@ module Autumn # :nodoc:
       rescue
         # season.yml is optional
       end
-      config.global(:debug => true) if config.season(:logging) == 'debug'
     end
   
     # Loads Autumn library objects.
@@ -91,7 +90,12 @@ module Autumn # :nodoc:
 
     def init_system_logger
       config.global :logfile => Logger.new(log_name, config.global(:log_history) || 10, 1024*1024)
-      config.global(:logfile).level = log_level
+      begin
+        config.global(:logfile).level = Logger.const_get(config.season(:logging).upcase)
+      rescue NameError
+        puts "The level #{config.season(:logging).inspect} was not understood; the log level has been raised to INFO."
+        config.global(:logfile).level = Logger::INFO
+      end
       config.global :system_logger => LogFacade.new(config.global(:logfile), 'N/A', 'System')
       @logger = config.global(:system_logger)
     end
@@ -163,10 +167,6 @@ module Autumn # :nodoc:
     
     def log_name
       "log/#{config.global(:season)}.log"
-    end
-    
-    def log_level
-      config.global(:debug) ? Logger::DEBUG : Logger::INFO
     end
   end
 end
