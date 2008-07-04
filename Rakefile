@@ -124,11 +124,11 @@ namespace :doc do
   end
 end
 
-# Load any custom Rake tasks in the bot's 'support/<bot_name>/tasks' directory.
-FileList["leaves/*.rb"].each do |leaf|
+# Load any custom Rake tasks in the bot's tasks directory.
+Dir["leaves/*"].each do |leaf|
   leaf_name = File.basename(leaf, ".rb").downcase
   namespace leaf_name.to_sym do # Tasks are placed in a namespace named after the leaf
-    FileList["support/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
+    FileList["leaves/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
       load task
     end
   end
