@@ -86,7 +86,7 @@ module Autumn
     end
     
     def load_leaf_controller(type)
-      controller_file = "leaves/#{type.pathize}/controller.rb"
+      controller_file = "leaves/#{type.snakecase}/controller.rb"
       raise "controller.rb file for leaf #{type} not found" unless File.exist? controller_file
       #require controller_file
       #begin
@@ -96,7 +96,7 @@ module Autumn
       #end
       controller_code = nil
       begin
-        File.open("leaves/#{type.pathize}/controller.rb", 'r') { |f| controller_code = f.read }
+        File.open("leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
       rescue Errno::ENOENT
         raise "controller.rb file for leaf #{type} not found"
       end
@@ -106,7 +106,7 @@ module Autumn
     def load_leaf_helpers(type)
       mod = config.leaf(type, :module)
       helper_code = nil
-      Dir.glob("leaves/#{type.pathize}/helpers/*.rb").each do |helper_file|
+      Dir.glob("leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
         #require helper_file
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
@@ -128,7 +128,7 @@ module Autumn
     def load_leaf_views(type)
       views = Hash.new
       view_text = nil
-      Dir.glob("leaves/#{type.pathize}/views/*.txt.erb").each do |view_file|
+      Dir.glob("leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
         view_name = File.basename(view_file).match(/^(.+)\.txt\.erb$/)[1]
         File.open(view_file, 'r') { |f| view_text = f.read }
         views[view_name] = view_text
@@ -161,7 +161,7 @@ module Autumn
       model_code = nil
       mod = config.leaf(leaf.options[:class], :module)
       leaf.database do
-        Dir.glob("leaves/#{leaf.options[:class].pathize}/models/*.rb").each do |model_file|
+        Dir.glob("leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
           mod.module_eval model_code
           #require model_file

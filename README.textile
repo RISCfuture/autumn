@@ -150,10 +150,9 @@ def fortune_command(stem, sender, reply_to, msg)
 end
 </code></pre>
 
-The @at_rand@ method is provided by Facets, so you'll need to add a
-@require 'facets/random'@ line at the top of your file. Our method returns a
-fortune at random, which is automatically transmitted to the channel or nick
-where the command was received.
+The @at_rand@ method is provided by Facets. Our method returns a fortune at
+random, which is automatically transmitted to the channel or nick where the
+command was received.
 
 Of course, any self-respecting fortune bot announces its presence when it starts
 up, so, in your @Fortune@ class, override the @Autumn::Leaf#did_start_up@ method

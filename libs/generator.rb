@@ -1,3 +1,6 @@
+require 'facets'
+require 'libs/coder'
+
 module Autumn # :nodoc:
   
   # Generates the files for Autumn templates such as leaves and seasons. The
@@ -38,7 +41,7 @@ module Autumn # :nodoc:
     # Creates a new instance.
     
     def initialize
-      @coder = TemplateCoder.new
+      @coder = Autumn::TemplateCoder.new
     end
     
     # Generates the files for a new leaf with the given name. Options:
@@ -49,7 +52,7 @@ module Autumn # :nodoc:
     #         VCS. Valid values are <tt>:cvs</tt> and <tt>:svn</tt>.
     
     def leaf(name, options={})
-      fname = "leaves/#{name.pathize}.rb"
+      fname = "leaves/#{name.snakecase}.rb"
       if File.exist? fname then
         exists fname, options
       else
@@ -57,9 +60,9 @@ module Autumn # :nodoc:
         File.open(fname, 'w') { |file| file.puts @coder.output }
         created fname, options
       end
-      sname = "support/#{name.pathize}.rb"
+      sname = "support/#{name.snakecase}.rb"
       unless File.exist? sname
-        spath = "support/#{name.pathize}"
+        spath = "support/#{name.snakecase}"
         if File.directory? spath then
           raise "The directory #{spath} already exists."
         elsif File.exist? spath then
@@ -79,20 +82,20 @@ module Autumn # :nodoc:
     #         project's VCS. Valid values are <tt>:cvs</tt> and <tt>:svn</tt>.
     
     def unleaf(name, options={})
-      fname = "leaves/#{name.pathize}.rb"
+      fname = "leaves/#{name.snakecase}.rb"
       if not File.exist? fname then
         raise "The file #{fname} does not exist."
       else
         FileUtils.rm fname
         deleted fname, options
-        sname = "support/#{name.pathize}.rb"
+        sname = "support/#{name.snakecase}.rb"
         if File.exist? sname then
           FileUtils.rm sname
           deleted sname, options
         else
           notfound sname, options
         end
-        dname = "support/#{name.pathize}"
+        dname = "support/#{name.snakecase}"
         if File.directory? dname then
           Dir.glob("#{dname}/*.rb").each do |file|
             FileUtils.rm file
@@ -117,7 +120,7 @@ module Autumn # :nodoc:
     #         VCS. Valid values are <tt>:cvs</tt> and <tt>:svn</tt>.
     
     def season(name, options={})
-      dname = "config/seasons/#{name.pathize}"
+      dname = "config/seasons/#{name.snakecase}"
       if File.directory? dname then
         raise "The directory #{dname} already exists."
       elsif File.exist? dname then
@@ -146,7 +149,7 @@ module Autumn # :nodoc:
     #         project's VCS. Valid values are <tt>:cvs</tt> and <tt>:svn</tt>.
     
     def unseason(name, options={})
-      dname = "config/seasons/#{name.pathize}"
+      dname = "config/seasons/#{name.snakecase}"
       SEASON_FILES.each do |fname, content|
         fpath = File.join(dname, fname)
         if File.exist? fpath then
