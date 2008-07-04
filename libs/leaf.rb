@@ -46,6 +46,9 @@ module Autumn
   # from responding to !quit. You can also protect that method using filters
   # (see "Filters").
   #
+  # If you want to separate view logic from the controller, you can use ERb to
+  # template your views. See the render method for more information.
+  #
   # = Hook Methods
   #
   # Aside from adding your own <tt>*_command</tt>-type methods, you should
@@ -89,8 +92,8 @@ module Autumn
   #
   # = Logging
   #
-  # Finally, Autumn comes with a framework for logging as well. It's very
-  # similar to the Ruby on Rails logging framework. To log an error message:
+  # Autumn comes with a framework for logging as well. It's very similar to the
+  # Ruby on Rails logging framework. To log an error message:
   #
   #  logger.error "Quiz data is missing!"
   #
@@ -492,7 +495,7 @@ module Autumn
     #
     # 1. If you make any change to a constant or other unchangeable value, you
     #    will need to restart the process.
-    # 2. DataMapper::Base subclasses cannot be reloaded. You will need to
+    # 2. DataMapper::Resource classes cannot be reloaded. You will need to
     #    restart the process.
     #
     # This command does not reload the YAML configuration files, only the source
@@ -513,10 +516,24 @@ module Autumn
     # that is running this leaf.
     
     def autumn_command(stem, sender, reply_to, msg)
-      "Autumn version 2.0.3 (3-22-08), an IRC bot framework for Ruby (http://autumn-leaves.googlecode.com)."
+      "Autumn version 3.0 (7-4-08), an IRC bot framework for Ruby (http://github.com/RISCfuture/autumn)."
     end
     
-    # Sets a custom view name to render. Example:
+    # Sets a custom view name to render. The name doesn't have to correspond to
+    # an actual command, just an existing view file. Example:
+    #
+    #  def my_command(stem, sender, reply_to, msg)
+    #    render :help and return if msg.empty? # user doesn't know how to use the command
+    #    [...]
+    #  end
+    #
+    # Only one view is rendered per command. If this method is called multiple
+    # times, the last value set is used. This method has no effect outside of
+    # a <tt>*_command</tt> method.
+    #
+    # By default, the view named after the command will be rendered. If no such
+    # view exists, the value returned by the method will be used as the
+    # response.
     
     def render(view)
       # Since only one command is executed per thread, we can store the view to
@@ -536,7 +553,7 @@ module Autumn
     #
     # And in your my.txt.erb file:
     #
-    #  THERE ARE <%= view_get :num_lights %> LIGHTS!
+    #  THERE ARE <%= var :num_lights %> LIGHTS!
     
     def var(vars)
       return Thread.current[:vars][vars] if vars.kind_of? Symbol

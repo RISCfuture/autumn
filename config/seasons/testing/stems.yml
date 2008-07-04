@@ -3,6 +3,7 @@ Example:
   nick: Yournick
   leaves: 
   - Scorekeeper
+  - Insulter
   rejoin: true
   channel: "#yourchannel"
   server: irc.yourircserver.com
