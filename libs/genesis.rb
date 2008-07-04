@@ -32,6 +32,7 @@ module Autumn # :nodoc:
       load_libraries
       init_system_logger
       load_daemon_info
+      load_shared_code
       load_databases
       invoke_foliater(invoke)
     end
@@ -110,6 +111,10 @@ module Autumn # :nodoc:
         yml = YAML.load(File.open(yml_file, 'r'))
         Daemon.new File.basename(yml_file, '.yml'), yml
       end
+    end
+    
+    def load_shared_code
+      FileList['shared/**/*.rb'].each { |lib| load lib }
     end
     
     # Creates connections to databases using the DataMapper gem.
