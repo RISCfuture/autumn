@@ -498,7 +498,7 @@ module Autumn
     def normalized_channel_name(channel, add_prefix=true)
       norm_chan = channel.dup
       norm_chan.downcase! unless options[:case_sensitive_channel_names]
-      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0])
+      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0,1])
       return norm_chan
     end
   
@@ -526,7 +526,7 @@ module Autumn
     # unknown channel types.
     
     def channel_type(channel)
-      type = server_type.channel_prefix[channel[0]]
+      type = server_type.channel_prefix[channel[0,1]]
       type ? type : :unknown
     end
     
