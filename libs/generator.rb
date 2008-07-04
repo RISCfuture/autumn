@@ -1,4 +1,5 @@
 require 'facets'
+require 'yaml'
 require 'libs/coder'
 
 module Autumn # :nodoc:
