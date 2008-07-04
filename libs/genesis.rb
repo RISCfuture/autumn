@@ -57,11 +57,7 @@ module Autumn # :nodoc:
   
     def load_season_settings
       @season_dir = "config/seasons/#{config.global :season}"
-      begin
-        raise "No leaves.yml file for the current season." unless Dir.entries(@season_dir).include? 'leaves.yml'
-      rescue SystemCallError
-        raise "The current season doesn't have a directory."
-      end
+      raise "The current season doesn't have a directory." unless File.directory? @season_dir
       begin
         config.season YAML.load(File.open("#{@season_dir}/season.yml"))
       rescue
@@ -156,7 +152,13 @@ module Autumn # :nodoc:
         begin
           leaf_config = YAML.load(File.open("#{@season_dir}/leaves.yml", 'r'))
         rescue Errno::ENOENT
-          raise "Couldn't find leaves.yml file for season #{config.global :season}"
+          # build a default leaf config
+          leaf_config = Hash.new
+          Dir.entries("leaves").each do |dir|
+            next if not File.directory? "leaves/#{dir}" or dir[0,1] == '.'
+            leaf_name = dir.camelcase
+            leaf_config[leaf_name] = { 'class' => leaf_name }
+          end
         end
         
         Foliater.instance.load stem_config, leaf_config, invoke
