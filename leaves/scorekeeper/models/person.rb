@@ -8,7 +8,7 @@ class Person
   property :name, String, :nullable => false
   property :authorized, Boolean, :nullable => false, :default => true
   
-  has n, :scores
-  has n, :scores_awarded, :class_name => 'Score'
+  has n, :scores, :child_key => [ :receiver_id ]
+  has n, :scores_awarded, :class_name => 'Score', :child_key => [ :giver_id ]
   has n, :pseudonyms
 end

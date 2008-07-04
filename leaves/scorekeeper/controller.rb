@@ -84,11 +84,9 @@ class Controller < Autumn::ChannelLeaf
     receiver = find_person(stem, victim)
     if giver.nil? and options[:scoring] == 'open' then
       giver ||= Person.create :server => server_identifier(stem), :name => sender[:nick]
-      #giver.reload! # Get those default fields filled out
     end
     if receiver.nil? and options[:scoring] == 'open' then
       receiver ||= Person.create :server => server_identifier(stem), :name => find_in_channel(stem, channel, victim)
-      #receiver.reload! # Get those default fields filled out
     end
     unless authorized?(giver, receiver)
       var :unauthorized => true
@@ -115,9 +113,11 @@ class Controller < Autumn::ChannelLeaf
     
     if date then
       start, stop = find_range(date)
-      scores = chan.scores.all(:receiver => person, :created_at.gte => start, :created_at.lt => stop, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND created_at >= ? AND created_at < ?", person.id, start, stop ], :order => [ :created_at.desc ])
+      #TODO is there a way to scope by both channel and receiver?
     elsif argument.empty? then
-      scores = chan.scores.all(:receiver => person, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ?", person.id ], :order => [ :created_at.desc ])
+      #TODO is there a way to scope by both channel and receiver?
     else
       giver = find_person(stem, argument)
       if giver.nil? then
@@ -126,7 +126,8 @@ class Controller < Autumn::ChannelLeaf
         var :no_giver_history => true
         return
       end
-      scores = chan.scores.all(:receiver => person, :giver => giver, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND giver_id = ?", person.id, giver.id ], :order => [ :created_at.desc ])
+      #TODO is there a way to scope by channel, receiver, and giver?
     end
     var :receiver => person
     var :giver => giver

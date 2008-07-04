@@ -1,1 +1,1 @@
-<% var(:totals).each do |person, score| %><%= person %>: <%= score %><% end %>
+<%= var(:totals).collect { |person, score| "#{person}: #{score}" }.join(', ') %>
