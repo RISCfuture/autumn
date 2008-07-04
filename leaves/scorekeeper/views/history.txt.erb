@@ -1,15 +1,15 @@
-<% if var(:no_history) -%>
+<% if var(:no_history) %>
 	<%= var :person %> is not a part of the scoring system.
-<% elsif var(:no_giver_history) -%>
+<% elsif var(:no_giver_history) %>
 	<%= var :giver %> has not awarded any points to <%= receiver %>.
-<% elsif var(:scores).empty? -%>
+<% elsif var(:scores).empty? %>
 	<%= var(:receiver).name %> has no points history.
-<% else -%>
-    <% if var(:scores).size > 5 -%>
+<% else %>
+    <% if var(:scores).size > 5 %>
     	<%= var(:scores).size %> point changes found; showing the first 5.)
-		<% var :scores => var(:scores).slice(0, 5) -%>
-	<% end -%>
-	<% var(:scores).each do |score| -%>
+		<% var :scores => var(:scores).slice(0, 5) %>
+	<% end %>
+	<% var(:scores).each do |score| %>
 		<%= score.created_at.strftime '%m/%d %I:%M %p' %> <%= score.giver.name %> <%= score.change > 0 ? 'gave' : 'docked' %> <%= score.receiver.name %> <%= score.change.abs.pluralize('point') %><% if score.note %>: <%= score.note %><% end %>
-	<% end -%>    
-<% end -%>
+	<% end %>    
+<% end %>

@@ -31,7 +31,7 @@ module GeneralHelper
   end
   
   def find_person(stem, nick)
-    Person.each(:server.eql => server_identifier(stem)) do |person|
+    Person.all(:server => server_identifier(stem)).each do |person|
       return person if person.name.downcase == normalize(nick) or person.pseudonyms.collect { |pn| pn.name.downcase }.include? normalize(nick)
     end
     return nil

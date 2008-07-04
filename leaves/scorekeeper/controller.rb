@@ -71,7 +71,7 @@ class Controller < Autumn::ChannelLeaf
   
   def points(stem, channel)
     chan = Channel.find_or_create :server => server_identifier(stem), :name => channel
-    scores = Score.all(:channel_id.eql => chan.id)
+    scores = chan.scores.all
     scores.inject(Hash.new(0)) { |hsh, score| hsh[score.receiver.name] += score.change; hsh }
   end
 
@@ -84,15 +84,15 @@ class Controller < Autumn::ChannelLeaf
     receiver = find_person(stem, victim)
     if giver.nil? and options[:scoring] == 'open' then
       giver ||= Person.create :server => server_identifier(stem), :name => sender[:nick]
-      giver.reload! # Get those default fields filled out
+      #giver.reload! # Get those default fields filled out
     end
     if receiver.nil? and options[:scoring] == 'open' then
       receiver ||= Person.create :server => server_identifier(stem), :name => find_in_channel(stem, channel, victim)
-      receiver.reload! # Get those default fields filled out
+      #receiver.reload! # Get those default fields filled out
     end
     unless authorized?(giver, receiver)
       var :unauthorized => true
-      var :receiver => receiver.name
+      var :receiver => receiver.nil? ? victim : receiver.name
       return
     end
     change_points stem, channel, giver, receiver, delta, note
@@ -105,7 +105,7 @@ class Controller < Autumn::ChannelLeaf
     date = argument.empty? ? nil : parse_date(argument)
     scores = Array.new
     
-    chan = Channel.first(:name.eql => channel)
+    chan = Channel.first(:name => channel)
     person = find_person(stem, subject)
     if person.nil? then
       var :person => subject
@@ -115,9 +115,9 @@ class Controller < Autumn::ChannelLeaf
     
     if date then
       start, stop = find_range(date)
-      scores = Score.all(:channel_id.eql => chan.id, :receiver_id.eql => person.id, :created_at.gte => start, :created_at.lt => stop, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:receiver => person, :created_at.gte => start, :created_at.lt => stop, :order => [ :created_at.desc ])
     elsif argument.empty? then
-      scores = Score.all(:channel_id.eql => chan.id, :receiver_id.eql => person.id, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:receiver => person, :order => [ :created_at.desc ])
     else
       giver = find_person(stem, argument)
       if giver.nil? then
@@ -126,7 +126,7 @@ class Controller < Autumn::ChannelLeaf
         var :no_giver_history => true
         return
       end
-      scores = Score.all(:channel_id.eql => chan.id, :receiver_id.eql => person.id, :giver_id => giver.id, :order => [ :created_at.desc ])
+      scores = chan.scores.all(:receiver => person, :giver => giver, :order => [ :created_at.desc ])
     end
     var :receiver => person
     var :giver => giver
