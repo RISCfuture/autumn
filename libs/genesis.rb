@@ -2,6 +2,7 @@ require 'rubygems'
 require 'yaml'
 require 'logger'
 require 'facets'
+require 'facets/hash/symbolize_keys'
 require 'libs/misc'
 require 'libs/speciator'
 
@@ -114,16 +115,15 @@ module Autumn # :nodoc:
     def load_databases
       db_file = "#{@season_dir}/database.yml"
       return unless File.exist? db_file
-      gem 'dm-core'
-      require 'data_mapper'
-      require 'libs/datamapper_hacks'
+      require 'dm-core'
+      #require 'libs/datamapper_hacks'
       
       # Set up a fake default database to stop DM from whining
       DataMapper.setup :default, 'sqlite3::memory:'
       
       dbconfig = YAML.load(File.open(db_file, 'r'))
-      dbconfig.each do |db, config|
-        DataMapper.setup(db.to_sym, config)
+      dbconfig.symbolize_keys.each do |db, config|
+        DataMapper.setup(db, config.symbolize_keys)
       end
     end
     
