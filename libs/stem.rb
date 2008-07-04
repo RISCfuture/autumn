@@ -455,7 +455,11 @@ module Autumn
       @message_consumer = Thread.new do
         loop do
           meths = @messages.pop
-          meths.each { |meth, args| broadcast_sync meth, *args }
+          begin
+            meths.each { |meth, args| broadcast_sync meth, *args }
+          rescue
+            options[:logger].error $!
+          end
         end
       end
       
@@ -522,7 +526,7 @@ module Autumn
     # unknown channel types.
     
     def channel_type(channel)
-      type = server_type.channel_prefix[channel.first]
+      type = server_type.channel_prefix[channel[0]]
       type ? type : :unknown
     end
     

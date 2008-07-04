@@ -143,7 +143,7 @@ module Autumn
     # prefixes.
 
     def nick_prefixed?(nick)
-      user_prefix? nick.first
+      user_prefix? nick[0]
     end
 
     # Given a nick, returns that nick stripped of any privilege characters on
@@ -165,8 +165,8 @@ module Autumn
     def nick_privilege(name)
       privs = Array.new
       nick = name.dup
-      while user_prefix? nick.first
-        privs << user_prefix[nick.first]
+      while user_prefix? nick[0]
+        privs << user_prefix[nick[0]]
         nick.slice! 0, 1
       end
       case privs.size
