@@ -43,7 +43,8 @@ module Autumn # :nodoc:
     end
     
     # Determines the version control system in use by this project and sets the
-    # +vcs+ attribute to its name (either <tt>:cvs</tt> or <tt>:svn</tt>).
+    # +vcs+ attribute to its name (<tt>:cvs</tt>, <tt>:svn</tt>, or
+    # <tt>:git</tt>).
     
     def use_vcs
       @vcs = find_vcs
@@ -62,6 +63,7 @@ module Autumn # :nodoc:
     def find_vcs
       return :svn if File.exist? '.svn' and File.directory? '.svn'
       return :cvs if File.exist? 'CVS' and File.directory? 'CVS'
+      return :git if File.exist? '.git' and File.directory? '.git'
       return nil
     end
   end

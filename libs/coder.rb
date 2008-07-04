@@ -142,7 +142,7 @@ module Autumn # :nodoc:
         leaf << "before_filter :authenticate, :only => [ :reload, :quit ]"
         leaf.newline!
         leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
-          about << '"Insert your about string here!"'
+          about << '# This method renders the file "about.txt.erb"'
         end
         leaf.newline!
         leaf << "private"
