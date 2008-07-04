@@ -123,7 +123,7 @@ module Autumn # :nodoc:
       
       dbconfig = YAML.load(File.open(db_file, 'r'))
       dbconfig.symbolize_keys.each do |db, config|
-        DataMapper.setup(db, config.symbolize_keys)
+        DataMapper.setup(db, config.kind_of?(Hash) ? config.symbolize_keys : config)
       end
     end
     
