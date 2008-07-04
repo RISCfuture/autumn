@@ -114,7 +114,7 @@ module Autumn # :nodoc:
     end
     
     def load_shared_code
-      FileList['shared/**/*.rb'].each { |lib| load lib }
+      Dir.glob('shared/**/*.rb').each { |lib| load lib }
     end
     
     # Creates connections to databases using the DataMapper gem.
