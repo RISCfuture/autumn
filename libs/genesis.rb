@@ -123,7 +123,10 @@ module Autumn # :nodoc:
     
     def load_databases
       db_file = "#{@season_dir}/database.yml"
-      return unless File.exist? db_file
+      if not File.exist? db_file then
+        $NO_DATABASE = true
+        return
+      end
       require 'dm-core'
       require 'libs/datamapper_hacks'
       

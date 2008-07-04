@@ -624,32 +624,32 @@ module Autumn
     end
 
     def gained_privileges(stem, privstr)
-      return unless privstr[0] == ?+
+      return unless privstr[0,1] == '+'
       privstr.except_first.each_char { |c| yield stem.server_type.privilege[c] }
     end
 
     def lost_privileges(stem, privstr)
-      return unless privstr[0] == ?-
+      return unless privstr[0,1] == '-'
       privstr.except_first.each_char { |c| yield stem.server_type.privilege[c] }
     end
 
     def gained_properties(stem, propstr)
-      return unless propstr[0] == ?+
+      return unless propstr[0,1] == '+'
       propstr.except_first.each_char { |c| yield stem.server_type.channel_mode[c] }
     end
 
     def lost_properties(stem, propstr)
-      return unless propstr[0] == ?-
+      return unless propstr[0,1] == '-'
       propstr.except_first.each_char { |c| yield stem.server_type.channel_mode[c] }
     end
     
     def gained_usermodes(stem, modestr)
-      return unless modestr[0] == ?+
+      return unless modestr[0,1] == '+'
       modestr.except_first.each_char { |c| yield stem.server_type.usermode[c] }
     end
     
     def lost_usermodes(stem, modestr)
-      return unless modestr[0] == ?-
+      return unless modestr[0,1] == '-'
       modestr.except_first.each_char { |c| yield stem.server_type.usermode[c] }
     end
 

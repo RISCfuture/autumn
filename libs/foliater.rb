@@ -92,12 +92,6 @@ module Autumn
     def load_leaf_controller(type)
       controller_file = "leaves/#{type.snakecase}/controller.rb"
       raise "controller.rb file for leaf #{type} not found" unless File.exist? controller_file
-      #require controller_file
-      #begin
-      #  config.leaf type, :module => Object.const_get(type)
-      #rescue NameError
-      #  raise "#{type}'s controller class must be in a module named #{type}."
-      #end
       controller_code = nil
       begin
         File.open("leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
@@ -111,7 +105,6 @@ module Autumn
       mod = config.leaf(type, :module)
       helper_code = nil
       Dir.glob("leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
-        #require helper_file
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
       end
@@ -168,12 +161,13 @@ module Autumn
         Dir.glob("leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
           mod.module_eval model_code
-          #require model_file
         end
         # Need to manually set the table names of the models because we loaded
         # them inside a module
-        mod.constants.map { |const_name| mod.const_get(const_name) }.select { |const| const.ancestors.include? DataMapper::Resource }.each do |model|
-          model.storage_names[leaf.database_name] = model.to_s.demodulize.snakecase.pluralize
+        unless $NO_DATABASE
+          mod.constants.map { |const_name| mod.const_get(const_name) }.select { |const| const.ancestors.include? DataMapper::Resource }.each do |model|
+            model.storage_names[leaf.database_name] = model.to_s.demodulize.snakecase.pluralize
+          end
         end
       end
     end
