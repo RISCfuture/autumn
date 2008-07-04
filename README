@@ -20,12 +20,7 @@ gems. Install RubyGems then run <tt>sudo gem install daemons facets</tt> in a
 command line in order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
-gem. To install:
-
- sudo gem install datamapper
- sudo gem install do_mysql # If you are using a MySQL database
- sudo gem install do_postgres # If you are using a PostgreSQL database
- sudo gem install do_sqlite3 # If you are using a SQLite database
+gem. To install, see the DataMapper website (http://www.datamapper.org).
 
 The included example bot, Scorekeeper, requires the DataMapper gem. It can
 optionally use the Chronic gem to enhance its textual date parsing.
@@ -284,6 +279,7 @@ directly. The standard options are:
 
 +server+:: The address of the IRC server.
 +port+:: The IRC server port (default 6667).
++ip_address+:: The IP address to connect on (for virtual hosting).
 +nick+:: The nick to request.
 +password+:: The nick's password, if it is registered.
 +channel+:: A channel to join.
@@ -675,13 +671,13 @@ Let's break this down. In order to figure out if someone is opped or not, we
 need three pieces of information: their nick, the channel they are in, and the
 IRC server they are connected to.
 
-The +stem+ variable contains the Autumn::Stem instance that received this
+The +stem+ parameter contains the Autumn::Stem instance that received this
 message. It is our link to that server. Through it we can perform IRC actions
 and make requests.
 
 Autumn::Stem includes an attribute +channel_members+, a hash of channels mapped
 to their members. The channel that received the message is passed via the
-+reply_to+ parameter. So we call <tt>channel_members[reply_to]</tt> and we
++reply_to+ parameter. So we call <tt>channel_members[:reply_to]</tt> and we
 receive a hash of member names to their privilege levels. The +sender+ parameter
 contains information about the person who sent the command, including their
 nick. So we use their nick to resolve their privilege level.
@@ -846,7 +842,7 @@ See the LogFacade class docs for details.
 
 The included Rakefile contains a number of useful tasks to help you develop and
 deploy your leaves. You can always get a list of tasks by typing
-<tt>rake -T</tt>. The various commands you can run are:
+<tt>rake --tasks</tt>. The various commands you can run are:
 
 Application tasks:
 
@@ -875,9 +871,9 @@ Documentation tasks:
 
 Logging tasks:
 
-* <b>rake log:clear</b> - Clears the log files for all seasons
+* <b>rake log:clear</b> - Clears the log files for all seasons.
 * <b>rake log:errors</b> - Prints a list of error-level log messages for the
-  current season, and uncaught exceptions in all seasons
+  current season, and uncaught exceptions in all seasons.
 
 == Scripts
 
@@ -978,8 +974,8 @@ the Real World:
 
 == Other Information
 
-Please see http://code.google.com/p/autumn-leaves/wiki/KnownBugs for a list of
-known bugs, and http://code.google.com/p/autumn-leaves/wiki/VersionHistory for
+Please see http://github.com/RISCfuture/autumn/wikis/known-bugs for a list of
+known bugs, and http://github.com/RISCfuture/autumn/wikis/version-history for
 complete version history.
 
 *<i>Why do you require Facets?</i>, I hear you ask. Facets doesn't add any super

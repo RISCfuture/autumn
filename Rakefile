@@ -51,7 +51,7 @@ namespace :log do
   task :clear do
     system 'rm -vf tmp/*.log tmp/*.output log/*.log*'
   end
-
+  
   desc "Print all error messages in the log files"
   task :errors => :environment do
     season_log = "log/#{@genesis.config.global :season}.log"
@@ -121,5 +121,15 @@ namespace :doc do
   task :clear => :environment do
     system 'rm -rf doc/api' if File.directory? 'doc/api'
     system 'rm -rf doc/leaves' if File.directory? 'doc/leaves'
+  end
+end
+
+# Load any custom Rake tasks in the bot's 'support/<bot_name>/tasks' directory.
+FileList["leaves/*.rb"].each do |leaf|
+  leaf_name = File.basename(leaf, ".rb").downcase
+  namespace leaf_name.to_sym do # Tasks are placed in a namespace named after the leaf
+    FileList["support/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
+      load task
+    end
   end
 end

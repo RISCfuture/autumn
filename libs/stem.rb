@@ -546,7 +546,7 @@ module Autumn
     end
     
     def inspect # :nodoc:
-      "#<#{self.class.to_s} #{@server}:#{@port}>"
+      "#<#{self.class.to_s} #{server}:#{port}>"
     end
   
     protected
@@ -791,6 +791,7 @@ module Autumn
           return
       end
       arguments.update :message => msg
+      arguments[:channel].downcase! if arguments[:channel] and not options[:case_sensitive_channel_names]
     
       method = "irc_#{command}_event".to_sym
       meths[method] = [ self, sender, arguments ]

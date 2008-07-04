@@ -293,7 +293,6 @@ module Autumn
     def inspect # :nodoc:
       "#<#{self.class.to_s} #{leaf_name}>"
     end
-    
 
     protected
 
