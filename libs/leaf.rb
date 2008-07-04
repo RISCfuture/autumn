@@ -508,6 +508,22 @@ module Autumn
       stem.message "#{leaf_name}: Reload complete; #{reload.pluralize('file')} couldn't be reloaded.", reply_to
     end
     
+    UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'autumn', 'commands' ] # :nodoc:
+    
+    # Typing this command displays a list of all commands for each leaf running
+    # off this stem.
+    
+    def commands_command(stem, sender, reply_to, msg)
+      p self.class.instance_methods
+      commands = self.class.instance_methods.select { |m| m =~ /^\w+_command$/ }
+      commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
+      commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
+      commands.map! { |c| "!#{c}" }
+      "Commands for #{leaf_name}: #{commands.sort.join(', ')}"
+    end
+    
+    # Typing this command will cause the Stem to exit.
+    
     def quit_command(stem, sender, reply_to, msg)
       stem.quit
     end
