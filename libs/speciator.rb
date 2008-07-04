@@ -45,7 +45,7 @@ module Autumn
     # the global scope level.
   
     def global(arg)
-      arg.kind_of?(Hash) ? @global_options.update(arg.rekey(&:to_sym)) : @global_options[arg]
+      arg.kind_of?(Hash) ? @global_options.update(arg.symbolize_keys) : @global_options[arg]
     end
   
     # When called with a hash: Takes a hash of options and values, and sets them
@@ -58,7 +58,7 @@ module Autumn
     # to store the options of specific seasons, only the current season.
   
     def season(arg)
-      arg.kind_of?(Hash) ? @season_options.update(arg.rekey(&:to_sym)) : @season_options[arg]
+      arg.kind_of?(Hash) ? @season_options.update(arg.symbolize_keys) : @season_options[arg]
     end
     
     # Returns true if the given identifier is a known stem identifier.
@@ -76,7 +76,7 @@ module Autumn
     # The identifier for the stem must be specified.
   
     def stem(stem, arg)
-      arg.kind_of?(Hash) ? @stem_options[stem].update(arg.rekey(&:to_sym)) : @stem_options[stem][arg]
+      arg.kind_of?(Hash) ? @stem_options[stem].update(arg.symbolize_keys) : @stem_options[stem][arg]
     end
     
     # Returns true if the given identifier is a known leaf identifier.
@@ -94,7 +94,7 @@ module Autumn
     # The identifier for the leaf must be specified.
   
     def leaf(leaf, arg)
-      arg.kind_of?(Hash) ? @leaf_options[leaf].update(arg.rekey(&:to_sym)) : @leaf_options[leaf][arg]
+      arg.kind_of?(Hash) ? @leaf_options[leaf].update(arg.symbolize_keys) : @leaf_options[leaf][arg]
     end
     
     # Yields each stem identifier and its options.

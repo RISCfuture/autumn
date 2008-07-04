@@ -64,6 +64,10 @@ module Autumn
     
     def load_configs(stem_config, leaf_config)
       leaf_config.each do |name, options|
+        global_config_file = "leaves/#{options['class'].snakecase}/config.yml"
+        if File.exist? global_config_file then
+          config.leaf name, YAML.load(File.open(global_config_file))
+        end
         config.leaf name, options
         config.leaf name, :logger => LogFacade.new(config.global(:logfile), 'Leaf', name)
       end
