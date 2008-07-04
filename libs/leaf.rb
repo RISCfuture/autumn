@@ -572,10 +572,14 @@ module Autumn
       
       if run_before_filters(name, stem, channel, sender, name, msg) then
         Thread.current[:vars] = Hash.new
-        send cmd_sym, stem, sender, reply_to, msg
+        return_val = send(cmd_sym, stem, sender, reply_to, msg)
         view = Thread.current[:render_view]
         view ||= name.to_s
-        stem.message parse_view(view), reply_to
+        if options[:views][name] then
+          stem.message parse_view(view), reply_to
+        else
+          stem.message return_val, reply_to
+        end
         Thread.current[:vars] = nil
         Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
         run_after_filters name, stem, channel, sender, name, msg
