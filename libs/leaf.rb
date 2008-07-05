@@ -504,7 +504,7 @@ module Autumn
       "#{leaf_name}: Reload complete."
     end
     
-    UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'autumn', 'commands' ] # :nodoc:
+    UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'about', 'autumn', 'commands' ] # :nodoc:
     
     # Typing this command displays a list of all commands for each leaf running
     # off this stem.
@@ -513,6 +513,7 @@ module Autumn
       commands = self.class.instance_methods.select { |m| m =~ /^\w+_command$/ }
       commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
       commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
+      return if commands.empty?
       commands.map! { |c| "!#{c}" }
       "Commands for #{leaf_name}: #{commands.sort.join(', ')}"
     end

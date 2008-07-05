@@ -11,7 +11,7 @@ end
 # directly relating to IRC. Other methods are stored in the helper and model
 # classes.
 
-class Controller < Autumn::ChannelLeaf
+class Controller < Autumn::Leaf
   before_filter :authenticate, :only => [ :reload, :quit ]
 
   # Displays an about message.

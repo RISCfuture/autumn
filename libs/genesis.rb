@@ -128,9 +128,6 @@ module Autumn # :nodoc:
       require 'dm-core'
       require 'libs/datamapper_hacks'
       
-      # Set up a fake default database to stop DM from whining
-      DataMapper.setup :default, 'sqlite3::memory:'
-      
       dbconfig = YAML.load(File.open(db_file, 'r'))
       dbconfig.symbolize_keys.each do |db, config|
         DataMapper.setup(db, config.kind_of?(Hash) ? config.symbolize_keys : config)
