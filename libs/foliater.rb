@@ -35,6 +35,18 @@ module Autumn
       load_stems
       start_stems if invoke
     end
+    
+    # Reloads a leaf while it is running. Re-opens class definition files and
+    # runs them to redefine the classes. Does not work exactly as it should,
+    # but well enough for a rough hot-reload capability.
+    
+    def hot_reload(leaf)
+      type = leaf.class.to_s.split('::').first
+      load_leaf_controller type
+      load_leaf_helpers type
+      load_leaf_models leaf
+      load_leaf_views type
+    end
 
     # Returns true if there is at least one stem still running.
   
@@ -175,8 +187,8 @@ module Autumn
     def load_stems
       config.each_stem do |name, options|
         options = config.options_for_stem(name)
-        server = options.delete(:server)
-        nick = options.delete(:nick)
+        server = options[:server]
+        nick = options[:nick]
         
         @stems[name] = Stem.new(server, nick, options)
         leaves = options[:leaves]

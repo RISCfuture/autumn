@@ -265,9 +265,9 @@ module Autumn
       
       @nick = newnick
       @server = server
-      @port = opts.delete(:port)
+      @port = opts[:port]
       @port ||= 6667
-      @local_ip = opts.delete(:local_ip)
+      @local_ip = opts[:local_ip]
       @options = opts
       @listeners = [ self ]
       @leaves = Array.new
@@ -283,11 +283,11 @@ module Autumn
           nil
         end
       end
-      @server_type = Daemon[opts.delete(:server_type)]
+      @server_type = Daemon[opts[:server_type]]
       @server_type ||= Daemon.default
       
-      @channels = opts.delete(:channels)
-      @channels ||= [ opts.delete(:channel) ]
+      @channels = opts[:channels]
+      @channels ||= [ opts[:channel] ]
       @channels.map! do |chan|
         if chan.kind_of? Hash then
           { normalized_channel_name(chan.keys.only) => chan.values.only }

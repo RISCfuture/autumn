@@ -54,7 +54,7 @@ module Autumn
     def will_start_up
       @channels = Hash.new
       @options[:channels] ||= Hash.new
-      @options.delete(:channels).each do |server, chans|
+      @options[:channels].each do |server, chans|
         stem = Foliater.instance.stems[server]
         raise "Unknown stem #{server}" unless stem
         chans = [ chans ] if chans.kind_of? String

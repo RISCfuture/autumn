@@ -133,7 +133,7 @@ module Autumn
     # As well as any user-defined options you want.
     
     def initialize(opts={})
-      @port = opts.delete :port
+      @port = opts[:port]
       @options = opts
       @options[:command_prefix] ||= DEFAULT_COMMAND_PREFIX
       @break_flag = false
@@ -505,7 +505,8 @@ module Autumn
     # sharing the same name, you should not use this command.
     
     def reload_command(stem, sender, reply_to, msg)
-      stem.message "#{leaf_name}: Reload complete; #{reload.pluralize('file')} couldn't be reloaded.", reply_to
+      reload
+      "#{leaf_name}: Reload complete."
     end
     
     UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'autumn', 'commands' ] # :nodoc:
@@ -514,7 +515,6 @@ module Autumn
     # off this stem.
     
     def commands_command(stem, sender, reply_to, msg)
-      p self.class.instance_methods
       commands = self.class.instance_methods.select { |m| m =~ /^\w+_command$/ }
       commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
       commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
@@ -625,13 +625,10 @@ module Autumn
     end
 
     def reload
-      type = Module.nesting.last.to_s
       begin
-        Foliater.instance.load_leaf_controller type
-        Foliater.instance.load_leaf_helper type
-        Foliater.instance.load_leaf_models self
-        Foliater.instance.load_leaf_views type
+        Foliater.instance.hot_reload self
       rescue
+        logger.error "Error when reloading:"
         logger.error $!
       end
       
