@@ -1,12 +1,6 @@
 require 'thread'
 require 'socket'
 require 'openssl'
-require 'facets/array/only'
-require 'facets/symbol/to_proc'
-require 'facets/enumerable/mash'
-#require 'facets/kernel/respond'
-require 'facets/string/indexable'
-require 'facets/string/partitions'
 require 'facets/annotations'
 
 module Autumn
@@ -39,7 +33,7 @@ module Autumn
   # = Starting the IRC Session
   #
   # Once you have finished configuring your stem and you are ready to begin the
-  # IRC session, call the start method. This method runs until the the socket
+  # IRC session, call the start method. This method blocks until the the socket
   # has been closed, so it should be run in a thread. Once the connection has
   # been made, you are free to send and receive IRC commands until you close the
   # connection, which is done with the quit method.
@@ -73,10 +67,10 @@ module Autumn
   # common uses of IRC (sending and receiving messages, for example), it will
   # suffice.
   #
-  # If you'd like to manually specify a server type, you should override the
-  # stem's irc_rpl_yourhost_response method to not set it automatically. Consult
-  # the resources/daemons directory for valid Daemon names and hints on how to
-  # make your own Daemon specification, should you desire.
+  # If you'd like to manually specify a server type, you can pass its name for
+  # the +server_type+ initialization option. Consult the resources/daemons
+  # directory for valid Daemon names and hints on how to make your own Daemon
+  # specification, should you desire.
   #
   # = Channel Names
   #
@@ -88,11 +82,11 @@ module Autumn
   # character (say, '&'), you will need to include that prefix every time you
   # pass a channel name to a stem method.
   #
-  # So, if you would like your stem to send a message to the "#kittens" channel,
-  # you can omit the '#' character; but if it's a server-local channel called
-  # "&kittens", you will have to provide the '&' character. Likewise, if you are
-  # overriding a hook method, you can be guaranteed that the channel given to
-  # you will always be called "#kittens", and not "kittens".
+  # So, if you would like your stem to send a message to the "##kittens"
+  # channel, you can omit the '#' character; but if it's a server-local channel
+  # called "&kittens", you will have to provide the '&' character. Likewise, if
+  # you are overriding a hook method, you can be guaranteed that the channel
+  # given to you will always be called "##kittens", and not "kittens".
   #
   # = Synchronous Methods
   #
@@ -271,9 +265,9 @@ module Autumn
       
       @nick = newnick
       @server = server
-      @port = opts.delete(:port)
+      @port = opts[:port]
       @port ||= 6667
-      @local_ip = opts.delete(:local_ip)
+      @local_ip = opts[:local_ip]
       @options = opts
       @listeners = [ self ]
       @leaves = Array.new
@@ -289,11 +283,11 @@ module Autumn
           nil
         end
       end
-      @server_type = Daemon[opts.delete(:server_type)]
+      @server_type = Daemon[opts[:server_type]]
       @server_type ||= Daemon.default
       
-      @channels = opts.delete(:channels)
-      @channels ||= [ opts.delete(:channel) ]
+      @channels = opts[:channels]
+      @channels ||= [ opts[:channel] ]
       @channels.map! do |chan|
         if chan.kind_of? Hash then
           { normalized_channel_name(chan.keys.only) => chan.values.only }
@@ -311,17 +305,6 @@ module Autumn
       @chan_mutex = Mutex.new
       @join_mutex = Mutex.new
       @socket_mutex = Mutex.new
-      
-      # Synchronous (mutual exclusion) message processing is handled by a
-      # producer-consumer approach. The socket pushes messages onto this queue,
-      # which are processed by a consumer thread one at a time.
-      @messages = Queue.new
-      @message_consumer = Thread.new do
-        loop do
-          meths = @messages.pop
-          meths.each { |meth, args| broadcast_sync meth, *args }
-	end
-      end
     end
   
     # Adds an object that will receive notifications of incoming IRC messages.
@@ -441,9 +424,9 @@ module Autumn
         Thread.new do
           begin
             listener.respond meth, *args
-          rescue
-            message("Listener #{listener.inspect} raised an exception responding to #{meth}: " + $!.to_s) rescue nil # Try to report the error if possible
-            options[:logger].fatal $!
+          rescue Exception
+            options[:logger].error $!
+            message("Listener #{listener.class.to_s} raised an exception responding to #{meth}: " + $!.to_s) rescue nil # Try to report the error if possible
           end
         end
       end
@@ -465,6 +448,21 @@ module Autumn
     # be called.
   
     def start
+      # Synchronous (mutual exclusion) message processing is handled by a
+      # producer-consumer approach. The socket pushes messages onto this queue,
+      # which are processed by a consumer thread one at a time.
+      @messages = Queue.new
+      @message_consumer = Thread.new do
+        loop do
+          meths = @messages.pop
+          begin
+            meths.each { |meth, args| broadcast_sync meth, *args }
+          rescue
+            options[:logger].error $!
+          end
+        end
+      end
+      
       @socket = connect
       username = @options[:user]
       username ||= @nick
@@ -500,7 +498,7 @@ module Autumn
     def normalized_channel_name(channel, add_prefix=true)
       norm_chan = channel.dup
       norm_chan.downcase! unless options[:case_sensitive_channel_names]
-      norm_chan.first = "#" unless server_type.channel_prefix?(channel.first)
+      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0,1])
       return norm_chan
     end
   
@@ -528,7 +526,7 @@ module Autumn
     # unknown channel types.
     
     def channel_type(channel)
-      type = server_type.channel_prefix[channel.first]
+      type = server_type.channel_prefix[channel[0,1]]
       type ? type : :unknown
     end
     
@@ -552,7 +550,7 @@ module Autumn
     end
     
     def inspect # :nodoc:
-      "#<#{self.class.to_s} #{server}>"
+      "#<#{self.class.to_s} #{server}:#{port}>"
     end
   
     protected
@@ -563,6 +561,7 @@ module Autumn
     ann :irc_ping_event, :stem_sync => true # To avoid overhead of a whole new thread just for a pong
     
     def irc_rpl_yourhost_response(stem, sender, recipient, arguments, msg) # :nodoc:
+      return if @server_type
       type = nil
       Daemon.each_name do |name|
         next unless msg.include? name
@@ -808,7 +807,7 @@ module Autumn
     def split_out_message(arg_str)
       arg_str, *msg = arg_str.split(':')
       msg = msg.join(':')
-      arg_array = arg_str ? arg_str.strip.words : Array.new
+      arg_array = arg_str.strip.words
       return arg_array, msg
     end
     

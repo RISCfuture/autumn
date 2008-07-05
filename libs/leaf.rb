@@ -1,8 +1,6 @@
 require 'yaml'
 require 'timeout'
-require 'facets/string/partitions'
-require 'facets/array/only'
-require 'facets/stylize'
+require 'erb'
 require 'libs/formatting'
 
 module Autumn
@@ -14,7 +12,7 @@ module Autumn
   # write a method like so:
   # 
   #  def hello_command(stem, sender, reply_to, msg)
-  #    stem.message "Why hello there!", channel
+  #    stem.message "Why hello there!", reply_to
   #  end
   #
   # You can also implement this method as:
@@ -47,6 +45,9 @@ module Autumn
   # the quit_command method in your subclass, for instance, to prevent the leaf
   # from responding to !quit. You can also protect that method using filters
   # (see "Filters").
+  #
+  # If you want to separate view logic from the controller, you can use ERb to
+  # template your views. See the render method for more information.
   #
   # = Hook Methods
   #
@@ -91,8 +92,8 @@ module Autumn
   #
   # = Logging
   #
-  # Finally, Autumn comes with a framework for logging as well. It's very
-  # similar to the Ruby on Rails logging framework. To log an error message:
+  # Autumn comes with a framework for logging as well. It's very similar to the
+  # Ruby on Rails logging framework. To log an error message:
   #
   #  logger.error "Quiz data is missing!"
   #
@@ -128,11 +129,13 @@ module Autumn
     #                                  commands sent in private messages.
     # +logger+:: The LogFacade instance for this leaf.
     # +database+:: The name of a custom database connection to use.
+    # +formatter+:: The name of an Autumn::Formatting class to use as the
+    #               formatter (chooses Autumn::Formatting::DEFAULT by default).
     #
     # As well as any user-defined options you want.
     
     def initialize(opts={})
-      @port = opts.delete :port
+      @port = opts[:port]
       @options = opts
       @options[:command_prefix] ||= DEFAULT_COMMAND_PREFIX
       @break_flag = false
@@ -154,8 +157,8 @@ module Autumn
     # Simplifies method calls for one-stem leaves.
     
     def method_missing(meth, *args) # :nodoc:
-      if stems.size == 1 then
-        stems.only.respond meth, *args
+      if stems.size == 1 and stems.only.respond_to? meth then
+        stems.only.send meth, *args
       else
         super
       end
@@ -254,7 +257,8 @@ module Autumn
     # leaf named "Scorekeeper"), it will automatically be set as the database
     # context for the scope of all hook, filter and command methods. However, if
     # your database connection is named differently, or if you are working in a
-    # Stem method, you will need to set the connection using this method.
+    # method not invoked by the Leaf class, you will need to set the connection
+    # using this method.
     #
     # If you omit the +dbname+ parameter, it will try to guess the name of your
     # database connection using the leaf's name and the leaf's class name.
@@ -262,10 +266,10 @@ module Autumn
     # If the database connection cannot be found, the block is executed with no
     # database scope.
     
-    def database(dbname=nil)
+    def database(dbname=nil, &block)
       dbname ||= database_name
       if dbname then
-        DataMapper.database(dbname) { yield }
+        repository dbname, &block
       else
         yield
       end
@@ -277,23 +281,23 @@ module Autumn
     
     def database_name # :nodoc:
       return nil unless Module.constants.include? 'DataMapper' or Module.constants.include? :DataMapper
-      raise "No such database connection #{options[:database]}" if options[:database] and DataMapper::Database[options[:database]].nil?
+      raise "No such database connection #{options[:database]}" if options[:database] and DataMapper::Repository.adapters[options[:database]].nil?
       # Custom database connection specified
       return options[:database].to_sym if options[:database]
       # Leaf config name
-      return leaf_name.to_sym if DataMapper::Database[leaf_name.to_sym]
+      return leaf_name.to_sym if DataMapper::Repository.adapters[leaf_name.to_sym]
       # Leaf config name, underscored
-      return leaf_name.methodize.to_sym if DataMapper::Database[leaf_name.methodize.to_sym]
+      return leaf_name.methodize.to_sym if DataMapper::Repository.adapters[leaf_name.methodize.to_sym]
       # Leaf class name
-      return self.class.to_s.to_sym if DataMapper::Database[self.class.to_s.to_sym]
+      return self.class.to_s.to_sym if DataMapper::Repository.adapters[self.class.to_s.to_sym]
       # Leaf class name, underscored
-      return self.class.to_s.methodize.to_sym if DataMapper::Database[self.class.to_s.methodize.to_sym]
+      return self.class.to_s.methodize.to_sym if DataMapper::Repository.adapters[self.class.to_s.methodize.to_sym]
       # I give up
       return nil
     end
     
     def inspect # :nodoc:
-      puts "#<#{self.class.to_s} #{leaf_name}>"
+      "#<#{self.class.to_s} #{leaf_name}>"
     end
 
     protected
@@ -490,22 +494,30 @@ module Autumn
 
     # Typing this command reloads all source code for all leaves and support
     # files, allowing you to make "on-the-fly" changes without restarting the
-    # process. There are two caveats, though:
-    #
-    # 1. If you make any change to a constant or other unchangeable value, you
-    #    will need to restart the process.
-    # 2. DataMapper::Base subclasses cannot be reloaded. You will need to
-    #    restart the process.
+    # process. It does this by reloading the source files defining the classes.
     #
     # This command does not reload the YAML configuration files, only the source
     # code.
-    #
-    # <b>Warning:</b> If you have multiple leaves with different model classes
-    # sharing the same name, you should not use this command.
     
     def reload_command(stem, sender, reply_to, msg)
-      "#{leaf_name}: Reload complete; #{reload.pluralize('file')} couldn't be reloaded."
+      reload
+      "#{leaf_name}: Reload complete."
     end
+    
+    UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'autumn', 'commands' ] # :nodoc:
+    
+    # Typing this command displays a list of all commands for each leaf running
+    # off this stem.
+    
+    def commands_command(stem, sender, reply_to, msg)
+      commands = self.class.instance_methods.select { |m| m =~ /^\w+_command$/ }
+      commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
+      commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
+      commands.map! { |c| "!#{c}" }
+      "Commands for #{leaf_name}: #{commands.sort.join(', ')}"
+    end
+    
+    # Typing this command will cause the Stem to exit.
     
     def quit_command(stem, sender, reply_to, msg)
       stem.quit
@@ -515,9 +527,51 @@ module Autumn
     # that is running this leaf.
     
     def autumn_command(stem, sender, reply_to, msg)
-      "Autumn version 2.0.4 (7-4-08), an IRC bot framework for Ruby (http://autumn-leaves.googlecode.com)."
+      "Autumn version 3.0 (7-4-08), an IRC bot framework for Ruby (http://github.com/RISCfuture/autumn)."
     end
-
+    
+    # Sets a custom view name to render. The name doesn't have to correspond to
+    # an actual command, just an existing view file. Example:
+    #
+    #  def my_command(stem, sender, reply_to, msg)
+    #    render :help and return if msg.empty? # user doesn't know how to use the command
+    #    [...]
+    #  end
+    #
+    # Only one view is rendered per command. If this method is called multiple
+    # times, the last value set is used. This method has no effect outside of
+    # a <tt>*_command</tt> method.
+    #
+    # By default, the view named after the command will be rendered. If no such
+    # view exists, the value returned by the method will be used as the
+    # response.
+    
+    def render(view)
+      # Since only one command is executed per thread, we can store the view to
+      # render as a thread-local variable.
+      raise "The render method should be called at most once per command" if Thread.current[:render_view]
+      Thread.current[:render_view] = view.to_s
+    end
+    
+    # Gets or sets a variable for use in the view. Use this method in
+    # <tt>*_command</tt> methods to pass data to the view ERb file, and in the
+    # ERb file to retrieve these values. For example, in your controller.rb
+    # file:
+    #
+    #  def my_command(stem, sender, reply_to, msg)
+    #    var :num_lights => 4
+    #  end
+    #
+    # And in your my.txt.erb file:
+    #
+    #  THERE ARE <%= var :num_lights %> LIGHTS!
+    
+    def var(vars)
+      return Thread.current[:vars][vars] if vars.kind_of? Symbol
+      return vars.each { |var, val| Thread.current[:vars][var] = val } if vars.kind_of? Hash
+      raise ArgumentError, "var must take a symbol or a hash"
+    end
+    
     private
     
     def startup_check
@@ -529,48 +583,56 @@ module Autumn
     def parse_for_command(stem, sender, arguments)
       if arguments[:channel] or options[:respond_to_private_messages] then
         reply_to = arguments[:channel] ? arguments[:channel] : sender[:nick]
-        if arguments[:message] =~ /^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/ then
-          name = $1.to_sym
-          meth = "#{name}_command".to_sym
-          msg = $2
-          msg = nil if msg.empty?
+        matches = arguments[:message].match(/^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/)
+        if matches then
+          name = matches[1].to_sym
+          msg = matches[2]
           origin = sender.merge(:stem => stem)
-          if run_before_filters(name, stem, arguments[:channel], sender, name, msg) then
-            response = respond meth, stem, sender, reply_to, msg
-            run_after_filters name, stem, arguments[:channel], sender, name, msg if respond_to? meth
-            if response and not response.empty? then
-              stem.message response, reply_to
-            end
-          end
+          run_command name, stem, arguments[:channel], sender, msg, reply_to
         end
       end
+    end
+    
+    def run_command(name, stem, channel, sender, msg, reply_to)
+      cmd_sym = "#{name}_command".to_sym
+      return unless respond_to? cmd_sym
+      msg = nil if msg.empty?
+      
+      if run_before_filters(name, stem, channel, sender, name, msg) then
+        Thread.current[:vars] = Hash.new
+        return_val = send(cmd_sym, stem, sender, reply_to, msg)
+        view = Thread.current[:render_view]
+        view ||= name
+        if options[:views][view.to_s] then
+          stem.message parse_view(view.to_s), reply_to
+        else
+          stem.message return_val, reply_to
+        end
+        Thread.current[:vars] = nil
+        Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
+        run_after_filters name, stem, channel, sender, name, msg
+      end
+    end
+    
+    def parse_view(name)
+      return nil unless options[:views][name]
+      ERB.new(options[:views][name]).result(binding)
     end
 
     def reload
-      # Not all files reload well, so we're going to take the (very rare) step
-      # of catching every Exception and letting them all die silently.
-      exceptions = 0
-      Dir.glob("#{options[:root]}/leaves/*.rb").each do |file|
-        begin
-          load file
-        rescue Exception
-          exceptions += 1
-        end
+      begin
+        Foliater.instance.hot_reload self
+      rescue
+        logger.error "Error when reloading:"
+        logger.error $!
       end
-      Dir.glob("#{options[:root]}/support/**/*.rb").each do |file|
-        begin
-          load file
-        rescue Exception
-          exceptions += 1
-        end
-      end
-      #TODO it's slow to reload everything in leaves/ and support/ for every leaf, but there's not really a better way for now
-      logger.info "Reloading"
-      return exceptions
+      
+      logger.info "Reloaded"
+      return 0 #TODO
     end
     
     def leaf_name
-      Foliater.instance.leaves.index(self)
+      Foliater.instance.leaves.index self
     end
 
     def run_before_filters(cmd, stem, channel, sender, command, msg)
@@ -595,32 +657,32 @@ module Autumn
     end
 
     def gained_privileges(stem, privstr)
-      return unless privstr[0] == ?+
+      return unless privstr[0,1] == '+'
       privstr.except_first.each_char { |c| yield stem.server_type.privilege[c] }
     end
 
     def lost_privileges(stem, privstr)
-      return unless privstr[0] == ?-
+      return unless privstr[0,1] == '-'
       privstr.except_first.each_char { |c| yield stem.server_type.privilege[c] }
     end
 
     def gained_properties(stem, propstr)
-      return unless propstr[0] == ?+
+      return unless propstr[0,1] == '+'
       propstr.except_first.each_char { |c| yield stem.server_type.channel_mode[c] }
     end
 
     def lost_properties(stem, propstr)
-      return unless propstr[0] == ?-
+      return unless propstr[0,1] == '-'
       propstr.except_first.each_char { |c| yield stem.server_type.channel_mode[c] }
     end
     
     def gained_usermodes(stem, modestr)
-      return unless modestr[0] == ?+
+      return unless modestr[0,1] == '+'
       modestr.except_first.each_char { |c| yield stem.server_type.usermode[c] }
     end
     
     def lost_usermodes(stem, modestr)
-      return unless modestr[0] == ?-
+      return unless modestr[0,1] == '-'
       modestr.except_first.each_char { |c| yield stem.server_type.usermode[c] }
     end
 

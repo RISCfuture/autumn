@@ -28,7 +28,7 @@ module Autumn
   # form <tt>ctcp_*_request</tt>, where "*" is replaced with the lowercase name
   # of the CTCP command. (For example, to handle VERSION requests, implement
   # +ctcp_version_request+). This method will be invoked whenever a request is
-  # received by the IRC client. It will be passed the parameters:
+  # received by the IRC client. It will be given the following parameters:
   #
   # 1. the CTCP instance that parsed the request,
   # 2. the Stem instance that received the request,
@@ -37,7 +37,8 @@ module Autumn
   # 4. an array of arguments passed along with the request.
   #
   # In addition, you can implement +ctcp_request_received+, which will then be
-  # invoked for any and all incoming CTCP requests. It is passed the arguments:
+  # invoked for any and all incoming CTCP requests. It is passed the following
+  # arguments:
   #
   # 1. the name of the request, as a lowercase symbol,
   # 2. the CTCP instance that parsed the request,
@@ -51,10 +52,12 @@ module Autumn
   # should implement methods in your listener of the form
   # <tt>ctcp_*_response</tt>, with the "*" character replaced as above. This
   # method will be invoked whenever a reply is received by this listener. You
-  # can also implement <tt>ctcp_response_received</tt> just as above. Responses
-  # are assumed to be any CTCP messages that are sent as a NOTICE (as opposed to
-  # a PRIVMSG). Because they are NOTICEs, your program should not send a message
-  # in response.
+  # can also implement <tt>ctcp_response_received</tt> just as above. The
+  # parameters for these methods are the same as those listed above.
+  #
+  # Responses are assumed to be any CTCP messages that are sent as a NOTICE (as
+  # opposed to a PRIVMSG). Because they are NOTICEs, your program should not
+  # send a message in response.
   #
   # In addition to responding to incoming CTCP requests and replies, your
   # listener can use its stem to send CTCP requests and replies. See the added
@@ -136,7 +139,7 @@ module Autumn
   
     def ctcp_version_request(handler, stem, sender, arguments)
       return unless handler == self
-      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn 2.0.4, a Ruby IRC framework", `uname -sr`, "http://autumn-leaves.googlecode.com/"
+      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn 3.0, a Ruby IRC framework", `uname -sr`, "http://github.com/RISCfuture/autumn"
     end
   
     # Replies to a CTCP PING request by sending back the same arguments as a

@@ -1,11 +1,11 @@
 module Autumn
   
   # A special kind of leaf that only responds to messages sent to certain
-  # channels. Leaves that subclass ChannelLeaf can, in their leaves.yml config,
-  # specify a +channels+ option that narrows down which channels the leaf
-  # listens to. The leaf will not invoke the hook methods nor the
-  # <tt>*_command</tt> methods for IRC events that are not associated with those
-  # channels. It will respond to global, non-channel-specific events as well.
+  # channels. Leaves that subclass ChannelLeaf can, in their config, specify a
+  # +channels+ option that narrows down which channels the leaf listens to. The
+  # leaf will not invoke the hook methods nor the <tt>*_command</tt> methods for
+  # IRC events that are not associated with those channels. It will respond to
+  # global, non-channel-specific events as well.
   #
   # You can combine multiple ChannelLeaf subclasses in one Stem to allow you to
   # run two leaves off of one nick, but have the nick running different leaves
@@ -54,7 +54,7 @@ module Autumn
     def will_start_up
       @channels = Hash.new
       @options[:channels] ||= Hash.new
-      @options.delete(:channels).each do |server, chans|
+      @options[:channels].each do |server, chans|
         stem = Foliater.instance.stems[server]
         raise "Unknown stem #{server}" unless stem
         chans = [ chans ] if chans.kind_of? String
@@ -64,35 +64,41 @@ module Autumn
     end
     
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
-      super unless arguments[:channel] and @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
     end
     
     def irc_join_event(stem, sender, arguments) # :nodoc:
-      super unless @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if listening?(stem, arguments[:channel])
     end
 
     def irc_part_event(stem, sender, arguments) # :nodoc:
-      super unless @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if listening?(stem, arguments[:channel])
     end
 
     def irc_mode_event(stem, sender, arguments) # :nodoc:
-      super unless arguments[:channel] and @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
     end
 
     def irc_topic_event(stem, sender, arguments) # :nodoc:
-      super unless @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if listening?(stem, arguments[:channel])
     end
 
     def irc_invite_event(stem, sender, arguments) # :nodoc:
-      super unless @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if listening?(stem, arguments[:channel])
     end
 
     def irc_kick_event(stem, sender, arguments) # :nodoc:
-      super unless @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if listening?(stem, arguments[:channel])
     end
 
     def irc_notice_event(stem, sender, arguments) # :nodoc:
-      super unless arguments[:channel] and @channels[stem] and not @channels[stem].include?(arguments[:channel])
+      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
+    end
+    
+    private
+    
+    def listening?(stem, channel)
+      @channels.include? stem and @channels[stem].include? channel
     end
   end
 end

@@ -1,6 +1,4 @@
 require 'rake'
-require 'facets/symbol/to_proc'
-require 'facets/stylize'
 require 'libs/genesis'
 
 task :default do
@@ -15,7 +13,7 @@ task :environment do
   @genesis.load_season_settings
 end
 
-task :full_bootstrap do
+task :boot do
   AL_ROOT = File.dirname(__FILE__)
   @genesis = Autumn::Genesis.new
   @genesis.boot! false
@@ -78,93 +76,50 @@ def local_db?(db)
 end
 
 namespace :db do
-  desc "Create a database"
-  task :create => :full_bootstrap do
+  desc "Create or update database tables according to the model objects"
+  task :migrate => :boot do
     lname = ENV['LEAF']
-    raise "Usage: LEAF=[Leaf name] rake db:populate" unless lname
-    raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]
-    raise "No databases configured" unless File.exist? "config/seasons/#{@genesis.config.global :season}/database.yml"
-    db = DataMapper::Database[leaf.database_name]
-    raise "No database configured for #{lname}" unless db
-    
-    case db.adapter.class.to_s
-      when 'DataMapper::Adapters::MysqlAdapter'
-        `echo "CREATE DATABASE #{db.database} CHARACTER SET utf8" | mysql -u#{db.username} -h#{db.host} -p#{db.password}`
-      when 'DataMapper::Adapters::PostgresqlAdapter'
-        local_db?(db) ? `createdb "#{db.database}" -E utf8` : raise("Can only create local PostgreSQL databases")
-      when 'DataMapper::Adapters::Sqlite3Adapter'
-        `sqlite3 "#{db.database}"`
-    end
-  end
-  
-  desc "Drop a database"
-  task :drop => :full_bootstrap do
-    lname = ENV['LEAF']
-    raise "Usage: LEAF=[Leaf name] rake db:populate" unless lname
-    raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]
-    raise "No databases configured" unless File.exist? "config/seasons/#{@genesis.config.global :season}/database.yml"
-    db = DataMapper::Database[leaf.database_name]
-    raise "No database configured for #{lname}" unless db
-    
-    case db.adapter.class.to_s
-      when 'DataMapper::Adapters::MysqlAdapter'
-        `echo "DROP DATABASE #{db.database}" | mysql -u#{db.username} -h#{db.host} -p#{db.password}`
-      when 'DataMapper::Adapters::PostgresqlAdapter'
-        local_db?(db) ? `dropdb "#{db.database}"` : raise("Can only drop local PostgreSQL databases")
-      when 'DataMapper::Adapters::Sqlite3Adapter'
-        FileUtils.rm_f db.database
-    end
-  end
-  
-  desc "Create database tables according to the model objects"
-  task :populate => :full_bootstrap do
-    lname = ENV['LEAF']
-    raise "Usage: LEAF=[Leaf name] rake db:populate" unless lname
+    raise "Usage: LEAF=[Leaf name] rake db:migrate" unless lname
     raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]
     
-    leaf.database do
-      Dir.glob("support/#{leaf.class.pathize}/**/*.rb").each do |file|
-        content = nil
-        File.open(file, 'r') { |f| content = f.read }
-        content.scan(/class ([A-Z]\w+)/).flatten.each do |cname|
-          klass = Module.const_get(cname.to_sym)
-          next unless klass.ancestors.map(&:to_s).include? 'DataMapper::Base'
-          puts "Creating table for #{cname}..."
-          klass.table.create!
-        end
-      end
+    leaf.options[:module].constants.each do |cname|
+      model = leaf.options[:module].const_get(cname.to_sym)
+      next unless model.ancestors.include? DataMapper::Resource
+      puts "Creating table for #{model}..."
+      model.auto_migrate! leaf.database_name
     end
   end
-  
-  desc "Drop, recreates, and repopulates a database"
-  task :reset => [ 'db:drop', 'db:create', 'db:populate' ]
 end
 
 namespace :doc do
   desc "Generate API documentation for Autumn"
-  task :api => [ :environment, :clear ] do
-    system 'rm -rf doc/api' if File.directory? 'doc/api'
+  task :api => :environment do
+    FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     system "rdoc --main README --title 'Autumn API Documentation' -o doc/api --line-numbers --inline-source libs README"
   end
   
   desc "Generate documentation for all leaves"
-  task :leaves => [ :environment, :clear ] do
-    system 'rm -rf doc/leaves' if File.directory? 'doc/leaves'
-    system "rdoc --main README --title 'Autumn Leaves Documentation' -o doc/leaves --line-numbers --inline-source leaves support"
+  task :leaves => :environment do
+    FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
+    Dir.glob("leaves/*").each do |leaf_dir|
+      Dir.chdir leaf_dir do
+        system "rdoc --main README --title '#{File.basename(leaf_dir).camelcase} Documentation' -o ../../doc/leaves/#{File.basename leaf_dir} --line-numbers --inline-source controller.rb helpers models README"
+      end
+    end
   end
   
   desc "Remove all documentation"
   task :clear => :environment do
-    system 'rm -rf doc/api' if File.directory? 'doc/api'
-    system 'rm -rf doc/leaves' if File.directory? 'doc/leaves'
+    FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
+    FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
   end
 end
 
-# Load any custom Rake tasks in the bot's 'support/<bot_name>/tasks' directory.
-FileList["leaves/*.rb"].each do |leaf|
+# Load any custom Rake tasks in the bot's tasks directory.
+Dir["leaves/*"].each do |leaf|
   leaf_name = File.basename(leaf, ".rb").downcase
   namespace leaf_name.to_sym do # Tasks are placed in a namespace named after the leaf
-    FileList["support/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
+    FileList["leaves/#{leaf_name}/tasks/**/*.rake"].sort.each do |task|
       load task
     end
   end

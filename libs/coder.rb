@@ -1,6 +1,3 @@
-require 'facets/array/only'
-require 'facets/symbol/to_proc'
-
 module Autumn # :nodoc:
   
   # Helper class that generates shell Ruby code. This class knows how to
@@ -141,11 +138,11 @@ module Autumn # :nodoc:
     # Generates an Leaf subclass with the given name.
     
     def leaf(name)
-      klass(prepare_name(name), 'Autumn::Leaf') do |leaf|
+      klass('Controller', 'Autumn::Leaf') do |leaf|
         leaf << "before_filter :authenticate, :only => [ :reload, :quit ]"
         leaf.newline!
         leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
-          about << '"Insert your about string here!"'
+          about << '# This method renders the file "about.txt.erb"'
         end
         leaf.newline!
         leaf << "private"
@@ -154,21 +151,6 @@ module Autumn # :nodoc:
           auth << "# Returns true if the sender has any of the privileges listed below"
           auth << 'not ([ :operator, :admin, :founder, :channel_owner ] & [ stem.privilege(channel, sender) ].flatten).empty?'
         end
-      end
-    end
-    
-    private
-    
-    def prepare_name(name)
-      raise ArgumentError, "Invalid class name '#{name}'" unless name =~ /^[a-zA-Z][a-zA-Z_0-9]*$/
-      if name.include? '_' then
-        words = name.split('_')
-        words.map!(&:capitalize)
-        words.join
-      elsif name =~ /^[a-z0-9]+$/
-        name.capitalize
-      else
-        name
       end
     end
   end

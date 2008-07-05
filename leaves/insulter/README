@@ -1,0 +1,17 @@
+= Insulter: An Autumn Leaf
+
+<b>Version 1.0 (Jul 4, 2008)</b>
+
+Author::    Tim Morgan (mailto:riscfuture@gmail.com)
+Copyright:: Copyright (c)2008 Tim Morgan
+License::   Distributed under the same terms as Ruby. Portions of this content
+            are copyright (c)1996 Main Strike Telecommunications, Inc.
+
+A simple Autumn Leaf that generates faux-Shakespearean insults. This leaf
+required no database and no additional gems beyond that of a normal Autumn
+install.
+
+== Usage
+
+!insult [name]:: The bot lets fly a barbarous insult against [name], whose very
+                 spirit will thenceforth be crushed into a negligible pulp.

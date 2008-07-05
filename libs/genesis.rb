@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'yaml'
 require 'logger'
+require 'facets'
+require 'facets/hash/symbolize_keys'
 require 'libs/misc'
 require 'libs/speciator'
 
@@ -30,6 +32,7 @@ module Autumn # :nodoc:
       load_libraries
       init_system_logger
       load_daemon_info
+      load_shared_code
       load_databases
       invoke_foliater(invoke)
     end
@@ -54,17 +57,12 @@ module Autumn # :nodoc:
   
     def load_season_settings
       @season_dir = "config/seasons/#{config.global :season}"
-      begin
-        raise "No leaves.yml file for the current season." unless Dir.entries(@season_dir).include? 'leaves.yml'
-      rescue SystemCallError
-        raise "The current season doesn't have a directory."
-      end
+      raise "The current season doesn't have a directory." unless File.directory? @season_dir
       begin
         config.season YAML.load(File.open("#{@season_dir}/season.yml"))
       rescue
         # season.yml is optional
       end
-      config.global(:debug => true) if config.season(:logging) == 'debug'
     end
   
     # Loads Autumn library objects.
@@ -89,7 +87,12 @@ module Autumn # :nodoc:
 
     def init_system_logger
       config.global :logfile => Logger.new(log_name, config.global(:log_history) || 10, 1024*1024)
-      config.global(:logfile).level = log_level
+      begin
+        config.global(:logfile).level = Logger.const_get(config.season(:logging).upcase)
+      rescue NameError
+        puts "The level #{config.season(:logging).inspect} was not understood; the log level has been raised to INFO."
+        config.global(:logfile).level = Logger::INFO
+      end
       config.global :system_logger => LogFacade.new(config.global(:logfile), 'N/A', 'System')
       @logger = config.global(:system_logger)
     end
@@ -106,16 +109,31 @@ module Autumn # :nodoc:
       end
     end
     
+    # Loads Ruby code in the shared directory.
+    
+    def load_shared_code
+      Dir.glob('shared/**/*.rb').each { |lib| load lib }
+    end
+    
     # Creates connections to databases using the DataMapper gem.
     #
     # PREREQS: load_season_settings
     
     def load_databases
-      return unless File.exist? "config/seasons/#{config.global :season}/database.yml"
-      require 'data_mapper'
-      dbconfig = YAML.load(File.open("config/seasons/#{config.global :season}/database.yml", 'r'))
-      dbconfig.each do |db, config|
-        DataMapper::Database.setup(db.to_sym, config)
+      db_file = "#{@season_dir}/database.yml"
+      if not File.exist? db_file then
+        $NO_DATABASE = true
+        return
+      end
+      require 'dm-core'
+      require 'libs/datamapper_hacks'
+      
+      # Set up a fake default database to stop DM from whining
+      DataMapper.setup :default, 'sqlite3::memory:'
+      
+      dbconfig = YAML.load(File.open(db_file, 'r'))
+      dbconfig.symbolize_keys.each do |db, config|
+        DataMapper.setup(db, config.kind_of?(Hash) ? config.symbolize_keys : config)
       end
     end
     
@@ -129,14 +147,20 @@ module Autumn # :nodoc:
     def invoke_foliater(invoke=true)
       begin
         begin
-          stem_config = YAML.load(File.open("config/seasons/#{config.global :season}/stems.yml", 'r'))
+          stem_config = YAML.load(File.open("#{@season_dir}/stems.yml", 'r'))
         rescue Errno::ENOENT
           raise "Couldn't find stems.yml file for season #{config.global :season}"
         end
         begin
-          leaf_config = YAML.load(File.open("config/seasons/#{config.global :season}/leaves.yml", 'r'))
+          leaf_config = YAML.load(File.open("#{@season_dir}/leaves.yml", 'r'))
         rescue Errno::ENOENT
-          raise "Couldn't find leaves.yml file for season #{config.global :season}"
+          # build a default leaf config
+          leaf_config = Hash.new
+          Dir.entries("leaves").each do |dir|
+            next if not File.directory? "leaves/#{dir}" or dir[0,1] == '.'
+            leaf_name = dir.camelcase
+            leaf_config[leaf_name] = { 'class' => leaf_name }
+          end
         end
         
         Foliater.instance.load stem_config, leaf_config, invoke
@@ -155,10 +179,6 @@ module Autumn # :nodoc:
     
     def log_name
       "log/#{config.global(:season)}.log"
-    end
-    
-    def log_level
-      config.global(:debug) ? Logger::DEBUG : Logger::INFO
     end
   end
 end

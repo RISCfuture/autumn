@@ -1,0 +1,5 @@
+<% if var(:unauthorized) %>
+	You can't change <%= var :receiver %>'s points.
+<% else %>
+	<%= var(:giver).name %> <%= var(:delta) > 0 ? 'gave' : 'docked' %> <%= var(:receiver).name %> <%= var(:delta).abs.pluralize('point') %>.
+<% end %>

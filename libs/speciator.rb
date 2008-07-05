@@ -1,7 +1,4 @@
 require 'singleton'
-require 'facets/hash/rekey'
-require 'facets/hash/autonew'
-require 'facets/symbol/to_proc'
 
 module Autumn
 
@@ -48,7 +45,7 @@ module Autumn
     # the global scope level.
   
     def global(arg)
-      arg.kind_of?(Hash) ? @global_options.update(arg.rekey(&:to_sym)) : @global_options[arg]
+      arg.kind_of?(Hash) ? @global_options.update(arg.symbolize_keys) : @global_options[arg]
     end
   
     # When called with a hash: Takes a hash of options and values, and sets them
@@ -61,7 +58,7 @@ module Autumn
     # to store the options of specific seasons, only the current season.
   
     def season(arg)
-      arg.kind_of?(Hash) ? @season_options.update(arg.rekey(&:to_sym)) : @season_options[arg]
+      arg.kind_of?(Hash) ? @season_options.update(arg.symbolize_keys) : @season_options[arg]
     end
     
     # Returns true if the given identifier is a known stem identifier.
@@ -79,7 +76,7 @@ module Autumn
     # The identifier for the stem must be specified.
   
     def stem(stem, arg)
-      arg.kind_of?(Hash) ? @stem_options[stem].update(arg.rekey(&:to_sym)) : @stem_options[stem][arg]
+      arg.kind_of?(Hash) ? @stem_options[stem].update(arg.symbolize_keys) : @stem_options[stem][arg]
     end
     
     # Returns true if the given identifier is a known leaf identifier.
@@ -97,7 +94,7 @@ module Autumn
     # The identifier for the leaf must be specified.
   
     def leaf(leaf, arg)
-      arg.kind_of?(Hash) ? @leaf_options[leaf].update(arg.rekey(&:to_sym)) : @leaf_options[leaf][arg]
+      arg.kind_of?(Hash) ? @leaf_options[leaf].update(arg.symbolize_keys) : @leaf_options[leaf][arg]
     end
     
     # Yields each stem identifier and its options.
@@ -122,14 +119,44 @@ module Autumn
     # amalgamation of all the scope levels' options.
   
     def options_for_stem(identifier)
-      @global_options.merge(@season_options).merge(@stem_options[identifier])
+      OptionsProxy.new(@global_options, @season_options, @stem_options[identifier])
     end
     
     # Returns the composite options for a leaf (by identifier), as an
     # amalgamation of all the scope levels' options.
     
     def options_for_leaf(identifier)
-      @global_options.merge(@season_options).merge(@leaf_options[identifier])
+      OptionsProxy.new(@global_options, @season_options, @leaf_options[identifier])
+    end
+  end
+  
+  class OptionsProxy # :nodoc:
+    MERGED_METHODS = [ :[], :each, :each_key, :each_pair, :each_value, :eql?,
+      :fetch, :has_key?, :include?, :key?, :member?, :has_value?, :value?,
+      :hash, :index, :inspect, :invert, :keys, :length, :size, :merge, :reject,
+      :select, :sort, :to_a, :to_hash, :to_s, :values, :values_at ]
+    
+    def initialize(*hashes)
+      raise ArgumentError unless hashes.all? { |hsh| hsh.kind_of? Hash }
+      @hashes = hashes
+      @hashes << Hash.new # the runtime settings, which take precedence over all
+    end
+    
+    def method_missing(meth, *args, &block)
+      if MERGED_METHODS.include? meth then
+        merged.send meth, *args, &block
+      else
+        @hashes.last.send meth, *args, &block
+      end
+    end
+    
+    private
+    
+    #TODO optimize this by not regenerating it every time it's accessed
+    def merged
+      merged = Hash.new
+      @hashes.each { |hsh| merged.merge! hsh }
+      return merged
     end
   end
 end

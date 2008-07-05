@@ -1,8 +1,6 @@
-require 'facets/conversion'
-
 # Utility methods used by Scorekeeper.
 
-module ScorekeeperHelper
+module GeneralHelper
   def parse_date(str)
     date = nil
     begin
@@ -33,7 +31,7 @@ module ScorekeeperHelper
   end
   
   def find_person(stem, nick)
-    Person.each(:server.eql => server_identifier(stem)) do |person|
+    Person.all(:server => server_identifier(stem)).each do |person|
       return person if person.name.downcase == normalize(nick) or person.pseudonyms.collect { |pn| pn.name.downcase }.include? normalize(nick)
     end
     return nil
@@ -58,15 +56,6 @@ module ScorekeeperHelper
     return if delta.zero?
     chan = Channel.find_or_create :server => server_identifier(stem), :name => channel
     chan.scores.create :giver => giver, :receiver => receiver, :change => delta, :note => note
-  end
-  
-  def announce_change(giver, receiver, delta)
-    points = (delta == 1 or delta == -1) ? 'point' : 'points'
-    if delta > 0 then
-      "#{giver.name} gave #{receiver.name} #{delta} #{points}."
-    else
-      "#{giver.name} docked #{receiver.name} #{-delta} #{points}."
-    end
   end
   
   def server_identifier(stem)
