@@ -102,7 +102,8 @@ h3. Configure Your Testing Season
 In Autumn, your leaves run in an environment, called a "season." Each season has
 different leaves and different settings for those leaves. By default, Autumn
 comes with a season called "testing" already set up for you. You can edit that
-season or create a new one with @script/generate season [season name]@.
+season or create a new one with @script/generate season [season name]@. The
+files for your season are stored in the <tt>config/seasons</tt> directory.
 
 First, edit the <tt>stems.yml</tt> file. This file stores information about your
 IRC connection. Edit it to connect to an IRC server of your choosing. For more
@@ -167,8 +168,8 @@ random, which is automatically transmitted to the channel or nick where the
 command was received.
 
 Of course, any self-respecting fortune bot announces its presence when it starts
-up, so, in your @Controller@ class, override the @Autumn::Leaf#did_start_up@ method
-to display a cheerful greeting:
+up, so, in your @Controller@ class, override the @Autumn::Leaf#did_start_up@
+method to display a cheerful greeting:
 
 <pre><code>
 def did_start_up
@@ -197,9 +198,9 @@ Fortune:
   respond_to_private_messages: true
 </code></pre>
 
-As you notice, each leaf is given a name. In this example the name happens to be
-the same as the leaf's _class_ name, but you could run two copies of a leaf like
-so:
+As you notice, each leaf instance is given a name. In this example the name
+happens to be the same as the leaf's type name, but you could run two copies of
+a leaf like so:
 
 <pre><code>
 Fortune1:
