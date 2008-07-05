@@ -100,6 +100,14 @@ module Autumn # :nodoc:
         File.open(vname, 'w') { |file| file.puts "Insert your about string here!" }
         created vname, options
       end
+      
+      rname = "leaves/#{name.snakecase}/README"
+      if File.exist? rname then
+        exists rname, options
+      else
+        File.open(rname, 'w') { |file| file.puts "This is the read-me for your leaf." }
+        created rname, options
+      end
     end
     
     # Removes the files for a new leaf with the given name. Options:
