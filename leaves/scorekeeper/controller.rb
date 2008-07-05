@@ -7,35 +7,9 @@ rescue Gem::LoadError
   # Install the "chronic" gem for more robust date parsing
 end
 
-# An Autumn Leaf used for an in-channel scorekeeping system. This can operate
-# both as an open or closed score system. (In the former, new members are
-# automatically added when they receive points; in the latter, only authorized
-# members can give and receive points.)
-#
-# Scorekeeper is a database-backed leaf. It requires the DataMapper gem in order
-# to run. The database stores channels and their members, and each member's
-# point history.
-#
-# Scorekeeper supports pseudonyms. Entries in the +pseudonyms+ table can be used
-# to help ensure that the correct person's points are changed even when the
-# sender uses a nickname or abbreviation.
-#
-# This class contains only the methods directly relating to IRC. Other methods
-# are stored in the helper and model classes.
-#
-# Scorekeeper takes one custom configuration option, +scoring+, which can be
-# either "open" or "closed". A closed system only allows a specified set of
-# users to receive and give points. An open system allows anyone to award points
-# to anyone.
-#
-# = Usage
-#
-# !points [name]:: Get a person's score
-# !points [name] [+|-][number] [reason]:: Change a person's score (you must have
-#                                         a "+" or a "-"). A reason is optional.
-# !points [name] history:: Return some recent history of that person's score.
-# !points [name] history [time period]:: Selects history from a time period.
-# !points [name] history [sender]:: Selects point changes from a sender.
+# Controller for the Scorekeeper leaf. This class contains only the methods
+# directly relating to IRC. Other methods are stored in the helper and model
+# classes.
 
 class Controller < Autumn::ChannelLeaf
   before_filter :authenticate, :only => [ :reload, :quit ]

@@ -1,14 +1,7 @@
 require 'facets/random'
 
-# A simple Autumn Leaf that generates faux-Shakespearean insults. This leaf
-# required no database and no additional gems beyond that of a normal Autumn
-# install.
-#
-# = Usage
-#
-# !insult [name]:: The bot lets fly a barbarous insult against [name], whose
-#                  very spirit will thenceforth be crushed into a negligible
-#                  pulp.
+# Controller and model for the Insulter leaf; maintains the list of insult
+# substrings and chooses from them randomly.
 
 class Controller < Autumn::Leaf
   before_filter :authenticate, :only => [ :reload, :quit ]

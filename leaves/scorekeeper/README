@@ -1,0 +1,34 @@
+= Scorekeeper: An Autumn Leaf
+
+<b>Version 3.0 (Jul 4, 2008)</b>
+
+Author::    Tim Morgan (mailto:riscfuture@gmail.com)
+Copyright:: Copyright (c)2007-2008 Tim Morgan
+License::   Distributed under the same terms as Ruby.
+
+An Autumn Leaf used for an in-channel scorekeeping system. This can operate both
+as an open or closed score system. (In the former, new members are automatically
+added when they receive points; in the latter, only authorized members can give
+and receive points.)
+
+Scorekeeper is a database-backed leaf. It requires the DataMapper gem
+(http://www.datamapper.org) in order to run. The database stores channels and
+their members, and each member's point history.
+
+Scorekeeper supports pseudonyms. Entries in the +pseudonyms+ table can be used
+to help ensure that the correct person's points are changed even when the sender
+uses a nickname or abbreviation.
+
+Scorekeeper takes one custom configuration option, +scoring+, which can be
+either "open" or "closed". A closed system only allows a specified set of users
+to receive and give points. An open system allows anyone to award points to
+anyone.
+
+== Usage
+
+!points [name]:: Get a person's score
+!points [name] [+|-][number] [reason]:: Change a person's score (you must have a
+                                        "+" or a "-"). A reason is optional.
+!points [name] history:: Return some recent history of that person's score.
+!points [name] history [time period]:: Selects history from a time period.
+!points [name] history [sender]:: Selects point changes from a sender.

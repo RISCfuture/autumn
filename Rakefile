@@ -13,7 +13,7 @@ task :environment do
   @genesis.load_season_settings
 end
 
-task :full_bootstrap do
+task :boot do
   AL_ROOT = File.dirname(__FILE__)
   @genesis = Autumn::Genesis.new
   @genesis.boot! false
@@ -77,7 +77,7 @@ end
 
 namespace :db do
   desc "Create or update database tables according to the model objects"
-  task :migrate => :full_bootstrap do
+  task :migrate => :boot do
     lname = ENV['LEAF']
     raise "Usage: LEAF=[Leaf name] rake db:migrate" unless lname
     raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]
@@ -89,28 +89,29 @@ namespace :db do
       model.auto_migrate! leaf.database_name
     end
   end
-  
-  desc "Drop, recreates, and repopulates a database"
-  task :reset => [ 'db:drop', 'db:create', 'db:populate' ]
 end
 
 namespace :doc do
   desc "Generate API documentation for Autumn"
-  task :api => [ :environment, :clear ] do
-    system 'rm -rf doc/api' if File.directory? 'doc/api'
+  task :api => :environment do
+    FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     system "rdoc --main README --title 'Autumn API Documentation' -o doc/api --line-numbers --inline-source libs README"
   end
   
   desc "Generate documentation for all leaves"
-  task :leaves => [ :environment, :clear ] do
-    system 'rm -rf doc/leaves' if File.directory? 'doc/leaves'
-    system "rdoc --main README --title 'Autumn Leaves Documentation' -o doc/leaves --line-numbers --inline-source leaves support"
+  task :leaves => :environment do
+    FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
+    Dir.glob("leaves/*").each do |leaf_dir|
+      Dir.chdir leaf_dir do
+        system "rdoc --main README --title '#{File.basename(leaf_dir).camelcase} Documentation' -o ../../doc/leaves/#{File.basename leaf_dir} --line-numbers --inline-source controller.rb helpers models README"
+      end
+    end
   end
   
   desc "Remove all documentation"
   task :clear => :environment do
-    system 'rm -rf doc/api' if File.directory? 'doc/api'
-    system 'rm -rf doc/leaves' if File.directory? 'doc/leaves'
+    FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
+    FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
   end
 end
 
