@@ -387,6 +387,11 @@ separate, so one does not override the other. The standard options are:
 | @database@ | A database connection to use (as defined in <tt>database.yml</tt>). By default Autumn will choose a connection named after your leaf. |
 | @formatter@ | The name of a module in @Autumn::Formatting@ that will handle output formatting and colorization. This defaults to mIRC-style formatting. |
 
+In addition, the following options are available (but cannot be set in the yml
+file):
+
+| @root@ | The root directory of the leaf installation. |
+
 The <tt>leaves.yml</tt> file is optional. When not included, each leaf in the
 <tt>leaves</tt> directory will be automatically instantiated once.
 

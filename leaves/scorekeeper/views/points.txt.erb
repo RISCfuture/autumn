@@ -1,1 +1,5 @@
+<% if var(:totals).empty? %>
+No one has any points yet.
+<% else %>
 <%= var(:totals).collect { |person, score| "#{person}: #{score}" }.join(', ') %>
+<% end %>

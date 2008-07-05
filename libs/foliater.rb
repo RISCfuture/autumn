@@ -148,6 +148,7 @@ module Autumn
     def load_leaves
       config.each_leaf do |name, options|
         options = config.options_for_leaf(name)
+        options[:root] = "#{config.global :root}/leaves/#{options[:class].snakecase}"
         begin
           leaf_class = options[:module].const_get('Controller')
         rescue NameError
