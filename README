@@ -65,6 +65,7 @@ overview you can consult for future reference:
   * coder.rb - Used by script/generate to write out Ruby code
   * ctcp.rb - CTCP support library
   * daemon.rb - Provides support for different kinds of IRC servers
+  * datamapper_hacks.rb - Some hacks to help DataMapper work with Autumn
   * foliater.rb - Instantiates and manages stems and leaves
   * formatting.rb - Provides support for different kinds of IRC client text
     formatting and colorization
@@ -84,6 +85,7 @@ overview you can consult for future reference:
 * Rakefile - Contains the rake tasks used to control Autumn (see the "Tasks"
   section)
 * README - This file
+* README.textile - Textile-formatted readme
 * <b>resources/</b> - Data files used by Autumn
   * <b>daemons/</b> - Data files describing different IRC server types
 * <b>script/</b> - Helper scripts for controlling Autumn
@@ -546,18 +548,21 @@ connection looks like:
    password: pass
    database: database_name
 
+or, in a smaller syntax:
+
+ connection_name: mysql://root@pass:localhost/database_name
+
 If you are using the "sqlite3" adapter, the +database+ option is the path to the
 file where the data should be written (example: data/my_database.db). You can
 name your connection however you want, but you _should_ name it after either
 your leaf or your leaf subclass. (More on this below.)
 
-You should also create <tt>DataMapper::Base</tt> subclasses for each of your
-model objects. You can place them within your leaf's support directory. This
-works almost exactly the same as the app/models directory in Rails.
+You should also create DataMapper model classes for each of your model objects.
+You can place them within your leaf's models directory. This works almost
+exactly the same as the app/models directory in Rails.
 
 Once your database, data models, and leaves have been configured, you can use
-the <tt>rake db:create</tt> and <tt>rake db:populate</tt> tasks to automatically
-set up your database.
+the <tt>rake db:migrate</tt> task to automatically populate your database.
 
 Now, unlike Rails, Autumn supports multiple database connections. Two leaves can
 use two different database connections, or share the same database connection.
@@ -591,7 +596,7 @@ And you have a database connection for that leaf, named after the leaf's class:
 
  fortune_leaf:
    adapter: sqlite3
-   database: data/fortune.db
+   database: leaves/fortune_leaf/data/development.db
 
 Let's further assume you have a simple DataMapper object:
 
@@ -610,7 +615,7 @@ this:
  end
 
 Autumn automatically knows to execute this DataMapper code in the correct
-database context. It knows this because your leaf's name is FortuneLeaf, and
+database context. It knows this because your leaf's name is +FortuneLeaf+, and
 your database context is named the same.
 
 But what if you wanted to use that connection for other leaves too, so you named
@@ -643,7 +648,7 @@ method like so:
 This will break -- why? Because the +ctcp_version_request+ method is in the
 realm of the Autumn::CTCP class, _not_ the Autumn::Leaf class. (You can see this
 by investigating the CTCP class docs; it shows you what methods you can
-implement for CTCP support.) Basically, the CTCP class calls your method
+implement for CTCP support.) Basically, the +CTCP+ class calls your method
 directly, giving the Autumn::Leaf class no chance to set up the database first.
 So to fix it, make a call to +database+ first:
 
@@ -663,7 +668,7 @@ them will use some sort of DataMapper resource named +Channel+, or something
 similar. You can't define the class +Channel+ twice in two different ways, so
 how do you deal with this?
 
-The answer is: it's already dealt with for you. Go ahead and define the class
+The answer is: It's already dealt with for you. Go ahead and define the class
 twice. Or three times.
 
 The longer explanation is: Secretly, behind the scenes, <b>all your leaf code is
@@ -688,7 +693,7 @@ For instance, if your leaf's name is "Fortune", and you needed two helpers, a
 database helper and a network helper, you could create two modules named
 +DatabaseHelper+ and +NetworkHelper+. Any modules named in this fashion and
 placed in the helpers subdirectory will be loaded and appended to the
-Fortune controller and its views automatically.
+controller and its views automatically.
 
 === Debugging Your Leaf
 
@@ -919,11 +924,8 @@ Application tasks:
 
 Database tasks:
 
-* <b>LEAF=[leaf name] rake db:create</b> - Creates an empty database for the
-  leaf.
-* <b>LEAF=[leaf name] rake db:drop</b> - Drops a leaf's database.
-* <b>LEAF=[leaf name] rake db:populate</b> - Creates all the tables for a leaf,
-  as specified by the leaf's model objects (in its support directory).
+* <b>LEAF=[leaf name] rake db:migrate</b> - Creates all the tables for a leaf,
+  as specified by the leaf's model objects.
 
 Documentation tasks:
 

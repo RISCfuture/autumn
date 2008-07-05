@@ -629,7 +629,6 @@ module Autumn
       end
       
       logger.info "Reloaded"
-      return 0 #TODO
     end
     
     def leaf_name
