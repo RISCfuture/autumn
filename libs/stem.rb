@@ -33,7 +33,7 @@ module Autumn
   # = Starting the IRC Session
   #
   # Once you have finished configuring your stem and you are ready to begin the
-  # IRC session, call the start method. This method runs until the the socket
+  # IRC session, call the start method. This method blocks until the the socket
   # has been closed, so it should be run in a thread. Once the connection has
   # been made, you are free to send and receive IRC commands until you close the
   # connection, which is done with the quit method.
@@ -67,10 +67,10 @@ module Autumn
   # common uses of IRC (sending and receiving messages, for example), it will
   # suffice.
   #
-  # If you'd like to manually specify a server type, you should override the
-  # stem's irc_rpl_yourhost_response method to not set it automatically. Consult
-  # the resources/daemons directory for valid Daemon names and hints on how to
-  # make your own Daemon specification, should you desire.
+  # If you'd like to manually specify a server type, you can pass its name for
+  # the +server_type+ initialization option. Consult the resources/daemons
+  # directory for valid Daemon names and hints on how to make your own Daemon
+  # specification, should you desire.
   #
   # = Channel Names
   #
@@ -82,11 +82,11 @@ module Autumn
   # character (say, '&'), you will need to include that prefix every time you
   # pass a channel name to a stem method.
   #
-  # So, if you would like your stem to send a message to the "#kittens" channel,
-  # you can omit the '#' character; but if it's a server-local channel called
-  # "&kittens", you will have to provide the '&' character. Likewise, if you are
-  # overriding a hook method, you can be guaranteed that the channel given to
-  # you will always be called "#kittens", and not "kittens".
+  # So, if you would like your stem to send a message to the "##kittens"
+  # channel, you can omit the '#' character; but if it's a server-local channel
+  # called "&kittens", you will have to provide the '&' character. Likewise, if
+  # you are overriding a hook method, you can be guaranteed that the channel
+  # given to you will always be called "##kittens", and not "kittens".
   #
   # = Synchronous Methods
   #
@@ -561,6 +561,7 @@ module Autumn
     ann :irc_ping_event, :stem_sync => true # To avoid overhead of a whole new thread just for a pong
     
     def irc_rpl_yourhost_response(stem, sender, recipient, arguments, msg) # :nodoc:
+      return if @server_type
       type = nil
       Daemon.each_name do |name|
         next unless msg.include? name

@@ -6,8 +6,8 @@ module DataMapper # :nodoc:
   # Hack the association models to prepend any enclosing modules to the class
   # names in associations.
   
-  module Associations
-    module OneToMany
+  module Associations # :nodoc:
+    module OneToMany # :nodoc:
       class << self
         alias_method :old_setup, :setup
         def setup(name, model, options={})
@@ -23,7 +23,7 @@ module DataMapper # :nodoc:
       end
     end
     
-    module OneToOne
+    module OneToOne # :nodoc:
       class << self
         alias_method :old_setup, :setup
         def setup(name, model, options={})
@@ -39,7 +39,7 @@ module DataMapper # :nodoc:
       end
     end
     
-    module ManyToMany
+    module ManyToMany # :nodoc:
       class << self
         alias_method :old_setup, :setup
         def setup(name, model, options={})
@@ -55,7 +55,7 @@ module DataMapper # :nodoc:
       end
     end
     
-    module ManyToOne
+    module ManyToOne # :nodoc:
       class << self
         alias_method :old_setup, :setup
         def setup(name, model, options={})

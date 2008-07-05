@@ -12,7 +12,7 @@ module Autumn
   # write a method like so:
   # 
   #  def hello_command(stem, sender, reply_to, msg)
-  #    stem.message "Why hello there!", channel
+  #    stem.message "Why hello there!", reply_to
   #  end
   #
   # You can also implement this method as:
@@ -129,6 +129,8 @@ module Autumn
     #                                  commands sent in private messages.
     # +logger+:: The LogFacade instance for this leaf.
     # +database+:: The name of a custom database connection to use.
+    # +formatter+:: The name of an Autumn::Formatting class to use as the
+    #               formatter (chooses Autumn::Formatting::DEFAULT by default).
     #
     # As well as any user-defined options you want.
     
@@ -255,7 +257,8 @@ module Autumn
     # leaf named "Scorekeeper"), it will automatically be set as the database
     # context for the scope of all hook, filter and command methods. However, if
     # your database connection is named differently, or if you are working in a
-    # Stem method, you will need to set the connection using this method.
+    # method not invoked by the Leaf class, you will need to set the connection
+    # using this method.
     #
     # If you omit the +dbname+ parameter, it will try to guess the name of your
     # database connection using the leaf's name and the leaf's class name.
@@ -491,18 +494,10 @@ module Autumn
 
     # Typing this command reloads all source code for all leaves and support
     # files, allowing you to make "on-the-fly" changes without restarting the
-    # process. There are two caveats, though:
-    #
-    # 1. If you make any change to a constant or other unchangeable value, you
-    #    will need to restart the process.
-    # 2. DataMapper::Resource classes cannot be reloaded. You will need to
-    #    restart the process.
+    # process. It does this by reloading the source files defining the classes.
     #
     # This command does not reload the YAML configuration files, only the source
     # code.
-    #
-    # <b>Warning:</b> If you have multiple leaves with different model classes
-    # sharing the same name, you should not use this command.
     
     def reload_command(stem, sender, reply_to, msg)
       reload

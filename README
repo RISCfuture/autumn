@@ -318,7 +318,7 @@ directly. The standard options are:
 
 +server+:: The address of the IRC server.
 +port+:: The IRC server port (default 6667).
-+ip_address+:: The IP address to connect on (for virtual hosting).
++local_ip+:: The IP address to connect on (for virtual hosting).
 +nick+:: The nick to request.
 +password+:: The nick's password, if it is registered.
 +channel+:: A channel to join.

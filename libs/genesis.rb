@@ -109,6 +109,8 @@ module Autumn # :nodoc:
       end
     end
     
+    # Loads Ruby code in the shared directory.
+    
     def load_shared_code
       Dir.glob('shared/**/*.rb').each { |lib| load lib }
     end
