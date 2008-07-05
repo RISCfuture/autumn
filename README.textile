@@ -1,5 +1,6 @@
 h1. Autumn: A Ruby IRC Bot Framework
-*Version 2.0.3 (Mar 22, 2008)*
+
+*Version 2.0.4 (Jul 4, 2008)*
 
 | Author | Tim Morgan (mailto:riscfuture@gmail.com) |
 | Copyright | Copyright (c)2007-2008 Tim Morgan |

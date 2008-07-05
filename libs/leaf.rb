@@ -515,7 +515,7 @@ module Autumn
     # that is running this leaf.
     
     def autumn_command(stem, sender, reply_to, msg)
-      "Autumn version 2.0.3 (3-22-08), an IRC bot framework for Ruby (http://autumn-leaves.googlecode.com)."
+      "Autumn version 2.0.4 (7-4-08), an IRC bot framework for Ruby (http://autumn-leaves.googlecode.com)."
     end
 
     private

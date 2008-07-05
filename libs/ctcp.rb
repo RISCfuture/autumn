@@ -136,7 +136,7 @@ module Autumn
   
     def ctcp_version_request(handler, stem, sender, arguments)
       return unless handler == self
-      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn 2.0.3, a Ruby IRC framework", `uname -sr`, "http://autumn-leaves.googlecode.com/"
+      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn 2.0.4, a Ruby IRC framework", `uname -sr`, "http://autumn-leaves.googlecode.com/"
     end
   
     # Replies to a CTCP PING request by sending back the same arguments as a
