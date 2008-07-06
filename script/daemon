@@ -24,4 +24,4 @@
 require 'rubygems'
 require 'daemons'
 
-Daemons.run 'script/server', :app_name => 'autumn-leaves', :dir_mode => :script, :dir => '../tmp', :multiple => false, :backtrace => true, :monitor => false, :log_output => true
+Daemons.run 'script/server', :app_name => 'autumn', :dir_mode => :script, :dir => '../tmp', :multiple => false, :backtrace => true, :monitor => false, :log_output => true

@@ -55,7 +55,7 @@ namespace :log do
   desc "Print all error messages in the log files"
   task :errors => :environment do
     season_log = "log/#{@genesis.config.global :season}.log"
-    system_log = 'tmp/autumn-leaves.log'
+    system_log = 'tmp/autumn.log'
     if File.exists? season_log then
       puts "==== ERROR-LEVEL LOG MESSAGES ===="
       File.open(season_log, 'r') do |log|
