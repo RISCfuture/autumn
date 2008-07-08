@@ -662,6 +662,10 @@ This will execute those methods in the scope of the database connection guessed
 by Autumn::Leaf. Of course, you can manually pass in a connection name if
 necessary.
 
+<b>Another important note:</b> You will need to make a call to @database@ in any
+child threads your leaf creates. The database context is not automatically
+carried over to such threads.
+
 === Your Leaf's Module; or, "What Do I Do About Namespace Conflicts?"
 
 So, if you have two database-backed leaves, it's entirely likely that both of
