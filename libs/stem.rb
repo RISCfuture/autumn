@@ -591,21 +591,19 @@ module Autumn
     end
     
     def irc_rpl_namreply_response(stem, sender, recipient, arguments, msg) # :nodoc:
-      update_names_list arguments[1], msg.words unless arguments[1] == "*" # "*" refers to users not on a channel
+      update_names_list normalized_channel_name(arguments[1]), msg.words unless arguments[1] == "*" # "*" refers to users not on a channel
     end
     ann :irc_rpl_namreply_response, :stem_sync => true # So endofnames isn't processed before namreply
     
     def irc_rpl_endofnames_response(stem, sender, recipient, arguments, msg) # :nodoc:
-      finish_names_list_update arguments[0]
+      finish_names_list_update normalized_channel_name(arguments[0])
     end
     ann :irc_rpl_endofnames_response, :stem_sync => true # so endofnames isn't processed before namreply
     
     def irc_kick_event(stem, sender, arguments) # :nodoc:
       if arguments[:recipient] == @nick then
         @chan_mutex.synchronize do
-          @channels.delete arguments[:channel]
-          @channel_passwords.delete arguments[:channel]
-          @channel_members.delete arguments[:channel]
+          drop_channel arguments[:channel]
           #TODO what should we do if we are in the middle of receiving NAMES replies?
         end
         join arguments[:channel] if options[:rejoin]
@@ -655,7 +653,11 @@ module Autumn
     
     def irc_part_event(stem, sender, arguments) # :nodoc:
       @chan_mutex.synchronize do
-        @channel_members[arguments[:channel]].delete sender[:nick]
+        if sender[:nick] == @nick then
+          drop_channel arguments[:channel]
+        else
+          @channel_members[arguments[:channel]].delete sender[:nick]
+        end
         #TODO what should we do if we are in the middle of receiving NAMES replies?
       end
     end
@@ -794,7 +796,7 @@ module Autumn
           return
       end
       arguments.update :message => msg
-      arguments[:channel].downcase! if arguments[:channel] and not options[:case_sensitive_channel_names]
+      arguments[:channel] = normalized_channel_name(arguments[:channel]) if arguments[:channel]
     
       method = "irc_#{command}_event".to_sym
       meths[method] = [ self, sender, arguments ]
@@ -843,6 +845,12 @@ module Autumn
       @chan_mutex.synchronize do
         @channel_members[channel] = @updating_channel_members.delete(channel) if @updating_channel_members[channel]
       end
+    end
+    
+    def drop_channel(channel)
+      @channels.delete channel
+      @channel_passwords.delete channel
+      @channel_members.delete channel
     end
   end
 end
