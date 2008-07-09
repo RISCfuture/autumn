@@ -19,7 +19,7 @@ module Autumn
     def message(msg, *chans)
       return if msg.nil? or msg.empty?
       chans = channels if chans.empty?
-      msg.each_line { |line| privmsg chans, line.strip unless line.strip.empty? }
+      msg.each_line { |line| privmsg chans.to_a, line.strip unless line.strip.empty? }
     end
     
     # Sets the topic for one or more channels. If no channels are specified,
