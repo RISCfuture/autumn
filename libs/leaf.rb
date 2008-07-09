@@ -141,7 +141,7 @@ module Autumn
       @break_flag = false
       @logger = options[:logger]
       
-      @stems = Array.new
+      @stems = Set.new
       # Let the stems array respond to methods as if it were a single stem
       class << @stems
         def method_missing(meth, *args)

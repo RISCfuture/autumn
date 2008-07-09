@@ -206,8 +206,6 @@ module Autumn
     attr :options
     # The channels that this stem is a member of.
     attr :channels
-    # The Leaf instances running off of this stem.
-    attr :leaves
     # The LogFacade instance handling this stem.
     attr :logger
     # A Proc that will be called if a nickname is in use. It should take one
@@ -270,7 +268,6 @@ module Autumn
       @local_ip = opts[:local_ip]
       @options = opts
       @listeners = [ self ]
-      @leaves = Array.new
       @logger = @options[:logger]
       @nick_generator = Proc.new do |oldnick|
         if options[:ghost_without_password] then
@@ -286,8 +283,9 @@ module Autumn
       @server_type = Daemon[opts[:server_type]]
       @server_type ||= Daemon.default
       
-      @channels = opts[:channels]
-      @channels ||= [ opts[:channel] ]
+      @channels = Set.new
+      @channels.merge opts[:channels] if opts[:channels]
+      @channels << opts[:channel] if opts[:channel]
       @channels.map! do |chan|
         if chan.kind_of? Hash then
           { normalized_channel_name(chan.keys.only) => chan.values.only }
@@ -827,7 +825,7 @@ module Autumn
         broadcast :stem_ready, self if should_broadcast
       end
       @channels_to_join = @channels
-      @channels = Array.new
+      @channels = Set.new
       @channels_to_join.each { |chan| join chan }
       privmsg 'NickServ', "IDENTIFY #{options[:password]}" if options[:password]
     end

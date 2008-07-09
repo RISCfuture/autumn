@@ -128,7 +128,7 @@ module Autumn
         raise NameError, "Couldn't find Controller class for leaf #{type}"
       end
       
-      config.leaf type, :helpers => Array.new
+      config.leaf type, :helpers => Set.new
       mod.constants.select { |const_name| const_name =~ /Helper$/ }.map { |helper_name| mod.const_get helper_name }.each do |helper|
         config.leaf(type, :helpers) << helper
       end
@@ -199,7 +199,6 @@ module Autumn
           @stems[name].add_listener @leaves[leaf]
           @stems[name].add_listener @ctcp
           #TODO a configurable way of specifying listeners to add by default
-          @stems[name].leaves << @leaves[leaf]
           @leaves[leaf].stems << @stems[name]
         end
       end

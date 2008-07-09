@@ -163,7 +163,7 @@ module Autumn
     # present.
 
     def nick_privilege(name)
-      privs = Array.new
+      privs = Set.new
       nick = name.dup
       while user_prefix? nick[0,1]
         privs << user_prefix[nick[0,1]]

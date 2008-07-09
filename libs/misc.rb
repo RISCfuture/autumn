@@ -69,3 +69,16 @@ class ForgetfulQueue < SizedQueue # :nodoc:
     super
   end
 end
+
+# Adds the only method to Set.
+
+class Set # :nodoc:
+  
+  # Returns the only element of a one-element set. Raises an exception if there
+  # isn't exactly one element in the set.
+  
+  def only
+    raise IndexError, "Set#only called on non-single-element set" unless size == 1
+    to_a.first
+  end
+end
