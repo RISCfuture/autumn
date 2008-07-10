@@ -1,4 +1,6 @@
 require 'rake'
+require 'spec/rake/spectask'
+
 require 'libs/genesis'
 
 task :default do
@@ -113,6 +115,15 @@ namespace :doc do
     FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
   end
+end
+
+namespace :spec do
+  desc "Verify Autumn specs"
+  Spec::Rake::SpecTask.new('autumn') do |t|
+    t.spec_files = FileList['spec/**/*.rb']
+    t.spec_opts = [ '-cfs' ]
+  end
+  #TODO leaf specs task
 end
 
 # Load any custom Rake tasks in the bot's tasks directory.
