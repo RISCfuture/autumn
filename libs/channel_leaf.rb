@@ -84,7 +84,7 @@ module Autumn
     end
 
     def irc_invite_event(stem, sender, arguments) # :nodoc:
-      super if listening?(stem, arguments[:channel])
+      super if listening?(stem, arguments[:channel]) or not stem.channels.include? arguments[:channel]
     end
 
     def irc_kick_event(stem, sender, arguments) # :nodoc:
