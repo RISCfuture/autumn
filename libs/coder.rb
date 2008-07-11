@@ -115,9 +115,9 @@ module Autumn # :nodoc:
         if param.kind_of? Hash and param.size == 1 then
           name = param.keys.only
           default = param.values.only
-          raise ArgumentError, "Invalid parameter #{name.inspect}" unless name.respond_to? :to_s
+          raise ArgumentError, "Invalid parameter #{name.inspect}" unless name.respond_to? :to_s and not name.to_s.empty?
           param_strs << "#{name.to_s}=#{default.inspect}"
-        elsif param.respond_to? :to_s then
+        elsif param.respond_to? :to_s and not param.to_s.empty? then
           param_strs << param.to_s
         else
           raise ArgumentError, "Invalid parameter #{param.inspect}"
