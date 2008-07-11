@@ -1,3 +1,5 @@
+# Defines the Autumn::Stem class, an IRC client library.
+
 require 'thread'
 require 'socket'
 require 'openssl'
@@ -267,7 +269,8 @@ module Autumn
       @port ||= 6667
       @local_ip = opts[:local_ip]
       @options = opts
-      @listeners = [ self ]
+      @listeners = Set.new
+      @listeners << self
       @logger = @options[:logger]
       @nick_generator = Proc.new do |oldnick|
         if options[:ghost_without_password] then
@@ -304,7 +307,7 @@ module Autumn
       @join_mutex = Mutex.new
       @socket_mutex = Mutex.new
     end
-  
+    
     # Adds an object that will receive notifications of incoming IRC messages.
     # For each IRC event that the listener is interested in, the listener should
     # implement a method in the form <tt>irc_[event]_event</tt>, where [event]
@@ -625,7 +628,7 @@ module Autumn
       if sender[:nick] == @nick then
         should_broadcast = false
         @chan_mutex.synchronize do
-          @channels << arguments[:channel] unless @channels.include? arguments[:channel]
+          @channels << arguments[:channel]
           @channel_members[arguments[:channel]] ||= Hash.new
           @channel_members[arguments[:channel]][sender[:nick]] = :unvoiced
           #TODO what should we do if we are in the middle of receiving NAMES replies?

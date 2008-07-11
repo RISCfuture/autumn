@@ -1,3 +1,6 @@
+# Defines the Autumn::Foliater class, which instantiates stems and leaves and
+# keeps watch over their threads.
+
 module Autumn
 
   # Loads Stems and Leaves and executes them in their own threads. Manages the
@@ -205,6 +208,7 @@ module Autumn
     end
     
     def start_stems
+      @leaves.each { |name, leaf| leaf.preconfigure }
       @leaves.each { |name, leaf| leaf.will_start_up }
       @stem_threads = Hash.new
       config.each_stem do |name, options|

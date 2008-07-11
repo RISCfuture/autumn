@@ -1,3 +1,6 @@
+# Defines the Autumn::StemFacade class, which provides additional convenience
+# methods to Autumn::Stem.
+
 module Autumn
   
   # A collection of convenience methods that are added to the Stem class. These

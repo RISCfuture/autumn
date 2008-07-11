@@ -1,3 +1,6 @@
+# Defines the Autumn::LogFacade class, which makes it easier for Stems and
+# Leaves to add their information to outgoing log messages.
+
 module Autumn
   
   # This class is a facade for Ruby's +Logger+ that adds additional information

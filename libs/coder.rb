@@ -1,4 +1,7 @@
-module Autumn # :nodoc:
+# Defines the Autumn::Coder class and its subclasses, which generate template
+# code for the script/generate utility.
+
+module Autumn
   
   # Helper class that generates shell Ruby code. This class knows how to
   # generate Ruby code for template classes and methods.
@@ -44,6 +47,8 @@ module Autumn # :nodoc:
       end
       
       self << "end"
+      
+      return self
     end
     
     # Creates a new empty method. Any additional parameters are considered to be
@@ -77,6 +82,8 @@ module Autumn # :nodoc:
       end
       
       self << "end"
+      
+      return self
     end
     
     # Increases the indent level for all future lines of code appended to this
@@ -97,8 +104,14 @@ module Autumn # :nodoc:
     
     def <<(str)
       str.split(/\n/).each do |line|
-        @output << tab + line + "\n"
+        @output << "#{tab}#{line}\n"
       end
+    end
+    
+    def doc=(str)
+      doc_lines = str.line_wrap(80 - tab.size - 2).split("\n")
+      doc_lines.map! { |str| "#{tab}# #{str}\n" }
+      @output = doc_lines.join + "\n" + @output
     end
     
     # Appends a blank line to the output.
@@ -138,20 +151,16 @@ module Autumn # :nodoc:
     # Generates an Leaf subclass with the given name.
     
     def leaf(name)
-      klass('Controller', 'Autumn::Leaf') do |leaf|
-        leaf << "before_filter :authenticate, :only => [ :reload, :quit ]"
+      controller = klass('Controller', 'Autumn::Leaf') do |leaf|
         leaf.newline!
-        leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
+        leaf << '# Typing "!about" displays some basic information about this leaf.'
+        leaf.newline!
+        about_command = leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
           about << '# This method renders the file "about.txt.erb"'
         end
-        leaf.newline!
-        leaf << "private"
-        leaf.newline!
-        leaf.method('authenticate_filter', 'stem', 'channel', 'sender', 'command', 'msg', 'opts') do |auth|
-          auth << "# Returns true if the sender has any of the privileges listed below"
-          auth << 'not ([ :operator, :admin, :founder, :channel_owner ] & [ stem.privilege(channel, sender) ].flatten).empty?'
-        end
       end
+      controller.doc = "Controller for the #{name.camelcase} leaf."
+      return controller
     end
   end
 end
