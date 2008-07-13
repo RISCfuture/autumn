@@ -12,8 +12,7 @@ end
 # classes.
 
 class Controller < Autumn::Leaf
-  before_filter :authenticate, :only => [ :reload, :quit ]
-
+  
   # Displays an about message.
   
   def about_command(stem, sender, reply_to, msg)
@@ -37,11 +36,6 @@ class Controller < Autumn::Leaf
   end
   
   private
-
-  def authenticate_filter(stem, channel, sender, command, msg, opts)
-    # Returns true if the sender has any of the privileges listed below
-    not ([ :operator, :admin, :founder, :channel_owner ] & [ stem.privilege(channel, sender) ].flatten).empty?
-  end
   
   def points(stem, channel)
     chan = Channel.find_or_create :server => server_identifier(stem), :name => channel

@@ -1,8 +1,11 @@
+# Defines the Autumn::Script class, which runs the script/generate and
+# script/destroy utilities.
+
 require 'getoptlong'
 require 'rdoc/usage'
 require 'libs/generator'
 
-module Autumn # :nodoc:
+module Autumn
   
   # Manages data used by the script/generate and script/destroy scripts. This
   # class is instantiated by the script, and manages the script's data and

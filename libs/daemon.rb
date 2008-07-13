@@ -1,3 +1,6 @@
+# Defines the Autumn::Daemon class, which stores information on the different
+# implementations of IRC by different server daemons.
+
 module Autumn
   
   # Describes an IRC server daemon program. Different IRC servers run off of
