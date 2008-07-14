@@ -1,3 +1,6 @@
+# Defines the Autumn::Leaf class, a library on which robust IRC bots can be
+# written.
+
 require 'yaml'
 require 'timeout'
 require 'erb'
@@ -79,16 +82,51 @@ module Autumn
   # executed before or after the command is run. You can do this using the
   # before_filter and after_filter methods, just like in Rails. Filters are run
   # in the order they are added to the chain. Thus, if you wanted to run your
-  # authentication filter before you ran your preload filter, you'd write the
-  # calls in this order:
+  # preload filter before you ran your cache filter, you'd write the calls in
+  # this order:
   #
   #  class MyLeaf < Leaf
-  #    before_filter :my_authenticate
   #    before_filter :my_preload
+  #    before_filter :my_cache
   #  end
   #
   # See the documentation for the before_filter and after_filter methods and the
   # README file for more information on filters.
+  #
+  # = Authentication
+  #
+  # If a leaf is initialized with a hash for the +authentication+ option, the
+  # values of that hash are used to choose an authenticator that will be run
+  # before each command. This authenticator will determine whether or not the
+  # user can run that command. The options that can be specified in this hash
+  # are:
+  #
+  # +type+:: The name of a class in the Autumn::Authentication module, in
+  #          snake_case. Thus, if you wanted to use the
+  #          Autumn::Authentication::Password class, which does password-based
+  #          authentication, you'd set this value to +password+.
+  # +only+:: A list of protected commands for which authentication is required;
+  #          all other commands are unprotected.
+  # +except+:: A list of unprotected commands; all other commands require
+  #            authentication.
+  # +silent+:: Normally, when someone fails to authenticate himself before
+  #            running a protected command, the leaf responds with an error
+  #            message (e.g., "You have to authenticate with a password first").
+  #            Set this to true to suppress this behaivor.
+  #
+  # In addition, you can also specify any custom options for your authenticator.
+  # These options are passed to the authenticator's initialize method. See the
+  # classes in the Autumn::Authentication module for such options.
+  #
+  # If you annotate a command method as protected, the authenticator will be run
+  # unconditionally, regardless of the +only+ or +except+ options:
+  #
+  #  class Controller < Autumn::Leaf
+  #    def destructive_command(stem, sender, reply_to, msg)
+  #      # ...
+  #    end
+  #    ann :destructive_command, :protected => true
+  #  end
   #
   # = Logging
   #
@@ -154,6 +192,13 @@ module Autumn
       end
     end
     
+    def preconfigure # :nodoc:
+      if options[:authentication] then
+        @authenticator = Autumn::Authentication.const_get(options[:authentication]['type'].camelcase).new(options[:authentication].symbolize_keys)
+        stems.add_listener @authenticator
+      end
+    end
+    
     # Simplifies method calls for one-stem leaves.
     
     def method_missing(meth, *args) # :nodoc:
@@ -174,10 +219,10 @@ module Autumn
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
       database do
         if arguments[:channel] then
-          parse_for_command stem, sender, arguments
+          command_parse stem, sender, arguments
           did_receive_channel_message stem, sender, arguments[:channel], arguments[:message]
         else
-          parse_for_command stem, sender, arguments if options[:respond_to_private_messages]
+          command_parse stem, sender, arguments if options[:respond_to_private_messages]
           did_receive_private_message stem, sender, arguments[:message]
         end
       end
@@ -329,12 +374,12 @@ module Autumn
     # halted and the command will not be run. For example, if you create the
     # filter:
     #
-    #  before_filter :authenticate, :only => [ :quit, :reload ], :use_passwd_file => true
+    #  before_filter :close_files, :only => [ :quit, :reload ], :remote_files => true
     # 
     # then any time the bot receives a "!quit" or "!reload" command, it will
     # first evaluate:
     #
-    #  authenticate_filter <stem>, <channel>, <sender hash>, <command>, <message>, { :use_passwd_file => true }
+    #  close_files_filter <stem>, <channel>, <sender hash>, <command>, <message>, { :remote_files => true }
     #
     # and if the result is not false or nil, the command will be executed.
     
@@ -374,7 +419,7 @@ module Autumn
       end
       write_inheritable_array 'after_filters', [ [ filter.to_sym, options ] ]
     end
-
+    
     # Invoked after the leaf is started up and is ready to accept commands.
     # Override this method to do any post-startup tasks you need, such as
     # displaying a greeting message.
@@ -491,20 +536,8 @@ module Autumn
     
     def someone_did_quit(stem, person, msg)
     end
-
-    # Typing this command reloads all source code for all leaves and support
-    # files, allowing you to make "on-the-fly" changes without restarting the
-    # process. It does this by reloading the source files defining the classes.
-    #
-    # This command does not reload the YAML configuration files, only the source
-    # code.
     
-    def reload_command(stem, sender, reply_to, msg)
-      reload
-      "#{leaf_name}: Reload complete."
-    end
-    
-    UNADVERTISED_COMMANDS = [ 'reload', 'quit', 'about', 'autumn', 'commands' ] # :nodoc:
+    UNADVERTISED_COMMANDS = [ 'about', 'commands' ] # :nodoc:
     
     # Typing this command displays a list of all commands for each leaf running
     # off this stem.
@@ -516,19 +549,6 @@ module Autumn
       return if commands.empty?
       commands.map! { |c| "!#{c}" }
       "Commands for #{leaf_name}: #{commands.sort.join(', ')}"
-    end
-    
-    # Typing this command will cause the Stem to exit.
-    
-    def quit_command(stem, sender, reply_to, msg)
-      stem.quit
-    end
-
-    # Typing this command will display information about the version of Autumn
-    # that is running this leaf.
-    
-    def autumn_command(stem, sender, reply_to, msg)
-      "Autumn version 3.0 (7-4-08), an IRC bot framework for Ruby (http://github.com/RISCfuture/autumn)."
     end
     
     # Sets a custom view name to render. The name doesn't have to correspond to
@@ -581,7 +601,7 @@ module Autumn
       did_start_up
     end
     
-    def parse_for_command(stem, sender, arguments)
+    def command_parse(stem, sender, arguments)
       if arguments[:channel] or options[:respond_to_private_messages] then
         reply_to = arguments[:channel] ? arguments[:channel] : sender[:nick]
         matches = arguments[:message].match(/^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/)
@@ -589,30 +609,31 @@ module Autumn
           name = matches[1].to_sym
           msg = matches[2]
           origin = sender.merge(:stem => stem)
-          run_command name, stem, arguments[:channel], sender, msg, reply_to
+          command_exec name, stem, arguments[:channel], sender, msg, reply_to
         end
       end
     end
     
-    def run_command(name, stem, channel, sender, msg, reply_to)
+    def command_exec(name, stem, channel, sender, msg, reply_to)
       cmd_sym = "#{name}_command".to_sym
       return unless respond_to? cmd_sym
       msg = nil if msg.empty?
       
-      if run_before_filters(name, stem, channel, sender, name, msg) then
-        Thread.current[:vars] = Hash.new
-        return_val = send(cmd_sym, stem, sender, reply_to, msg)
-        view = Thread.current[:render_view]
-        view ||= name
-        if options[:views][view.to_s] then
-          stem.message parse_view(view.to_s), reply_to
-        else
-          stem.message return_val, reply_to
-        end
-        Thread.current[:vars] = nil
-        Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
-        run_after_filters name, stem, channel, sender, name, msg
+      return unless authenticated?(name, stem, channel, sender)
+      return unless run_before_filters(name, stem, channel, sender, name, msg)
+      
+      Thread.current[:vars] = Hash.new
+      return_val = send(cmd_sym, stem, sender, reply_to, msg)
+      view = Thread.current[:render_view]
+      view ||= name
+      if options[:views][view.to_s] then
+        stem.message parse_view(view.to_s), reply_to
+      else
+        stem.message return_val, reply_to
       end
+      Thread.current[:vars] = nil
+      Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
+      run_after_filters name, stem, channel, sender, name, msg
     end
     
     def parse_view(name)
@@ -653,6 +674,22 @@ module Autumn
         next if local_opts[:only] and not local_opts.delete(:only).include? command
         next if local_opts[:except] and local_opts.delete(:except).include? command
         method("#{filter}_filter")[stem, channel, sender, command, msg, local_opts]
+      end
+    end
+    
+    def authenticated?(cmd, stem, channel, sender)
+      return true if @authenticator.nil?
+      # Any method annotated as protected is authenticated unconditionally
+      if not self.class.ann("#{cmd}_command".to_sym, :protected) then
+        # Otherwise, we only authenticate if it's listed as protected in the config
+        return true if options[:authentication]['only'] and not options[:authentication]['only'].include? cmd
+        return true if options[:authentication]['except'] and options[:authentication]['except'].include? cmd
+      end
+      if @authenticator.authenticate(stem, channel, sender, self) then
+        return true
+      else
+        stem.message @authenticator.unauthorized, channel unless options[:authentication]['silent']
+        return false
       end
     end
 

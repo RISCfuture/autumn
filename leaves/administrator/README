@@ -1,0 +1,20 @@
+= Administrator: An Autumn Leaf
+
+<b>Version 1.0 (Jul 8, 2008)</b>
+
+Author::    Tim Morgan (mailto:riscfuture@gmail.com)
+Copyright:: Copyright (c)2008 Tim Morgan
+License::   Distributed under the same terms as Ruby.
+
+This leaf allows the owner of the IRC bot to perform administrative commands on
+the bot, such as quitting or reloading it. In order to protect such commands
+from abuse, this bot uses the Authenticator module. The Authenticator method
+that is used is specified by the +authentication+ option. For more information,
+see the *Authentication* section of the README.
+
+== Usage
+
+!autumn:: Displays information about the version of Autumn that is running this
+          leaf (unprotected command).
+!quit:: Terminates the stem on which the message was received.
+!reload:: Reloads all source files of all leaves, and all their view files.

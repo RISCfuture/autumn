@@ -1,3 +1,6 @@
+# Defines the Autumn::ChannelLeaf class, a subclass of Autumn::Leaf that
+# selectively ignores channels.
+
 module Autumn
   
   # A special kind of leaf that only responds to messages sent to certain

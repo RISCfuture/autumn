@@ -1,3 +1,6 @@
+# Defines the Autumn::Formatting class, which provides macros for different
+# protocols for IRC message stylization.
+
 module Autumn
   
   # Adds text formatting to Autumn objects. Text formatting (color and styles)
