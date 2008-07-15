@@ -139,6 +139,7 @@ module Autumn
       def initialize(options={})
         @hostmask = options[:hostmask]
         @hostmask ||= /^.+?\.(.+)$/
+        @hostmask = @hostmask.to_rx(false) if @hostmask.kind_of? String
         if @hostmask.kind_of? Regexp then
           mask = @hostmask
           @hostmask = lambda do |host|
@@ -150,7 +151,6 @@ module Autumn
         @hosts ||= options[:hosts]
         raise "You must give the host address of an administrator to use nick-based authentication." unless @hosts
         @hosts = [ @hosts ] unless @hosts.kind_of? Array
-        @hosts.map! { |host| host.to_rx(false) if host.kind_of? String }
       end
       
       def authenticate(stem, channel, sender, leaf) # :nodoc:
