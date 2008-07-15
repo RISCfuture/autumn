@@ -109,18 +109,14 @@ describe Autumn::TemplateCoder do
   it "should generate a proper leaf template" do
     @coder.leaf('test_leaf')
     @coder.output.should eql(%{
+      |# Controller for the TestLeaf leaf.
+      |
       |class Controller < Autumn::Leaf
-      |  before_filter :authenticate, :only => [ :reload, :quit ]
+      |  
+      |  # Typing "!about" displays some basic information about this leaf.
       |  
       |  def about_command(stem, sender, reply_to, msg)
       |    # This method renders the file "about.txt.erb"
-      |  end
-      |  
-      |  private
-      |  
-      |  def authenticate_filter(stem, channel, sender, command, msg, opts)
-      |    # Returns true if the sender has any of the privileges listed below
-      |    not ([ :operator, :admin, :founder, :channel_owner ] & [ stem.privilege(channel, sender) ].flatten).empty?
       |  end
       |end
       |
