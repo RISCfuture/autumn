@@ -471,8 +471,9 @@ I made the +outro_filter+ method private because I felt it shouldn't be exposed
 to other classes; this is not a requirement of the filter framework, though.
 
 Now let's say you wanted to prevent the command from being run in some cases.
-The most obvious application of this feature is authentication: You don't want
-just any person to run your leaf's administrative commands. So, you write a
+The most obvious application of this feature is authentication. Autumn already
+includes a robust authentication module, but for the sake of example, let's
+pretend you wanted to do your own authentication in your leaf. So, you write a
 +before_filter+ to determine if the user is authenticated.
 <tt>before_filter</tt>s have return values; if they return false, the filter
 chain is halted and the command is suppressed. If you want to have your leaf
@@ -528,6 +529,45 @@ If you subclass one of your leaves, it inherits your superclass's filters. The
 Autumn::Leaf superclass does not have any filters by default, though by default
 new leaves come with a simple authentication filter that checks the user's
 privilege level.
+
+=== Authentication
+
+You don't need to write a +before_filter+ as shown above, because Autumn already
+includes a robust authentication module. The Autumn::Authentication module
+includes the +Base+ class and four different subclasses of it. Each of these
+subclasses handles a different type of authentication. You can choose the
+authentication strategy you want on a leaf-by-leaf basis or for a whole season.
+
+To specify the kind of authentication you want, you must add an +authentication+
+directive to your config. If you want to set it for an individual leaf, add it
+to the leaves.yml file. If you want all leaves to have the same authentication
+strategy, add it to the season.yml or global.yml file.
+
+The +authentication+ directive should be a hash that, at a minimum, includes a
+key called +type+. This is the snake_cased name of subclass in
+Autumn::Authentication that you wish to use. As an example, here is an entry for
+an Administrator bot in a leaves.yml file, with ops-based authentication.
+
+ Administrator:
+   class: Administrator
+   authentication:
+     type: op
+
+This will instantiate the Autumn::Authentication::Op class for use with the
+Administrator bot.
+
+Other authentication strategies may require additional information. For
+instance, if you want to used nick-based authentication, your leaves.yml file
+might look like:
+
+ Administrator:
+   class: Administrator
+   authentication:
+     type: nick
+     nick: MyNick
+
+See the class docs for each subclass in Autumn::Authentication for more info on
+how you should set up your configs.
 
 === Persistent Stores
 
