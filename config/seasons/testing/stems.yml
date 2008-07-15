@@ -1,7 +1,8 @@
 --- 
 Example: 
-  nick: Yournick
+  nick: MyIRCBot
   leaves: 
+  - Administrator
   - Scorekeeper
   - Insulter
   rejoin: true

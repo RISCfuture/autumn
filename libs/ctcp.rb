@@ -71,14 +71,14 @@ module Autumn
     # CTCP commands whose arguments are encoded according to the CTCP spec (as
     # opposed to other commands, whose arguments are plaintext).
     ENCODED_COMMANDS = [ 'VERSION', 'PING' ]
-  
+    
     # Creates a new CTCP parser. Options are:
     #
     # +reply_queue_size+:: The maximum number of pending replies to store in the
     #                      queue, after which new CTCP requests are ignored.
     # +reply_rate+:: The minimum time, in seconds, between consecutive CTCP
     #                replies.
-  
+    
     def initialize(options={})
       @options = options
       @options[:reply_queue_size] ||= 10
@@ -96,9 +96,9 @@ module Autumn
         hsh[key]
       end
     end
-  
+    
     # Parses CTCP requests in a PRIVMSG event.
-  
+    
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
       arguments[:message].scan(CTCP_REQUEST).flatten.each do |ctcp|
         ctcp_args = ctcp.split(' ')
@@ -122,7 +122,7 @@ module Autumn
         stem.broadcast :ctcp_response_received, request.downcase.to_sym, self, stem, sender, ctcp_args
       end
     end
-  
+    
     # Replies to a CTCP VERSION request by sending:
     #
     # * the name of the IRC client ("Autumn, a Ruby IRC framework"),
@@ -138,15 +138,15 @@ module Autumn
     # string. If you'd prefer compatibility with those clients, you should
     # override this method to return a single plaintext string and remove the
     # VERSION command from +ENCODED_COMMANDS+.
-  
+    
     def ctcp_version_request(handler, stem, sender, arguments)
       return unless handler == self
       send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn 3.0, a Ruby IRC framework", `uname -sr`, "http://github.com/RISCfuture/autumn"
     end
-  
+    
     # Replies to a CTCP PING request by sending back the same arguments as a
     # PONG reply.
-  
+    
     def ctcp_ping_request(handler, stem, sender, arguments)
       return unless handler == self
       send_ctcp_reply stem, sender[:nick], 'PING', *arguments
@@ -154,12 +154,12 @@ module Autumn
     
     # Replies to a CTCP TIME request by sending back the local time in RFC-822
     # format.
-  
+    
     def ctcp_time_request(handler, stem, sender, arguments)
       return unless handler == self
       send_ctcp_reply stem, sender[:nick], 'TIME', Time.now.rfc822
     end
-  
+    
     # Adds a CTCP reply to the queue. You must pass the Stem instance that will
     # be sending this reply, the recipient (channel or nick), and the name of
     # the CTCP command (as an uppercase string). Any additional arguments are
@@ -169,12 +169,12 @@ module Autumn
     #
     # +recipient+ can be a nick, a channel name, or a sender hash, as necessary.
     # Encoding of arguments is only done for commands in +ENCODED_COMMANDS+.
-  
+    
     def send_ctcp_reply(stem, recipient, command, *arguments)
       recipient = recipient[:nick] if recipient.kind_of? Hash
       @reply_queue[stem] << { :recipient => recipient, :message => make_ctcp_message(command, *arguments) }
     end
-  
+    
     # When this listener is added to a stem, the stem gains the ability to send
     # CTCP messages directly. Methods of the form <tt>ctcp_*</tt>, where "*" is
     # the lowercase name of a CTCP action, will be forwarded to this listener,
@@ -200,7 +200,7 @@ module Autumn
     # (Note that responding to VERSION requests is already handled by this class
     # so you'll need to either override or delete the ctcp_version_request
     # method to do this.)
-  
+    
     def added(stem)
       stem.instance_variable_set :@ctcp, self
       class << stem
@@ -215,22 +215,22 @@ module Autumn
         end
       end
     end
-  
+    
     # Creates a CTCP-formatted message with the given command (uppercase string)
     # and arguments (strings). The string returned is suitable for transmission
     # over IRC using the PRIVMSG command.
-  
+    
     def make_ctcp_message(command, *arguments)
       arguments = arguments.map { |arg| quote arg } if ENCODED_COMMANDS.include? command
       "\01#{arguments.unshift(command).join(' ')}\01"
     end
-  
+    
     private
-  
+    
     def quote(str)
       str.gsub("\0", '\0').gsub("\1", '\1').gsub("\n", '\n').gsub("\r", '\r').gsub(" ", '\@').gsub("\\", '\\\\')
     end
-  
+    
     def unquote(str)
       str.gsub('\0', "\0").gsub('\1', "\1").gsub('\n', "\n").gsub('\r', "\r").gsub('\@', " ").gsub('\\\\', "\\")
     end

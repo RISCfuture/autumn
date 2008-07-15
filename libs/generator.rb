@@ -18,9 +18,14 @@ module Autumn
         'Scorekeeper' => {
           'class' => 'Scorekeeper'
         },
+        'Insulter' => {
+          'class' => 'Insulter'
+        },
         'Administrator' => {
           'class' => 'Administrator',
-          'authentication' => 'op'
+          'authentication' => {
+            'type' => 'op'
+          }
         }
       },
       "stems.yml" => {
@@ -29,7 +34,7 @@ module Autumn
           'nick' => 'MyIRCBot',
           'channel' => '#yourchannel',
           'rejoin' => true,
-          'leaves' => [ 'Administrator', 'Scorekeeper' ]
+          'leaves' => [ 'Administrator', 'Scorekeeper', 'Insulter' ]
         }
       },
       "season.yml" => {
