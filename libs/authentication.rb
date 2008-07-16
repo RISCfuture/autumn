@@ -62,17 +62,19 @@ module Autumn
       end
     end
     
-    # Authenticates users by their privilege level. Channel operators, superops
-    # (admins), and channel owners are allowed to use restricted commands.
-    # Unvoiced and voiced members are not. If you'd like to customize this list,
-    # pass in an array of valid privilege levels (as symbols) for the
-    # +privileges+ option.
+    # Authenticates users by their privilege level in the channel they ran the
+    # command in.
     # 
     # This is a quick, configuration-free way of protecting your leaf, so long
     # as you trust the ops in your channel.
     
     class Op < Base
-      def initialize(options={}) # :nodoc:
+      
+      # Creates a new authenticator. Pass a list of allowed privileges (as
+      # symbols) for the +privileges+ option. By default this class accepts ops,
+      # admins, and channel owners/founders as authorized.
+      
+      def initialize(options={})
         @privileges = options[:privileges]
         @privileges ||= [ :operator, :oper, :op, :admin, :founder, :channel_owner ]
       end
