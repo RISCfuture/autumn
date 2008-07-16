@@ -53,22 +53,28 @@ end
 # An implementation of +SizedQueue+ that, instead of blocking when the queue is
 # full, simply discards the overflow, forgetting it.
 
-class ForgetfulQueue < SizedQueue # :nodoc:
+class ForgetfulQueue < Queue # :nodoc:
+  
+  # Creates a new sized queue.
+  
+  def initialize(capacity)
+    @max = capacity
+  end
   
   # Returns true if this queue is at maximum size.
   
   def full?
-    size == max
+    size == @max
   end
   
   # Pushes an object onto the queue. If there is no space left on the queue,
   # does nothing.
   
   def push(obj)
-    Thread.critical = true
-    return if full?
-    super
+    Thread.exclusive { super unless full? }
   end
+  alias_method :<<, :push
+  alias_method :enq, :push
 end
 
 # Adds the only method to Set.
