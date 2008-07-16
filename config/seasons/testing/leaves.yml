@@ -1,10 +1,9 @@
-# This file is optional: If Autumn doesn't find it, Autumn will assume you want
-# one instance of every leaf in the leaves directory, named after the leaf
-# itself. You only need this file if you want more than one instance of a leaf
-# or you need to configure your leaf differently.
-
 --- 
+Administrator: 
+  authentication: 
+    type: op
+  class: Administrator
 Scorekeeper: 
   class: Scorekeeper
-Insulter:
+Insulter: 
   class: Insulter

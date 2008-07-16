@@ -4,4 +4,4 @@ Example:
   adapter: mysql
   host: localhost
   database: example_database
-  password:
+  password: ""

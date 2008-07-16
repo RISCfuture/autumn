@@ -374,12 +374,12 @@ module Autumn
     # halted and the command will not be run. For example, if you create the
     # filter:
     #
-    #  before_filter :close_files, :only => [ :quit, :reload ], :remote_files => true
+    #  before_filter :read_files, :only => [ :quit, :reload ], :remote_files => true
     # 
     # then any time the bot receives a "!quit" or "!reload" command, it will
     # first evaluate:
     #
-    #  close_files_filter <stem>, <channel>, <sender hash>, <command>, <message>, { :remote_files => true }
+    #  read_files_filter <stem>, <channel>, <sender hash>, <command>, <message>, { :remote_files => true }
     #
     # and if the result is not false or nil, the command will be executed.
     
