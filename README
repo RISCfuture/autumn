@@ -120,6 +120,10 @@ you'd prefer not to install any of these database solutions, delete the
 database.yml file and remove the Scorekeeper leaf from the leaves.yml and
 stems.yml files.
 
+If you do choose to set up a database, you will have to run <tt>rake
+db:migrate</tt> after your database.yml file is configured and your database is
+created.
+
 Lastly, view the leaves.yml file. You shouldn't have to make any changes to this
 file, but it's a good idea to look at it to see how leaves are configured. You
 can do the same with the season.yml file. See "Seasons" and "Leaves" below for
