@@ -150,6 +150,7 @@ module Autumn
   class Leaf
     # Default for the +command_prefix+ init option.
     DEFAULT_COMMAND_PREFIX = '!'
+    @@view_alias = Hash.new { |h,k| k }
     
     # The LogFacade instance for this leaf.
     attr :logger
@@ -346,6 +347,17 @@ module Autumn
     end
 
     protected
+
+    # Duplicates a command. This method aliases the command method and also
+    # ensures the correct view file is rendered if appropriate.
+    #
+    #  alias_command :google, :g
+
+    def self.alias_command(old, new)
+      raise NoMethodError, "Unknown command #{old}" unless instance_methods.include?("#{old}_command")
+      alias_method "#{new}_command", "#{old}_command"
+      @@view_alias[new] = old
+    end
 
     # Adds a filter to the end of the list of filters to be run before a command
     # is executed. You can use these filters to perform tasks that prepare the
@@ -625,7 +637,7 @@ module Autumn
       Thread.current[:vars] = Hash.new
       return_val = send(cmd_sym, stem, sender, reply_to, msg)
       view = Thread.current[:render_view]
-      view ||= name
+      view ||= @@view_alias[name]
       if options[:views][view.to_s] then
         stem.message parse_view(view.to_s), reply_to
       else
