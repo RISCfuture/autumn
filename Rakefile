@@ -117,13 +117,24 @@ namespace :doc do
   end
 end
 
+desc "Verify leaf and API specs"
+Spec::Rake::SpecTask.new do |t|
+  t.spec_files = FileList['spec/**/*.rb', 'leaves/*/spec/**/*.rb']
+  t.spec_opts = [ '-cfs' ]
+end
+
 namespace :spec do
-  desc "Verify Autumn specs"
+  desc "Verify API specs"
   Spec::Rake::SpecTask.new('autumn') do |t|
     t.spec_files = FileList['spec/**/*.rb']
     t.spec_opts = [ '-cfs' ]
   end
-  #TODO leaf specs task
+  
+  desc "Verify leaf specs"
+  Spec::Rake::SpecTask.new('leaves') do |t|
+    t.spec_files = FileList['leaves/*/spec/**/*.rb']
+    t.spec_opts = [ '-cfs' ]
+  end
 end
 
 # Load any custom Rake tasks in the bot's tasks directory.
