@@ -228,11 +228,23 @@ module Autumn
     private
     
     def quote(str)
-      str.gsub("\0", '\0').gsub("\1", '\1').gsub("\n", '\n').gsub("\r", '\r').gsub(" ", '\@').gsub("\\", '\\\\')
+      chars = str.split('')
+      chars.map! do |char|
+        case char
+          when "\0" then '\0'
+          when "\1" then '\1'
+          when "\n" then '\n'
+          when "\r" then '\r'
+          when " " then '\@'
+          when "\\" then '\\\\'
+          else char
+        end
+      end
+      return chars.join
     end
     
     def unquote(str)
-      str.gsub('\0', "\0").gsub('\1', "\1").gsub('\n', "\n").gsub('\r', "\r").gsub('\@', " ").gsub('\\\\', "\\")
+      str.gsub('\\\\', '\\').gsub('\@', " ").gsub('\r', "\r").gsub('\n', "\n").gsub('\1', "\1").gsub('\0', "\0")
     end
   end
 end
