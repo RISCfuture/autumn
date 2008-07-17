@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'facets'
 
 require 'libs/authentication'
 
@@ -98,6 +99,20 @@ describe Autumn::Authentication::Nick do
     lambda { Autumn::Authentication::Nick.new :nicks => [ 'Nick1', 'Nick2' ] }.should_not raise_error
   end
   
+  describe "initialized with a single nick" do
+    before :each do
+      @auth = Autumn::Authentication::Nick.new(:nick => 'Nick2')
+    end
+    
+    it "should authenticate an authorized nick" do
+      @auth.authenticate(nil, nil, { :nick => 'Nick2' }, nil).should be_true
+    end
+    
+    it "should not authenticate an unauthorized nick" do
+      @auth.authenticate(nil, nil, { :nick => 'Nick3' }, nil).should be_false
+    end
+  end
+  
   describe "initialized with multiple nicks" do
     before :each do
       @auth = Autumn::Authentication::Nick.new(:nicks => [ 'Nick1', 'Nick2' ])
@@ -109,6 +124,92 @@ describe Autumn::Authentication::Nick do
     
     it "should not authenticate an unauthorized nick" do
       @auth.authenticate(nil, nil, { :nick => 'Nick3' }, nil).should be_false
+    end
+  end
+end
+
+describe Autumn::Authentication::Hostname do
+  it "should raise an exception when initialized with no hosts" do
+    lambda { Autumn::Authentication::Hostname.new }.should raise_error
+  end
+  
+  it "should not raise an exception when initialized with a host" do
+    lambda { Autumn::Authentication::Hostname.new :host => 'host1.com' }.should_not raise_error
+  end
+  
+  it "should not raise an exception when initialized with an array of hosts" do
+    lambda { Autumn::Authentication::Hostname.new :hosts => [ 'host1.com', 'host2.com' ] }.should_not raise_error
+  end
+  
+  describe "with the default hostmask" do
+    describe "initialized with a single host" do
+      before :each do
+        @auth = Autumn::Authentication::Hostname.new(:host => 'ca.host1.com')
+      end
+    
+      it "should authenticate an authorized host" do
+        @auth.authenticate(nil, nil, { :host => 'wsd1.ca.host1.com' }, nil).should be_true
+      end
+    
+      it "should not authenticate an unauthorized host" do
+        @auth.authenticate(nil, nil, { :host => 'unauthorized' }, nil).should be_false
+      end
+    end
+    
+    describe "initialized with multiple hosts" do
+      before :each do
+        @auth = Autumn::Authentication::Hostname.new(:hosts => [ 'host1.com', 'ca.host2.com' ])
+      end
+    
+      it "should authenticate an authorized host" do
+        @auth.authenticate(nil, nil, { :host => 'wsd1.ca.host2.com' }, nil).should be_true
+      end
+    
+      it "should not authenticate an unauthorized host" do
+        @auth.authenticate(nil, nil, { :host => 'unauthorized' }, nil).should be_false
+      end
+    end
+  end
+  
+  describe "with custom String hostmask" do
+    before :each do
+      @auth = Autumn::Authentication::Hostname.new(:hosts => [ '1', '2' ], :hostmask => 'host(\d)\.com')
+    end
+    
+    it "should authenticate an authorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host2.com' }, nil).should be_true
+    end
+    
+    it "should not authenticate an unauthorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host3.com' }, nil).should be_false
+    end
+  end
+  
+  describe "with custom Regexp hostmask" do
+    before :each do
+      @auth = Autumn::Authentication::Hostname.new(:hosts => [ '1', '2' ], :hostmask => /host(\d)\.com/)
+    end
+    
+    it "should authenticate an authorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host2.com' }, nil).should be_true
+    end
+    
+    it "should not authenticate an unauthorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host3.com' }, nil).should be_false
+    end
+  end
+  
+  describe "with custom Proc hostmask" do
+    before :each do
+      @auth = Autumn::Authentication::Hostname.new(:host => 'com', :hostmask => Proc.new { |h| h.split('.').last })
+    end
+    
+    it "should authenticate an authorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host.com' }, nil).should be_true
+    end
+    
+    it "should not authenticate an unauthorized host" do
+      @auth.authenticate(nil, nil, { :host => 'host.net' }, nil).should be_false
     end
   end
 end
