@@ -84,3 +84,31 @@ describe Autumn::Authentication::Op do
     end
   end
 end
+
+describe Autumn::Authentication::Nick do
+  it "should raise an exception when initialized with no nicks" do
+    lambda { Autumn::Authentication::Nick.new }.should raise_error
+  end
+  
+  it "should not raise an exception when initialized with a nick" do
+    lambda { Autumn::Authentication::Nick.new :nick => 'Nick' }.should_not raise_error
+  end
+  
+  it "should not raise an exception when initialized with an array of nicks" do
+    lambda { Autumn::Authentication::Nick.new :nicks => [ 'Nick1', 'Nick2' ] }.should_not raise_error
+  end
+  
+  describe "initialized with multiple nicks" do
+    before :each do
+      @auth = Autumn::Authentication::Nick.new(:nicks => [ 'Nick1', 'Nick2' ])
+    end
+    
+    it "should authenticate an authorized nick" do
+      @auth.authenticate(nil, nil, { :nick => 'Nick2' }, nil).should be_true
+    end
+    
+    it "should not authenticate an unauthorized nick" do
+      @auth.authenticate(nil, nil, { :nick => 'Nick3' }, nil).should be_false
+    end
+  end
+end
