@@ -584,6 +584,7 @@ module Autumn
       # render as a thread-local variable.
       raise "The render method should be called at most once per command" if Thread.current[:render_view]
       Thread.current[:render_view] = view.to_s
+      return nil
     end
     
     # Gets or sets a variable for use in the view. Use this method in
