@@ -562,7 +562,7 @@ module Autumn
     ann :irc_ping_event, :stem_sync => true # To avoid overhead of a whole new thread just for a pong
     
     def irc_rpl_yourhost_response(stem, sender, recipient, arguments, msg) # :nodoc:
-      return if @server_type
+      return if options[:server_type]
       type = nil
       Daemon.each_name do |name|
         next unless msg.include? name
