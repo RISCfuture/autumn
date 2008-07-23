@@ -60,9 +60,9 @@ module Autumn
           next unless @@default.respond_to? hname.to_sym
           default_hash = @@default.send(hname.to_sym)
           
-          (hsh.keys & default_hash.keys).each { |k| default_hash.delete k }
           uniques = hsh.reject { |k, v| default_hash.include? k }
           default_hash.update uniques
+          default_hash.reject! { |k, v| hsh.include?(k) and hsh[k] != v }
         end
       end
     end
