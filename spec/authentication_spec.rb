@@ -1,3 +1,4 @@
+require 'set'
 require 'rubygems'
 require 'facets'
 
@@ -210,6 +211,118 @@ describe Autumn::Authentication::Hostname do
     
     it "should not authenticate an unauthorized host" do
       @auth.authenticate(nil, nil, { :host => 'host.net' }, nil).should be_false
+    end
+  end
+end
+
+describe Autumn::Authentication::Password do
+  it "should raise an error when initialized without a password" do
+    lambda { Autumn::Authentication::Password.new }.should raise_error
+  end
+  
+  it "should not raise an error when initialized with a default expire time" do
+    lambda { Autumn::Authentication::Password.new :password => 'abc123' }.should_not raise_error
+  end
+  
+  describe "initialized with a password and custom expire time" do
+    before :each do
+      @sender_hash = { :nick => 'Nick' }
+      @auth = Autumn::Authentication::Password.new :password => 'abc123', :expire_time => 5.seconds
+    end
+    
+    it "should not authenticate any nicks" do
+      @auth.authenticate(Object.new, '#channel', @sender_hash, nil).should be_false
+    end
+    
+    it "should, when given a private message with the correct password, respond with a confirmation" do
+      @stem = mock('stem')
+      @stem.should_receive(:message).once.with("Your password has been accepted, and you are now authorized.", @sender_hash[:nick])
+      @auth.irc_privmsg_event(@stem, @sender_hash, :message => 'abc123', :recipient => 'Bot')
+    end
+    
+    it "should not, when given a private message without the correct password, respond with a confirmation" do
+      @stem = mock('stem')
+      @stem.should_not_receive(:message).with("Your password has been accepted, and you are now authorized.", @sender_hash[:nick])
+      @auth.irc_privmsg_event(@stem, @sender_hash, :message => 'abc123x', :recipient => 'Bot')
+    end
+    
+    describe "given the correct password" do
+      before :each do
+        @stem = Object.new
+        @stem.stub!(:message).and_return
+        @auth.irc_privmsg_event(@stem, @sender_hash, :message => 'abc123', :recipient => 'Bot')
+      end
+      
+      it "should authenticate that nick on that stem" do
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "should not authenticate that nick on a different stem" do
+        @auth.authenticate(Object.new, '#channel', @sender_hash, nil).should be_false
+      end
+      
+      it "should not authenticate a different nick" do
+        @auth.authenticate(@stem, '#channel', { :nick => 'OtherNick' }, nil).should be_false
+      end
+      
+      it "should not authenticate if the owner changes his nick" do
+        @auth.irc_nick_event(@stem, @sender_hash, :nick => 'NewNick')
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
+      
+      it "should not authenticate if someone else takes the nick" do
+        @auth.irc_nick_event(@stem, { :nick => 'OldNick' }, { :nick => 'Nick' })
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
+      
+      it "should authenticate if the owner changes his nick on a different stem" do
+        @auth.irc_nick_event(Object.new, @sender_hash, :nick => 'NewNick')
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "should authenticate if someone else takes the nick on a different stem" do
+        @auth.irc_nick_event(Object.new, { :nick => 'OldNick' }, { :nick => 'Nick' })
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "should not authenticate if the nick is kicked" do
+        @auth.irc_kick_event(@stem, {}, :nick => 'Nick')
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
+      
+      it "should authenticate if the nick is kicked on a different stem" do
+        @auth.irc_kick_event(Object.new, {}, :nick => 'Nick')
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "should not authenticate if the nick quits" do
+        @auth.irc_quit_event(@stem, @sender_hash, {})
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
+
+      it "should authenticate if the nick quits on a different stem" do
+        @auth.irc_quit_event(Object.new, @sender_hash, {})
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "should revoke the credential after the expire time has passed" do
+        sleep 6
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
+      
+      it "should reset the expire time if a protected command is run" do
+        sleep 4
+        @auth.authenticate @stem, '#channel', @sender_hash, nil
+        sleep 2
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_true
+      end
+      
+      it "... and then revoke the credential after the expire time" do
+        sleep 4
+        @auth.authenticate @stem, '#channel', @sender_hash, nil
+        sleep 6
+        @auth.authenticate(@stem, '#channel', @sender_hash, nil).should be_false
+      end
     end
   end
 end
