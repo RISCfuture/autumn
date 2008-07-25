@@ -18,7 +18,6 @@ class Controller < Autumn::Leaf
   
   def quit_command(stem, sender, reply_to, msg)
     stem.quit
-    return ''
   end
   ann :quit_command, :protected => true
   
@@ -32,6 +31,5 @@ class Controller < Autumn::Leaf
   # features.
   
   def commands_command(stem, sender, reply_to, msg)
-    return ''
   end
 end

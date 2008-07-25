@@ -643,8 +643,8 @@ module Autumn
         stem.message return_val, reply_to
       elsif options[:views][view.to_s] then
         stem.message parse_view(view.to_s), reply_to
-      else
-        raise "You must either specify a view to render or return a string to send."
+      #else
+      #  raise "You must either specify a view to render or return a string to send."
       end
       Thread.current[:vars] = nil
       Thread.current[:render_view] = nil # Clear it out in case the command is synchronized
