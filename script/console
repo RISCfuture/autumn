@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+#
+# Launches an IRb console with the Autumn environment loaded.
+
+AL_ROOT = File.expand_path("#{File.dirname(__FILE__)}/..")
+Dir.chdir AL_ROOT
+
+# Some code below is from Ruby on Rails and copyright (c) David Heinemeier
+# Hansson.
+
+irb = RUBY_PLATFORM =~ /(:?mswin|mingw)/ ? 'irb.bat' : 'irb'
+
+require 'optparse'
+options = { :irb => irb }
+OptionParser.new do |opt|
+  opt.banner = "Usage: #{File.basename(__FILE__)} [environment] [options]"
+  opt.on("--irb=[#{irb}]", 'Invoke a different irb.') { |v| options[:irb] = v }
+  opt.parse!(ARGV)
+end
+
+libs =  " -r irb/completion"
+libs << " -r libs/console_boot"
+
+require 'libs/genesis'
+puts "Loading Autumn #{AUTUMN_VERSION}..."
+exec "#{options[:irb]} #{libs}"
