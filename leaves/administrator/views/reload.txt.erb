@@ -1,1 +1,11 @@
-All leaves reloaded.
+<% if var(:not_found) %>
+	There is no leaf named <%= var :not_found %>.
+<% else %>
+	<% var(:leaves).each do |leaf, error| %>
+		<% if error %>
+			<%= leaf %> couldn't be reloaded: <%= error %>
+		<% else %>
+			<%= leaf %> was reloaded successfully.
+		<% end %>
+	<% end %>
+<% end %>
