@@ -8,4 +8,5 @@ Dir.chdir AL_ROOT
 
 require 'libs/genesis'
 
+puts "Loading Autumn #{AUTUMN_VERSION}"
 Autumn::Genesis.new.boot!
