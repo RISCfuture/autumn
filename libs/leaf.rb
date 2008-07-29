@@ -655,17 +655,6 @@ module Autumn
       return nil unless options[:views][name]
       ERB.new(options[:views][name]).result(binding)
     end
-
-    def reload
-      begin
-        Foliater.instance.hot_reload self
-      rescue
-        logger.error "Error when reloading:"
-        logger.error $!
-      end
-      
-      logger.info "Reloaded"
-    end
     
     def leaf_name
       Foliater.instance.leaves.index self

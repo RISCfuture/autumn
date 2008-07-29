@@ -11,6 +11,8 @@ require 'libs/misc'
 require 'libs/speciator'
 require 'libs/authentication'
 
+AUTUMN_VERSION = "3.0 (7-4-08)"
+
 module Autumn # :nodoc:
   
   # Oversight class responsible for initializing the Autumn environment. To boot

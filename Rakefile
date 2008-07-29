@@ -76,18 +76,21 @@ def local_db?(db)
 end
 
 namespace :db do
-  desc "Create or update database tables according to the model objects"
+  desc "Recreate database tables according to the model objects"
   task :migrate => :boot do
-    lname = ENV['LEAF']
-    raise "Usage: LEAF=[Leaf name] rake db:migrate" unless lname
-    raise "Unknown leaf #{lname}" unless leaf = Autumn::Foliater.instance.leaves[lname]
-    
-    leaf.options[:module].constants.each do |cname|
-      model = leaf.options[:module].const_get(cname.to_sym)
-      next unless model.ancestors.include? DataMapper::Resource
-      puts "Creating table for #{model}..."
-      model.auto_migrate! leaf.database_name
-    end
+    dname = ENV['DB']
+    raise "Usage: DB=[Database config name] rake db:migrate" unless dname
+    raise "Unknown database config #{dname}" unless database = repository(dname.to_sym)
+    puts "Migrating the #{dname} database..."
+    database.auto_migrate!
+  end
+  desc "Nondestructively update database tables according to the model objects"
+  task :upgrade => :boot do
+    dname = ENV['DB']
+    raise "Usage: DB=[Database config name] rake db:upgrade" unless dname
+    raise "Unknown database config #{dname}" unless database = repository(dname.to_sym)
+    puts "Upgrading the #{dname} database..."
+    database.auto_upgrade!
   end
 end
 
