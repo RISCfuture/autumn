@@ -130,6 +130,8 @@ module Autumn # :nodoc:
         $NO_DATABASE = true
         return
       end
+      gem 'extlib', '=0.9.2'
+      gem 'dm-core', '=0.9.2'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       
