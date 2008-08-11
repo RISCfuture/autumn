@@ -605,11 +605,12 @@ module Autumn
     
     def irc_kick_event(stem, sender, arguments) # :nodoc:
       if arguments[:recipient] == @nick then
+        old_pass = @channel_passwords[arguments[:channel]]
         @chan_mutex.synchronize do
           drop_channel arguments[:channel]
           #TODO what should we do if we are in the middle of receiving NAMES replies?
         end
-        join arguments[:channel] if options[:rejoin]
+        join_channel arguments[:channel], old_pass if options[:rejoin]
       else
         @chan_mutex.synchronize do
           @channel_members[arguments[:channel]].delete arguments[:recipient]
@@ -831,7 +832,7 @@ module Autumn
       end
       @channels_to_join = @channels
       @channels = Set.new
-      @channels_to_join.each { |chan| join chan }
+      @channels_to_join.each { |chan| join chan, @channel_passwords[chan] }
       privmsg 'NickServ', "IDENTIFY #{options[:password]}" if options[:password]
     end
     
