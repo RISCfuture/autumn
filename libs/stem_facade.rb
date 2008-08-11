@@ -40,8 +40,8 @@ module Autumn
     # +password+ parameter. Of course, you could always just call the +join+
     # method (since each IRC command has a method named after it), but the
     # advantage to using this method is that it will also update the
-    # <tt>@channel_passwords</tt> class variable. Internal consistency is a good
-    # thing, so please use this method.
+    # <tt>@channel_passwords</tt> instance variable. Internal consistency is a
+    # good thing, so please use this method.
     
     def join_channel(channel, password=nil)
       channel = normalized_channel_name(channel)
