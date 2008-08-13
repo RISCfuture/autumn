@@ -16,12 +16,12 @@ describe Autumn::Daemon do
     end
     
     it "should parrot unknown properties" do
-      Autumn::Daemon.default.usermode['a'].should eql('a')
-      Autumn::Daemon.default.privilege['a'].should eql('a')
-      Autumn::Daemon.default.user_prefix['@'].should eql('@')
-      Autumn::Daemon.default.channel_prefix['@'].should eql('@')
-      Autumn::Daemon.default.channel_mode['a'].should eql('a')
-      Autumn::Daemon.default.server_mode['A'].should eql('A')
+      Autumn::Daemon.default.usermode['~'].should eql('~')
+      Autumn::Daemon.default.privilege['~'].should eql('~')
+      Autumn::Daemon.default.user_prefix['('].should eql('(')
+      Autumn::Daemon.default.channel_prefix['('].should eql('(')
+      Autumn::Daemon.default.channel_mode['~'].should eql('~')
+      Autumn::Daemon.default.server_mode['~'].should eql('~')
       Autumn::Daemon.default.event[123].should eql(123)
     end
   end
@@ -72,12 +72,12 @@ describe Autumn::Daemon do
     end
     
     it "should parrot unknown properties" do
-      @daemon.usermode['a'].should eql('a')
-      @daemon.privilege['a'].should eql('a')
-      @daemon.user_prefix['@'].should eql('@')
-      @daemon.channel_prefix['@'].should eql('@')
-      @daemon.channel_mode['a'].should eql('a')
-      @daemon.server_mode['A'].should eql('A')
+      @daemon.usermode['~'].should eql('~')
+      @daemon.privilege['~'].should eql('~')
+      @daemon.user_prefix['('].should eql('(')
+      @daemon.channel_prefix['('].should eql('(')
+      @daemon.channel_mode['~'].should eql('~')
+      @daemon.server_mode['~'].should eql('~')
       @daemon.event[123].should eql(123)
     end
     
@@ -132,12 +132,12 @@ describe Autumn::Daemon do
     end
     
     it "... and return false for unknown values" do
-      @daemon.usermode?('a').should be_false
-      @daemon.privilege?('a').should be_false
-      @daemon.user_prefix?('@').should be_false
-      @daemon.channel_prefix?('@').should be_false
-      @daemon.channel_mode?('a').should be_false
-      @daemon.server_mode?('A').should be_false
+      @daemon.usermode?('~').should be_false
+      @daemon.privilege?('~').should be_false
+      @daemon.user_prefix?('(').should be_false
+      @daemon.channel_prefix?('(').should be_false
+      @daemon.channel_mode?('~').should be_false
+      @daemon.server_mode?('~').should be_false
       @daemon.event?(123).should be_false
     end
     

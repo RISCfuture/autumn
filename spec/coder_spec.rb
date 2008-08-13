@@ -1,3 +1,4 @@
+require 'rubygems'
 require 'facets'
 
 require "libs/coder"
@@ -108,6 +109,25 @@ describe Autumn::TemplateCoder do
   
   it "should generate a proper leaf template" do
     @coder.leaf('test_leaf')
+    
+    # HACK extlib and facets both define String#margin to do different things;
+    #      we need a way to un-require the dm-core gem once we've run the DM
+    #      specs. For now, we're forced to redefine String#margin
+    String.class_eval do
+      def margin(n=0)
+        #d = /\A.*\n\s*(.)/.match( self )[1]
+        #d = /\A\s*(.)/.match( self)[1] unless d
+        d = ((/\A.*\n\s*(.)/.match(self)) ||
+            (/\A\s*(.)/.match(self)))[1]
+        return '' unless d
+        if n == 0
+          gsub(/\n\s*\Z/,'').gsub(/^\s*[#{d}]/, '')
+        else
+          gsub(/\n\s*\Z/,'').gsub(/^\s*[#{d}]/, ' ' * n)
+        end
+      end
+    end
+    
     @coder.output.should eql(%{
       |# Controller for the TestLeaf leaf.
       |
