@@ -3,7 +3,6 @@
 
 require 'thread'
 require 'facets/style'
-require 'facets/string/words'
 
 class Numeric # :nodoc:
   
@@ -19,8 +18,6 @@ class Numeric # :nodoc:
   
   def pluralize(singular, plural=nil)
     begin
-      gem 'english'
-      require 'english/inflect'
       return "#{to_s} #{self == 1 ? singular : singular.plural}"
     rescue Gem::LoadError
       plural ||= singular + 's'
@@ -31,7 +28,6 @@ end
 
 class String # :nodoc:
   include Style
-  include Words
   
   # Returns a copy of this string with the first character dropped.
   
