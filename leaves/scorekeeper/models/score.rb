@@ -8,7 +8,7 @@ class Score
   property :note, String
   property :created_at, DateTime, :default => 'NOW()'
   
-  belongs_to :giver, :class_name => 'Person'
-  belongs_to :receiver, :class_name => 'Person'
+  belongs_to :giver, :class_name => 'Person', :child_key => [ :giver_id ]
+  belongs_to :receiver, :class_name => 'Person', :child_key => [ :receiver_id ]
   belongs_to :channel
 end
