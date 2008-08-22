@@ -175,9 +175,9 @@ end
 # This hack will update methods to use the currently-scoped repository, instead
 # of always using the default repository.
 
-module DataMapper
-  module Associations
-    class RelationshipChain
+module DataMapper # :nodoc:
+  module Associations # :nodoc:
+    class RelationshipChain # :nodoc:
       def near_relationship
         parent_model.relationships(repository.name)[@near_relationship_name]
       end
