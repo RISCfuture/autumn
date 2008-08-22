@@ -48,7 +48,7 @@ describe "a DataMapper instance within a module" do
     class_name(Blog::Post.relationships[:author]).should eql("Blog::Author")
   end
   
-  it "should include the module name in the class name in many-to-many associations" do
+  it "should not include the module name in the class name in many-to-many associations" do
     class_name(Blog::Post.relationships[:categories]).should eql("CategoryPost")
     class_name(Blog::Category.relationships[:posts]).should eql("CategoryPost")
   end
