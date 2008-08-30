@@ -1,5 +1,7 @@
 require 'rubygems'
-require 'facets'
+require 'facets/array/only'
+require 'facets/string/camelcase'
+require 'facets/string/line_wrap'
 
 require "libs/coder"
 

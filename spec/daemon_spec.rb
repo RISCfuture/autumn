@@ -1,6 +1,6 @@
 require 'set'
 require 'rubygems'
-require 'facets'
+require 'facets/array/only'
 
 require 'libs/misc'
 require 'libs/daemon'

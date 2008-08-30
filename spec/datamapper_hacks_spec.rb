@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'dm-core'
-require 'facets'
 
 require 'libs/misc'
 require 'libs/datamapper_hacks'
