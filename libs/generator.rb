@@ -1,7 +1,7 @@
 # Defines the Autumn::Generator class, which generates and destroys files and
 # directories of Autumn objects for script/generate.
 
-require 'facets'
+require 'facets/string/snakecase'
 require 'yaml'
 require 'libs/coder'
 

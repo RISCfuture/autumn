@@ -133,8 +133,8 @@ module Autumn # :nodoc:
         return
       end
       
-      gem 'extlib', '=0.9.4'
-      gem 'dm-core', '=0.9.4'
+      gem 'extlib', '=0.9.5'
+      gem 'dm-core', '=0.9.5'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       
