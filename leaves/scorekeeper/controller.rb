@@ -1,4 +1,4 @@
-gem 'dm-ar-finders', '=0.9.4'
+gem 'dm-ar-finders', '=0.9.5'
 require 'dm-ar-finders'
 
 begin
