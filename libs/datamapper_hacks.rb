@@ -137,7 +137,7 @@ DataMapper::Associations::ManyToMany.module_eval do # :nodoc:
     model_module = model.to_s.split('::')
     model_module.pop
     model_module = model_module.join('::')
-    
+    model_module = model_module.empty? ? Object : eval("::#{model_module}")
 
     opts[:near_relationship_name] = Extlib::Inflection.tableize(model_name).to_sym
 
@@ -146,24 +146,20 @@ DataMapper::Associations::ManyToMany.module_eval do # :nodoc:
     relationship = DataMapper::Associations::RelationshipChain.new(opts)
     model.relationships(repository_name)[name] = relationship
 
-    unless Object.const_defined?(model_name)
-      bts = names.collect do |name|
-        "belongs_to #{Extlib::Inflection.underscore(name).to_sym.inspect}"
-      end
-      
-      Object.const_get(model_module).module_eval <<-EOS, __FILE__, __LINE__
-        class #{model_name}
-          include DataMapper::Resource
-          
-          #def self.name; #{model_name.inspect} end
-          #def self.default_repository_name; #{repository_name.inspect} end
-          def self.many_to_many; true end
-          
-          storage_names[#{repository_name.inspect}] = #{storage_name.inspect}
-          
-          #{bts.join("\n")}
-        end
+    unless model_module.const_defined?(model_name)
+      model = DataMapper::Model.new(storage_name)
+
+      model.class_eval <<-EOS, __FILE__, __LINE__
+        def self.name; #{model_name.inspect} end
+        def self.default_repository_name; #{repository_name.inspect} end
+        def self.many_to_many; true end
       EOS
+
+      names.each do |n|
+        model.belongs_to(Extlib::Inflection.underscore(n).to_sym)
+      end
+
+      model_module.const_set(model_name, model)
     end
 
     relationship
@@ -183,6 +179,7 @@ module DataMapper # :nodoc:
       end
   
       def remote_relationship
+        return nil unless near_relationship
         near_relationship.child_model.relationships(repository.name)[@remote_relationship_name] ||
           near_relationship.child_model.relationships(repository.name)[@remote_relationship_name.to_s.singularize.to_sym]
       end
@@ -224,7 +221,7 @@ DataMapper::Associations::Relationship.class_eval do
     @child_key ||= Hash.new
     @child_key[repository_name] ||= begin
       model_properties = child_model.properties(repository_name)
-
+      
       child_key = parent_key(repository_name).zip(@child_properties || []).map do |parent_property,property_name|
         # TODO: use something similar to DM::NamingConventions to determine the property name
         parent_name = Extlib::Inflection.underscore(Extlib::Inflection.demodulize(parent_model.base_model.name))
