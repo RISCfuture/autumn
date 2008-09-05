@@ -3,7 +3,6 @@
 require 'thread'
 require 'socket'
 require 'openssl'
-require 'facets/annotations'
 
 module Autumn
   

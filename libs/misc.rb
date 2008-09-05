@@ -2,7 +2,7 @@
 # Core objects.
 
 require 'thread'
-require 'facets/style'
+require 'facets/string/style'
 
 class Numeric # :nodoc:
   

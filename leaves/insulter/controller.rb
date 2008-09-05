@@ -1,5 +1,3 @@
-require 'facets/random'
-
 # Controller and model for the Insulter leaf; maintains the list of insult
 # substrings and chooses from them randomly.
 

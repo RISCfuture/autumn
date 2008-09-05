@@ -1,8 +1,6 @@
 # Defines the Autumn::Authentication class, which includes different
 # authentication strategies available to leaves.
 
-require 'facets/times'
-
 module Autumn
   
   # Defines classes which each encapsulate a different strategy for
@@ -169,7 +167,7 @@ module Autumn
     class Password < Base
       # The default period of time that must occur with no use of protected
       # commands after which a user's credentials expire.
-      DEFAULT_EXPIRE_TIME = 5.minutes
+      DEFAULT_EXPIRE_TIME = 5*60
       
       # Creates a new authenticator. You provide a valid password with the
       # +password+ option. If that option is not provided, an exception is
