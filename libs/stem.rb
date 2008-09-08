@@ -130,6 +130,27 @@ module Autumn
   # Because of this, any method marked as synchronized can be guaranteed that
   # the stem's channel data is consistent and "in sync" for the moment of time
   # that the message was received.
+  #
+  # = Throttling
+  #
+  # If you send a message with the +privmsg+ command, it will not be throttled.
+  # (Most IRC servers have some form of flood control that throttles rapid
+  # privmsg commands, however.)
+  #
+  # If your IRC server does not have flood control, or you want to use
+  # client-side flood control, you can enable the +throttling+ option. The stem
+  # will throttle large numbers of simultaneous messages, sending them with
+  # short pauses in between.
+  #
+  # The +privmsg+ command will still _not_ be throttled (since it is a facade
+  # for the pure IRC command), but the StemFacade#message command will gain the
+  # ability to throttle its messages.
+  #
+  # By default, the stem will begin throttling when there are five or more
+  # messages queued to be sent. It will continue throttling until the queue is
+  # emptied. When throttling, messages will be sent with a delay of one second
+  # between them. These options can be customized (see the initialize method
+  # options).
 
   class Stem
     include StemFacade
@@ -255,6 +276,12 @@ module Autumn
     # +ghost_without_password+:: Set this to true if your IRC server uses
     #                            hostname authentication instead of password
     #                            authentication for GHOST commands.
+    # +throttle+:: If enabled, the stem will throttle large amounts of
+    #              simultaneous messages.
+    # +throttle_rate+:: Sets the number of seconds that pass between consecutive
+    #                   PRIVMSG's when the leaf's output is throttled.
+    # +throttle_threshold+:: Sets the number of simultaneous messages that must
+    #                        be queued before the leaf begins throttling output.
     #
     # Any channel name can be a one-item hash, in which case it is taken to be
     # a channel name-channel password association.
@@ -284,6 +311,10 @@ module Autumn
       end
       @server_type = Daemon[opts[:server_type]]
       @server_type ||= Daemon.default
+      @throttle_rate = opts[:throttle_rate]
+      @throttle_rate ||= 1
+      @throttle_threshold = opts[:throttle_threshold]
+      @throttle_threshold ||= 5
       
       @channels = Set.new
       @channels.merge opts[:channels] if opts[:channels]
@@ -301,6 +332,20 @@ module Autumn
       @channels.map! { |chan| chan.kind_of?(Hash) ? chan.keys.only : chan }
       @channel_members = Hash.new
       @updating_channel_members = Hash.new # stores the NAMES list as its being built
+      
+      if @throttle = opts[:throttle] then
+        @messages_queue = Queue.new
+        @messages_thread = Thread.new do
+          throttled = false
+          loop do
+            args = @messages_queue.pop
+            throttled = true if not throttled and @messages_queue.length >= @throttle_threshold
+            throttled = false if throttled and @messages_queue.empty?
+            sleep @throttle_rate if throttled
+            privmsg *args
+          end
+        end
+      end
       
       @chan_mutex = Mutex.new
       @join_mutex = Mutex.new
@@ -854,6 +899,10 @@ module Autumn
       @channels.delete channel
       @channel_passwords.delete channel
       @channel_members.delete channel
+    end
+    
+    def privmsgt(*args) # a throttled privmsg
+      @messages_queue << args
     end
   end
 end

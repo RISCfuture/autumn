@@ -358,6 +358,9 @@ are:
 | @ghost_without_password@ | If true, the stem will use the GHOST command without a password. Set this for servers that use some other form of nick authentication, such as hostname-based. |
 | @user@ | The username to send (optional). |
 | @name@ | The user's real name (optional). |
+| @throttle@ | If enabled, the stem will throttle large amounts of simultaneous messages. |
+| @throttle_rate@ | Sets the number of seconds that pass between consecutive PRIVMSG's when the leaf's output is throttled. |
+| @throttle_threshold@ | Sets the number of simultaneous messages that must be queued before the leaf begins throttling output. |
 
 The @channel@ and @channels@ directives can also be used to specify a password
 for a password protected channel, like so:
