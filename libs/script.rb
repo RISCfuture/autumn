@@ -3,6 +3,7 @@
 
 require 'getoptlong'
 require 'rdoc/usage'
+require 'facets'
 require 'libs/generator'
 
 module Autumn

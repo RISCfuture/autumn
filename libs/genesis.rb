@@ -6,7 +6,7 @@ require 'rubygems'
 require 'yaml'
 require 'logger'
 require 'facets'
-require 'facets/hash/symbolize_keys'
+require 'facets/annotations'
 require 'libs/misc'
 require 'libs/speciator'
 require 'libs/authentication'
@@ -139,8 +139,8 @@ module Autumn # :nodoc:
       require 'libs/datamapper_hacks'
       
       dbconfig = YAML.load(File.open(db_file, 'r'))
-      dbconfig.symbolize_keys.each do |db, config|
-        DataMapper.setup(db, config.kind_of?(Hash) ? config.symbolize_keys : config)
+      dbconfig.rekey(&:to_sym).each do |db, config|
+        DataMapper.setup(db, config.kind_of?(Hash) ? config.rekey(&:to_sym) : config)
       end
     end
     
