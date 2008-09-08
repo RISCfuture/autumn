@@ -227,7 +227,7 @@ describe Autumn::Authentication::Password do
   describe "initialized with a password and custom expire time" do
     before :each do
       @sender_hash = { :nick => 'Nick' }
-      @auth = Autumn::Authentication::Password.new :password => 'abc123', :expire_time => 5.seconds
+      @auth = Autumn::Authentication::Password.new :password => 'abc123', :expire_time => 5
     end
     
     it "should not authenticate any nicks" do

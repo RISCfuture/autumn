@@ -87,7 +87,7 @@ describe DataMapper::Resource do
     end
   
     it " ... with appropriate relationships" do
-      CategoryPost.many_to_one_relationships.collect(&:name).to_set.should eql([ :category, :post ].to_set)
+      CategoryPost.many_to_one_relationships.collect(&:name).to_set.should == [ :category, :post ].to_set
     end
   
     after :each do
