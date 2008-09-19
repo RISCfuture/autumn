@@ -853,9 +853,9 @@ module Autumn
     end
     
     def split_out_message(arg_str)
-      arg_str, *msg = arg_str.split(':')
-      msg = msg.join(':')
-      arg_array = arg_str.strip.words
+      arg_str.match /(.*?):(.*)/
+      arg_array = $1.strip.words
+      msg = $2
       return arg_array, msg
     end
     
