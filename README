@@ -17,8 +17,9 @@ support.
 == Requirements
 
 Autumn requires RubyGems (http://www.rubygems.org) and the Daemons and Facets*
-gems. Install RubyGems then run <tt>sudo gem install daemons facets</tt> in a
-command line in order to run Autumn.
+gems, as well as some of the gems spun off from Facets. Install RubyGems then
+run <tt>sudo gem install daemons facets annotations english</tt> in a command
+line in order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the DataMapper website (http://www.datamapper.org).
@@ -167,7 +168,7 @@ have to do is create a method called +fortune_command+ to make it work:
    FORTUNES.at_rand
  end
 
-The +at_rand+ method is provided by Facets, so you'll need to add a <tt>require
+The +at_rand+ method is provided by Facets, so you may need to add a <tt>require
 'facets/random'</tt> line at the top of your file. Our method returns a fortune
 at random, which is automatically transmitted to the channel or nick where the
 command was received.
