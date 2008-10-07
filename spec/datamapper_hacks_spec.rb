@@ -1,4 +1,5 @@
 require 'rubygems'
+require 'facets/symbol'
 require 'dm-core'
 
 require 'libs/misc'

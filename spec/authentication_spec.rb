@@ -1,6 +1,6 @@
 require 'set'
 require 'rubygems'
-require 'facets/string/to_re'
+require 'facets/string'
 
 require 'libs/authentication'
 

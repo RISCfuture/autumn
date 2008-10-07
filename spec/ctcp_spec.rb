@@ -1,3 +1,15 @@
+require 'set'
+require 'rubygems'
+require 'facets/array'
+require 'facets/enumerable'
+require 'facets/kernel'
+require 'facets/string'
+require 'facets/ann'
+
+require 'libs/misc'
+require 'libs/stem_facade'
+require 'libs/daemon'
+require 'libs/stem'
 require 'libs/ctcp'
 
 describe Autumn::CTCP do
