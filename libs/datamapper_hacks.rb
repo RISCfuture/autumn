@@ -126,21 +126,21 @@ DataMapper::Associations::ManyToMany.module_eval do # :nodoc:
     opts[:child_model]              ||= opts.delete(:class_name)  || Extlib::Inflection.classify(name)
     opts[:parent_model]             =   model
     opts[:repository_name]          =   repository_name
-    opts[:remote_relationship_name] ||= opts.delete(:remote_name) || name
+    opts[:remote_relationship_name] ||= opts.delete(:remote_name) || Extlib::Inflection.tableize(opts[:child_model])
     opts[:parent_key]               =   opts[:parent_key]
     opts[:child_key]                =   opts[:child_key]
     opts[:mutable]                  =   true
 
     names        = [ opts[:child_model].demodulize, opts[:parent_model].name.demodulize ].sort
-    model_name   = names.join
+    model_name   = names.join.gsub("::", "")
     storage_name = Extlib::Inflection.tableize(Extlib::Inflection.pluralize(names[0]) + names[1])
     model_module = model.to_s.split('::')
     model_module.pop
     model_module = model_module.join('::')
     model_module = model_module.empty? ? Object : eval("::#{model_module}")
-
+    
     opts[:near_relationship_name] = Extlib::Inflection.tableize(model_name).to_sym
-
+    
     model.has(model.n, opts[:near_relationship_name], :old_behavior => true)
 
     relationship = DataMapper::Associations::RelationshipChain.new(opts)
@@ -156,7 +156,7 @@ DataMapper::Associations::ManyToMany.module_eval do # :nodoc:
       EOS
 
       names.each do |n|
-        model.belongs_to(Extlib::Inflection.underscore(n).to_sym)
+        model.belongs_to(Extlib::Inflection.underscore(n).gsub("/", "_").to_sym, :class_name => n)
       end
 
       model_module.const_set(model_name, model)
@@ -220,29 +220,32 @@ DataMapper::Associations::Relationship.class_eval do
     repository_name ||= repository.name
     @child_key ||= Hash.new
     @child_key[repository_name] ||= begin
-      model_properties = child_model.properties(repository_name)
-      
-      child_key = parent_key(repository_name).zip(@child_properties || []).map do |parent_property,property_name|
-        # TODO: use something similar to DM::NamingConventions to determine the property name
-        parent_name = Extlib::Inflection.underscore(Extlib::Inflection.demodulize(parent_model.base_model.name))
-        property_name ||= "#{parent_name}_#{parent_property.name}".to_sym
+      child_key = nil
+      repository(repository_name).scope do |r|
+        model_properties = child_model.properties(repository_name)
 
-        if model_properties.has_property?(property_name)
-          model_properties[property_name]
-        else
-          options = {}
+        child_key = parent_key(repository_name).zip(@child_properties || []).map do |parent_property,property_name|
+          # TODO: use something similar to DM::NamingConventions to determine the property name
+          parent_name = Extlib::Inflection.underscore(Extlib::Inflection.demodulize(parent_model.base_model.name))
+          property_name ||= "#{parent_name}_#{parent_property.name}".to_sym
 
-          [ :length, :precision, :scale ].each do |option|
-            options[option] = parent_property.send(option)
+          if model_properties.has_property?(property_name)
+            model_properties[property_name]
+          else
+            options = {}
+
+            [ :length, :precision, :scale ].each do |option|
+              options[option] = parent_property.send(option)
+            end
+
+            # NOTE: hack to make each many to many child_key a true key,
+            # until I can figure out a better place for this check
+            if child_model.respond_to?(:many_to_many)
+              options[:key] = true
+            end
+
+            child_model.property(property_name, parent_property.primitive, options)
           end
-
-          # NOTE: hack to make each many to many child_key a true key,
-          # until I can figure out a better place for this check
-          if child_model.respond_to?(:many_to_many)
-            options[:key] = true
-          end
-
-          child_model.property(property_name, parent_property.primitive, options)
         end
       end
       DataMapper::PropertySet.new(child_key)
@@ -262,10 +265,13 @@ DataMapper::Associations::Relationship.class_eval do
     repository_name ||= repository.name
     @parent_key ||= Hash.new
     @parent_key[repository_name] ||= begin
-      parent_key = if @parent_properties
-        parent_model.properties(repository_name).slice(*@parent_properties)
-      else
-        parent_model.key(repository_name)
+      parent_key = nil
+      repository(repository_name).scope do |r|
+        parent_key = if @parent_properties
+          parent_model.properties(repository_name).slice(*@parent_properties)
+        else
+          parent_model.key(repository_name)
+        end
       end
       DataMapper::PropertySet.new(parent_key)
     end
