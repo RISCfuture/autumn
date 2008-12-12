@@ -18,8 +18,8 @@ support.
 
 Autumn requires RubyGems (http://www.rubygems.org) and the Daemons and Facets*
 gems, as well as some of the gems spun off from Facets. Install RubyGems then
-run <tt>sudo gem install daemons facets annotations english</tt> in a command
-line in order to run Autumn.
+run <tt>sudo gem install daemons facets anise english</tt> in a command line in
+order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the DataMapper website (http://www.datamapper.org).
@@ -1013,7 +1013,21 @@ Leaf's Module" if you're confused.)
 
 == Scripts
 
-Autumn includes four scripts to help you control it.
+Autumn includes some scripts to help you control it.
+
+=== script/console
+
+Bootstraps an IRb console with the Autumn environment configured. Stems and
+leaves are accessile from the Foliater instance. DataMapper models can be used.
+Does not start any stems (in other words, no actual server login occurs).
+
+Usage: script/console <options>
+
+where <options> may contain:
+
+<tt>--irb</tt>:: Invoke a different Ruby terminal.
+
+You can alter the season by setting the +SEASON+ environment variable.
 
 === script/daemon
 

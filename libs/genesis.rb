@@ -13,7 +13,7 @@ require 'facets/kernel'
 require 'facets/string'
 require 'facets/symbol'
 require 'facets/time'
-require 'facets/ann'
+require 'anise'
 require 'libs/misc'
 require 'libs/speciator'
 require 'libs/authentication'
@@ -140,8 +140,8 @@ module Autumn # :nodoc:
         return
       end
       
-      gem 'extlib', '=0.9.8'
-      gem 'dm-core', '=0.9.6'
+      #gem 'extlib', '=0.9.8'
+      gem 'dm-core', '=0.9.8'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       

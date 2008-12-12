@@ -148,6 +148,8 @@ module Autumn
   # initialization options; see initialize.
   
   class Leaf
+    include Anise::Annotation
+    
     # Default for the +command_prefix+ init option.
     DEFAULT_COMMAND_PREFIX = '!'
     @@view_alias = Hash.new { |h,k| k }
