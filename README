@@ -1013,7 +1013,21 @@ Leaf's Module" if you're confused.)
 
 == Scripts
 
-Autumn includes four scripts to help you control it.
+Autumn includes some scripts to help you control it.
+
+=== script/console
+
+Bootstraps an IRb console with the Autumn environment configured. Stems and
+leaves are accessile from the Foliater instance. DataMapper models can be used.
+Does not start any stems (in other words, no actual server login occurs).
+
+Usage: script/console <options>
+
+where <options> may contain:
+
+<tt>--irb</tt>:: Invoke a different Ruby terminal.
+
+You can alter the season by setting the +SEASON+ environment variable.
 
 === script/daemon
 

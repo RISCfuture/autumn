@@ -13,7 +13,7 @@ irb = RUBY_PLATFORM =~ /(:?mswin|mingw)/ ? 'irb.bat' : 'irb'
 require 'optparse'
 options = { :irb => irb }
 OptionParser.new do |opt|
-  opt.banner = "Usage: #{File.basename(__FILE__)} [environment] [options]"
+  opt.banner = "Usage: #{File.basename(__FILE__)} [options]"
   opt.on("--irb=[#{irb}]", 'Invoke a different irb.') { |v| options[:irb] = v }
   opt.parse!(ARGV)
 end
