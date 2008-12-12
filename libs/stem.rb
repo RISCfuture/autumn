@@ -154,7 +154,7 @@ module Autumn
 
   class Stem
     include StemFacade
-    include Anise::Annotations
+    include Anise::Annotation
     
     # Describes all possible channel names. Omits the channel prefix, as that
     # can vary from server to server. (See channel?)
@@ -445,7 +445,7 @@ module Autumn
   
     def add_listener(obj)
       @listeners << obj
-      obj.class.extend Anise::Annotation # give it the ability to sync stems
+      obj.class.extend Anise::Annotation # give it the ability to sync
       obj.respond :added, self
     end
     
