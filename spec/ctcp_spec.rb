@@ -4,7 +4,7 @@ require 'facets/array'
 require 'facets/enumerable'
 require 'facets/kernel'
 require 'facets/string'
-require 'facets/ann'
+require 'anise'
 
 require 'libs/misc'
 require 'libs/stem_facade'
