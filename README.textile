@@ -15,8 +15,9 @@ support.
 h2. Requirements
 
 Autumn requires "RubyGems":http://www.rubygems.org and the Daemons and Facets*
-gems. Install RubyGems then run @sudo gem install daemons facets@ in a command
-line in order to run Autumn.
+gems, as well as some of the gems spun off from Facets. Install RubyGems then
+run @sudo gem install daemons facets anise english@ in a command line in order
+to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the "DataMapper website":http://www.datamapper.org.
@@ -164,14 +165,14 @@ have to do is create a method called @fortune_command@ to make it work:
 
 <pre><code>
 def fortune_command(stem, sender, reply_to, msg)
-  FORTUNES.at_rand
+  FORTUNES.pick
 end
 </code></pre>
 
-The @at_rand@ method is provided by Facets, so you'll need to add a
-<code>require 'facets/random'</code> line at the top of your file. Our method
-returns a fortune at random, which is automatically transmitted to the channel
-or nick where the command was received.
+The @pick@ method is provided by Facets, so you may need to add a <code>require
+'facets/random'</code> line at the top of your file. Our method returns a
+fortune at random, which is automatically transmitted to the channel or nick
+where the command was received.
 
 Of course, any self-respecting fortune bot announces its presence when it starts
 up, so, in your @Controller@ class, override the @Autumn::Leaf#did_start_up@
@@ -254,7 +255,7 @@ upgrade our @fortune_command@ method for that:
 
 <pre><code>
 def fortune_command(stem, sender, reply_to, msg)
-  var :fortune => FORTUNES.at_rand
+  var :fortune => FORTUNES.pick
 end
 </code></pre>
 
@@ -1056,7 +1057,21 @@ Leaf's Module* if you're confused.)
 
 h2. Scripts
 
-Autumn includes four scripts to help you control it.
+Autumn includes some scripts to help you control it.
+
+h3. <tt>script/console</tt>
+
+Bootstraps an IRb console with the Autumn environment configured. Stems and
+leaves are accessile from the Foliater instance. DataMapper models can be used.
+Does not start any stems (in other words, no actual server login occurs).
+
+Usage: @script/console [options]@
+
+where [options] may contain:
+
+| @--irb@ | Invoke a different Ruby terminal. |
+
+You can alter the season by setting the @SEASON@ environment variable.
 
 h3. <tt>script/daemon</tt>
 

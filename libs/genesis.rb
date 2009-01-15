@@ -5,8 +5,16 @@ require 'set'
 require 'rubygems'
 require 'yaml'
 require 'logger'
-require 'facets'
-require 'facets/annotations'
+require 'facets/array'
+require 'facets/date'
+require 'facets/enumerable'
+require 'facets/hash'
+require 'facets/kernel'
+require 'facets/random'
+require 'facets/string'
+require 'facets/symbol'
+require 'facets/time'
+require 'anise'
 require 'libs/misc'
 require 'libs/speciator'
 require 'libs/authentication'
@@ -133,8 +141,6 @@ module Autumn # :nodoc:
         return
       end
       
-      gem 'extlib', '=0.9.5'
-      gem 'dm-core', '=0.9.5'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       

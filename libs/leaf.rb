@@ -148,6 +148,8 @@ module Autumn
   # initialization options; see initialize.
   
   class Leaf
+    include Anise::Annotation
+    
     # Default for the +command_prefix+ init option.
     DEFAULT_COMMAND_PREFIX = '!'
     @@view_alias = Hash.new { |h,k| k }
@@ -685,9 +687,7 @@ module Autumn
       return true if @authenticator.nil?
       # Any method annotated as protected is authenticated unconditionally
       if not self.class.ann("#{cmd}_command".to_sym, :protected) then
-        # Otherwise, we only authenticate if it's listed as protected in the config
-        return true if options[:authentication]['only'] and not options[:authentication]['only'].include? cmd
-        return true if options[:authentication]['except'] and options[:authentication]['except'].include? cmd
+        return true
       end
       if @authenticator.authenticate(stem, channel, sender, self) then
         return true
