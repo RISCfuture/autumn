@@ -165,14 +165,14 @@ have to do is create a method called @fortune_command@ to make it work:
 
 <pre><code>
 def fortune_command(stem, sender, reply_to, msg)
-  FORTUNES.at_rand
+  FORTUNES.pick
 end
 </code></pre>
 
-The @at_rand@ method is provided by Facets, so you may need to add a
-<code>require 'facets/random'</code> line at the top of your file. Our method
-returns a fortune at random, which is automatically transmitted to the channel
-or nick where the command was received.
+The @pick@ method is provided by Facets, so you may need to add a <code>require
+'facets/random'</code> line at the top of your file. Our method returns a
+fortune at random, which is automatically transmitted to the channel or nick
+where the command was received.
 
 Of course, any self-respecting fortune bot announces its presence when it starts
 up, so, in your @Controller@ class, override the @Autumn::Leaf#did_start_up@
@@ -255,7 +255,7 @@ upgrade our @fortune_command@ method for that:
 
 <pre><code>
 def fortune_command(stem, sender, reply_to, msg)
-  var :fortune => FORTUNES.at_rand
+  var :fortune => FORTUNES.pick
 end
 </code></pre>
 

@@ -10,6 +10,7 @@ require 'facets/date'
 require 'facets/enumerable'
 require 'facets/hash'
 require 'facets/kernel'
+require 'facets/random'
 require 'facets/string'
 require 'facets/symbol'
 require 'facets/time'
@@ -140,8 +141,6 @@ module Autumn # :nodoc:
         return
       end
       
-      #gem 'extlib', '=0.9.8'
-      gem 'dm-core', '=0.9.8'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       
