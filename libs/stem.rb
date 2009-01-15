@@ -858,10 +858,14 @@ module Autumn
     end
     
     def split_out_message(arg_str)
-      arg_str.match /(.*?):(.*)/
-      arg_array = $1.strip.words
-      msg = $2
-      return arg_array, msg
+      if arg_str.match(/^(.*?):(.*)$/) then
+        arg_array = $1.strip.words
+        msg = $2
+        return arg_array, msg
+      else
+        # no colon in message
+        return arg_str.strip.words, nil
+      end
     end
     
     def post_startup
