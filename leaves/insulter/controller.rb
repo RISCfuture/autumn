@@ -57,9 +57,9 @@ class Controller < Autumn::Leaf
   ]
   
   def insult(victim)
-    var :adjective => ADJECTIVES.at_rand
-    var :participle => PARTICIPLES.at_rand
-    var :noun => NOUNS.at_rand
+    var :adjective => ADJECTIVES.pick
+    var :participle => PARTICIPLES.pick
+    var :noun => NOUNS.pick
     var :victim => victim
   end
 end
