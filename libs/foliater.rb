@@ -79,7 +79,7 @@ module Autumn
     
     def load_configs(stem_config, leaf_config)
       leaf_config.each do |name, options|
-        global_config_file = "leaves/#{options['class'].snakecase}/config.yml"
+        global_config_file = "#{AL_ROOT}/leaves/#{options['class'].snakecase}/config.yml"
         if File.exist? global_config_file then
           config.leaf name, YAML.load(File.open(global_config_file))
         end
@@ -105,11 +105,11 @@ module Autumn
     end
     
     def load_leaf_controller(type)
-      controller_file = "leaves/#{type.snakecase}/controller.rb"
+      controller_file = "#{AL_ROOT}/leaves/#{type.snakecase}/controller.rb"
       raise "controller.rb file for leaf #{type} not found" unless File.exist? controller_file
       controller_code = nil
       begin
-        File.open("leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
+        File.open("#{AL_ROOT}/leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
       rescue Errno::ENOENT
         raise "controller.rb file for leaf #{type} not found"
       end
@@ -119,7 +119,7 @@ module Autumn
     def load_leaf_helpers(type)
       mod = config.leaf(type, :module)
       helper_code = nil
-      Dir.glob("leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
+      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
       end
@@ -140,7 +140,7 @@ module Autumn
     def load_leaf_views(type)
       views = Hash.new
       view_text = nil
-      Dir.glob("leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
+      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
         view_name = File.basename(view_file).match(/^(.+)\.txt\.erb$/)[1]
         File.open(view_file, 'r') { |f| view_text = f.read }
         views[view_name] = view_text
@@ -174,7 +174,7 @@ module Autumn
       model_code = nil
       mod = config.leaf(leaf.options[:class], :module)
       leaf.database do
-        Dir.glob("leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
+        Dir.glob("#{AL_ROOT}/leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
           mod.module_eval model_code
         end
