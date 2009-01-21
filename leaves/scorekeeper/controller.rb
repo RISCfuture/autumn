@@ -1,4 +1,3 @@
-gem 'dm-ar-finders', '=0.9.8'
 require 'dm-ar-finders'
 
 begin
@@ -82,10 +81,10 @@ class Controller < Autumn::Leaf
     
     if date then
       start, stop = find_range(date)
-      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND created_at >= ? AND created_at < ?", person.id, start, stop ], :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND created_at >= ? AND created_at < ?", person.id, start, stop ], :order => [ :created_at.desc ], :limit => 5)
       #TODO is there a way to scope by both channel and receiver?
     elsif argument.empty? then
-      scores = chan.scores.all(:conditions => [ "receiver_id = ?", person.id ], :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ?", person.id ], :order => [ :created_at.desc ], :limit => 5)
       #TODO is there a way to scope by both channel and receiver?
     else
       giver = find_person(stem, argument)
@@ -95,7 +94,7 @@ class Controller < Autumn::Leaf
         var :no_giver_history => true
         return
       end
-      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND giver_id = ?", person.id, giver.id ], :order => [ :created_at.desc ])
+      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND giver_id = ?", person.id, giver.id ], :order => [ :created_at.desc ], :limit => 5)
       #TODO is there a way to scope by channel, receiver, and giver?
     end
     var :receiver => person

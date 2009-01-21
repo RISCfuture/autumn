@@ -5,14 +5,8 @@ require 'set'
 require 'rubygems'
 require 'yaml'
 require 'logger'
-require 'facets/array'
-require 'facets/date'
-require 'facets/enumerable'
-require 'facets/hash'
-require 'facets/kernel'
-require 'facets/string'
-require 'facets/symbol'
-require 'facets/time'
+require 'facets'
+require 'facets/random'
 require 'anise'
 require 'libs/misc'
 require 'libs/speciator'
@@ -57,7 +51,7 @@ module Autumn # :nodoc:
   
     def load_global_settings
       begin
-        config.global YAML.load(File.open('config/global.yml'))
+        config.global YAML.load(File.open("#{AL_ROOT}/config/global.yml"))
       rescue SystemCallError
         raise "Couldn't find your global.yml file."
       end
@@ -70,7 +64,7 @@ module Autumn # :nodoc:
     # PREREQS: load_global_settings
   
     def load_season_settings
-      @season_dir = "config/seasons/#{config.global :season}"
+      @season_dir = "#{AL_ROOT}/config/seasons/#{config.global :season}"
       raise "The current season doesn't have a directory." unless File.directory? @season_dir
       begin
         config.season YAML.load(File.open("#{@season_dir}/season.yml"))
@@ -117,7 +111,7 @@ module Autumn # :nodoc:
     # PREREQS: load_libraries
     
     def load_daemon_info
-      Dir.glob('resources/daemons/*.yml').each do |yml_file|
+      Dir.glob("#{AL_ROOT}/resources/daemons/*.yml").each do |yml_file|
         yml = YAML.load(File.open(yml_file, 'r'))
         Daemon.new File.basename(yml_file, '.yml'), yml
       end
@@ -126,7 +120,7 @@ module Autumn # :nodoc:
     # Loads Ruby code in the shared directory.
     
     def load_shared_code
-      Dir.glob('shared/**/*.rb').each { |lib| load lib }
+      Dir.glob("#{AL_ROOT}/shared/**/*.rb").each { |lib| load lib }
     end
     
     # Creates connections to databases using the DataMapper gem.
@@ -140,8 +134,6 @@ module Autumn # :nodoc:
         return
       end
       
-      #gem 'extlib', '=0.9.8'
-      gem 'dm-core', '=0.9.8'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       
@@ -192,7 +184,7 @@ module Autumn # :nodoc:
     private
     
     def log_name
-      "log/#{config.global(:season)}.log"
+      "#{AL_ROOT}/log/#{config.global(:season)}.log"
     end
   end
 end

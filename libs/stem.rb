@@ -774,9 +774,12 @@ module Autumn
       elsif comm =~ /^:(#{NICK_REGEX})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         sender = { :nick => $1 }
         command, arg_str = $2, $3
+      elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+        server, command, arg_str = $1, $2, $3
+        arg_array, msg = split_out_message(arg_str)
       elsif comm =~ /^(\w+)\s+:(.+?)[\r\n]*$/ then
         command, msg = $1, $2
-      elsif comm =~ /^:(.+?)\s+(\d+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:([^\s:]+?)\s+(\d+)\s+(.*?)[\r\n]*$/ then
         server, code, arg_str = $1, $2, $3
         arg_array, msg = split_out_message(arg_str)
         
@@ -788,7 +791,7 @@ module Autumn
         meths[:irc_response] = [ self, code, server, name, arg_array, msg ]
         return meths
       else
-        logger.error "Couldn't parse IRC message: #{comm}"
+        logger.error "Couldn't parse IRC message: #{comm.inspect}"
         return meths
       end
       
@@ -855,10 +858,14 @@ module Autumn
     end
     
     def split_out_message(arg_str)
-      arg_str, *msg = arg_str.split(':')
-      msg = msg.join(':')
-      arg_array = arg_str.strip.words
-      return arg_array, msg
+      if arg_str.match(/^(.*?):(.*)$/) then
+        arg_array = $1.strip.words
+        msg = $2
+        return arg_array, msg
+      else
+        # no colon in message
+        return arg_str.strip.words, nil
+      end
     end
     
     def post_startup

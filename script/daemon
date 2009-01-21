@@ -24,4 +24,6 @@
 require 'rubygems'
 require 'daemons'
 
-Daemons.run 'script/server', :app_name => 'autumn', :dir_mode => :script, :dir => '../tmp', :multiple => false, :backtrace => true, :monitor => false, :log_output => true
+root = File.expand_path("#{File.dirname(__FILE__)}/..")
+
+Daemons.run "#{root}/script/server", :app_name => 'autumn', :dir_mode => :normal, :dir => "#{root}/tmp", :multiple => false, :backtrace => true, :monitor => false, :log_output => true

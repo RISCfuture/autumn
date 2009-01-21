@@ -5,10 +5,6 @@
 <% elsif var(:scores).empty? %>
 	<%= var(:receiver).name %> has no points history.
 <% else %>
-	<% if var(:scores).size > 5 %>
-		<%= var(:scores).size %> point changes found; showing the first 5.)
-		<% var :scores => var(:scores).slice(0, 5) %>
-	<% end %>
 	<% var(:scores).each do |score| %>
 		[<%= score.created_at.strftime '%m/%d %I:%M %p' %>] <%= score.giver.name %> <%= score.change > 0 ? 'gave' : 'docked' %> <%= score.receiver.name %> <%= score.change.abs.pluralize('point') %><% if score.note %>: <%= score.note %><% end %>
 	<% end %>    
