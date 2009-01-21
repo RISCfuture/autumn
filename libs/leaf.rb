@@ -402,7 +402,7 @@ module Autumn
         options[:only] = [ options[:only] ]
       end
       if options[:except] and not options[:except].kind_of? Array then
-        options[:except] = [ options[:only] ]
+        options[:except] = [ options[:except] ]
       end
       write_inheritable_array 'before_filters', [ [ filter.to_sym, options ] ]
     end
@@ -429,7 +429,7 @@ module Autumn
         options[:only] = [ options[:only] ]
       end
       if options[:except] and not options[:except].kind_of? Array then
-        options[:except] = [ options[:only] ]
+        options[:except] = [ options[:except] ]
       end
       write_inheritable_array 'after_filters', [ [ filter.to_sym, options ] ]
     end
