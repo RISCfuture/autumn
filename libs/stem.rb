@@ -317,7 +317,7 @@ module Autumn
       @throttle_threshold = opts[:throttle_threshold]
       @throttle_threshold ||= 5
       
-      @nick_regex = (opts[:nick_regex] || NICK_REGEX)
+      @nick_regex = (opts[:nick_regex] ? opts[:nick_regex].to_re : NICK_REGEX)
       
       @channels = Set.new
       @channels.merge opts[:channels] if opts[:channels]
