@@ -362,6 +362,7 @@ are:
 | @throttle@ | If enabled, the stem will throttle large amounts of simultaneous messages. |
 | @throttle_rate@ | Sets the number of seconds that pass between consecutive PRIVMSG's when the leaf's output is throttled. |
 | @throttle_threshold@ | Sets the number of simultaneous messages that must be queued before the leaf begins throttling output. |
+| @nick_regex@ | The regular expression used to match nicknames in server messages. By default, it conforms to the RFC-1459 definition. |
 
 The @channel@ and @channels@ directives can also be used to specify a password
 for a password protected channel, like so:
