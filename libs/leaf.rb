@@ -561,7 +561,7 @@ module Autumn
       commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
       commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
       return if commands.empty?
-      commands.map! { |c| "!#{c}" }
+      commands.map! { |c| "#{options[:command_prefix]}#{c}" }
       "Commands for #{leaf_name}: #{commands.sort.join(', ')}"
     end
     
