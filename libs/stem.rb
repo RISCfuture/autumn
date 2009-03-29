@@ -159,7 +159,7 @@ module Autumn
     # Describes all possible channel names. Omits the channel prefix, as that
     # can vary from server to server. (See channel?)
     CHANNEL_REGEX = "[^\\s\\x7,:]+"
-    # Describes all possible nicks.
+    # The default regular expression for IRC nicknames.
     NICK_REGEX = "[a-zA-Z][a-zA-Z0-9\\-_\\[\\]\\{\\}\\\\|`\\^]+"
   
     # A parameter in an IRC command.
@@ -316,6 +316,8 @@ module Autumn
       @throttle_rate ||= 1
       @throttle_threshold = opts[:throttle_threshold]
       @throttle_threshold ||= 5
+      
+      @nick_regex = (opts[:nick_regex] || NICK_REGEX)
       
       @channels = Set.new
       @channels.merge opts[:channels] if opts[:channels]
@@ -587,7 +589,7 @@ module Autumn
     # Returns true if the string appears to be a nickname.
     
     def nick?(str)
-      str.match(NICK_REGEX) != nil
+      str.match(@nick_regex) != nil
     end
 
     # Returns the nick this stem is using.
@@ -768,10 +770,10 @@ module Autumn
         msg = $1
         meths[:irc_server_error] = [ self, msg ]
         return meths
-      elsif comm =~ /^:(#{NICK_REGEX})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{@nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         sender = { :nick => $1, :user => $2, :host => $3 }
         command, arg_str = $4, $5
-      elsif comm =~ /^:(#{NICK_REGEX})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{@nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         sender = { :nick => $1 }
         command, arg_str = $2, $3
       elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
