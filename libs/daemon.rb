@@ -196,7 +196,7 @@ module Autumn
     end
     
     def inspect # :nodoc:
-      "#<#{self.class.to_s} #{@@instances.key self}>"
+      "#<#{self.class.to_s} #{@@instances.index self}>"
     end
     
     private

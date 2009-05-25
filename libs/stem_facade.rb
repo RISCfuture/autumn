@@ -79,7 +79,7 @@ module Autumn
     
     def grant_user_privilege(channel, nick, privilege)
       channel = normalized_channel_name(channel)
-      privcode = server_type.privilege.key(privilege).chr if server_type.privilege.value? privilege
+      privcode = server_type.privilege.index(privilege).chr if server_type.privilege.value? privilege
       privcode ||= privilege
       mode channel, "+#{privcode}", nick
     end
@@ -91,7 +91,7 @@ module Autumn
     
     def remove_user_privilege(channel, nick, privilege)
       channel = normalized_channel_name(channel)
-      privcode = server_type.privilege.key(privilege).chr if server_type.privilege.value? privilege
+      privcode = server_type.privilege.index(privilege).chr if server_type.privilege.value? privilege
       privcode ||= privilege
       mode channel, "-#{privcode}", nick
     end
@@ -106,7 +106,7 @@ module Autumn
     #  grant_usermode 'UpMobility', 'os'
     
     def grant_usermode(nick, property)
-      propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
+      propcode = server_type.usermode.index(property).chr if server_type.usermode.value? property
       propcode ||= property
       mode nick, "+#{property}"
     end
@@ -118,7 +118,7 @@ module Autumn
     # with the letter code for the usermode.
     
     def remove_usermode(nick, property)
-      propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
+      propcode = server_type.usermode.index(property).chr if server_type.usermode.value? property
       propcode ||= property
       mode nick, "-#{property}"
     end
@@ -135,7 +135,7 @@ module Autumn
     
     def set_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
-      propcode = server_type.channel_property.key(property).chr if server_type.channel_property.value? property
+      propcode = server_type.channel_property.index(property).chr if server_type.channel_property.value? property
       propcode ||= property
       mode channel, "+#{propcode}", argument
     end
@@ -148,7 +148,7 @@ module Autumn
     
     def unset_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
-      propcode = server_type.channel_property.key(property).chr if server_type.channel_property.value? property
+      propcode = server_type.channel_property.index(property).chr if server_type.channel_property.value? property
       propcode ||= property
       mode channel, "-#{propcode}", argument
     end
