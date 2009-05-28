@@ -270,7 +270,7 @@ DataMapper::Associations::Relationship.class_eval do
         parent_key = if @parent_properties
           parent_model.properties(repository_name).slice(*@parent_properties)
         else
-          parent_model.index(repository_name)
+          parent_model.key(repository_name)
         end
       end
       DataMapper::PropertySet.new(parent_key)
