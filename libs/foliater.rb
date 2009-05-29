@@ -99,6 +99,7 @@ module Autumn
         
         config.leaf type, :module => Object.const_get(type)
         
+        load_leaf_libs type
         load_leaf_controller(type)
         load_leaf_helpers(type)
         load_leaf_views(type)

@@ -1,1 +1,1 @@
-require 'dm-timestamp'
+require 'dm-timestamps'
