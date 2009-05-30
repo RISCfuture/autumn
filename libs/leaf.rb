@@ -659,7 +659,7 @@ module Autumn
     end
     
     def leaf_name
-      Foliater.instance.leaves.index self
+      Foliater.instance.leaves.key self
     end
 
     def run_before_filters(cmd, stem, channel, sender, command, msg)
