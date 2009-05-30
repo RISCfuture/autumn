@@ -92,7 +92,7 @@ module Autumn
         created dpath, options
       end
       
-      [ 'helpers', 'models', 'tasks', 'views' ].each do |dir|
+      [ 'lib', 'helpers', 'models', 'tasks', 'views' ].each do |dir|
         path = "leaves/#{name.snakecase}/#{dir}"
         if File.directory? path then
           exists path, options
