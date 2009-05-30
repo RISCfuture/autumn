@@ -57,6 +57,7 @@ overview you can consult for future reference:
     * controller.rb - The leaf's controller object
     * <b>data/</b> - Optional directory for data storage (not used by Autumn)
     * <b>helpers/</b> - Modules that extend the controller and views
+    * <b>lib</b> - Library files loaded before the leaf
     * <b>models/</b> - Active record-type database objects
     * <b>tasks</b> - Additional rake tasks for this leaf
     * <b>views/</b> - ERb views for each of the leaf's commands
@@ -752,6 +753,12 @@ database helper and a network helper, you could create two modules named
 +DatabaseHelper+ and +NetworkHelper+. Any modules named in this fashion and
 placed in the helpers subdirectory will be loaded and appended to the
 controller and its views automatically.
+
+=== Loading libraries
+
+Files placed in your leaf's lib directory will be loaded and run before your
+leaf's controller, helpers, and views are parsed. You can place any gem
+dependencies in this file, or preload any class definitions.
 
 === Debugging Your Leaf
 
