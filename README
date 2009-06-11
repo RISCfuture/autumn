@@ -465,7 +465,7 @@ and they are added to the filter chain using the +before_filter+ and
 +after_filter+ methods (like in Ruby on Rails). As an example, imagine you
 wanted your bot to say something after each command:
 
- class Controller > Autumn::Leaf
+ class Controller < Autumn::Leaf
    after_filter :outro
  
    private

@@ -469,7 +469,7 @@ methods (like in Ruby on Rails). As an example, imagine you wanted your bot to
 say something after each command:
 
 <pre><code>
-class Controller > Autumn::Leaf
+class Controller < Autumn::Leaf
   after_filter :outro
 
   private
