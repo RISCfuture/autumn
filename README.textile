@@ -2,7 +2,7 @@ h1. Autumn: A Ruby IRC Bot Framework
 
 *Version 3.0 (Jul 4, 2008)*
 
-| Author | Tim Morgan (riscfuture@gmail.com) |
+| Author | Tim Morgan (autumn@timothymorgan.info) |
 | Copyright | Copyright (c)2007-2008 Tim Morgan |
 | License | Distributed under the same terms as Ruby. Portions of this code are copyright (c)2004 David Heinemeier Hansson; please see <tt>libs/inheritable_attributes.rb</tt> for more information. |
 
