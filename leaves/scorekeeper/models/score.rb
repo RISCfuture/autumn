@@ -4,13 +4,18 @@ class Score
   include DataMapper::Resource
   
   property :id, Integer, :serial => true
+  property :giver_id, Integer, :nullable => false, :index => :giver_and_receiver
+  property :receiver_id, Integer, :nullable => false, :index => :giver_and_receiver
+  property :channel_id, Integer, :nullable => false, :index => true
   property :change, Integer, :nullable => false, :default => 0
   property :note, String
-  property :created_at, DateTime
+  timestamps :created_at
   
   belongs_to :giver, :class_name => 'Person', :child_key => [ :giver_id ]
   belongs_to :receiver, :class_name => 'Person', :child_key => [ :receiver_id ]
   belongs_to :channel
+  
+  validates_with_method :cant_give_scores_to_self
   
   # Returns scores given to a Person.
   
@@ -38,5 +43,15 @@ class Score
   
   def self.newest_first
     all(:order => [ :created_at.desc ])
+  end
+  
+  private
+  
+  def cant_give_scores_to_self
+    if giver_id == receiver_id then
+      [ false, "You can't change your own score." ]
+    else
+      true
+    end
   end
 end

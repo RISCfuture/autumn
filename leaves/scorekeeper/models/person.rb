@@ -4,8 +4,8 @@ class Person
   include DataMapper::Resource
   
   property :id, Integer, :serial => true
-  property :server, String, :nullable => false
-  property :name, String, :nullable => false
+  property :server, String, :nullable => false, :unique_index => :server_and_name
+  property :name, String, :nullable => false, :unique_index => :server_and_name
   property :authorized, Boolean, :nullable => false, :default => true
   
   has n, :scores, :child_key => [ :receiver_id ]

@@ -5,8 +5,8 @@ class Channel
   include DataMapper::Resource
   
   property :id, Integer, :serial => true
-  property :server, String, :nullable => false
-  property :name, String, :nullable => false
+  property :server, String, :key => true
+  property :name, String, :key => true
   
   has n, :scores
   
