@@ -17,6 +17,8 @@ event:
   14: :rpl_yourcookie
   246: :rpl_statsuline
   224: :rpl_statsfline
+  477: :err_needreggednick
+  42: :rpl_youruniqueid
 user_prefix: 
   "%": :half_operator
 usermode: 

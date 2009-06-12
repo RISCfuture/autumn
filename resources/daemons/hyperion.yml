@@ -1,0 +1,4 @@
+--- 
+event: 
+  477: :err_needreggednick
+  250: :rpl_statsconn
