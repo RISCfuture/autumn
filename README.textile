@@ -16,8 +16,8 @@ h2. Requirements
 
 Autumn requires "RubyGems":http://www.rubygems.org and the Daemons and Facets*
 gems, as well as some of the gems spun off from Facets. Install RubyGems then
-run @sudo gem install daemons facets anise english@ in a command line in order
-to run Autumn.
+run @sudo gem install daemons facets anise activesupport@ in a command line in
+order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the "DataMapper website":http://www.datamapper.org.
