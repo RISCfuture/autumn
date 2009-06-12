@@ -819,7 +819,7 @@ module Autumn
         when :quit then
           arguments = { }
         when :join then
-          arguments = { :channel => msg }
+          arguments = { :channel => (msg || arg_array.at(0)) }
           msg = nil
         when :part then
           arguments = { :channel => arg_array.at(0) }
