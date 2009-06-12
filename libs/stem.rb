@@ -699,6 +699,12 @@ module Autumn
         # true and record if it was already set to true. If it wasn't already
         # set to true, we know the broadcast hasn't gone out, so we send it out.
         broadcast :stem_ready, self if should_broadcast
+      else
+        @chan_mutex.synchronize do
+          @channel_members[arguments[:channel]][sender[:nick]] = :unvoiced
+          #TODO what should we do if we are in the middle of receiving NAMES replies?
+          #TODO can we assume that all new channel members are unvoiced?
+        end
       end
     end
     ann :irc_join_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
