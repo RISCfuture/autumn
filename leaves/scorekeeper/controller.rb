@@ -38,7 +38,7 @@ class Controller < Autumn::Leaf
   private
   
   def points(stem, channel)
-    chan = Channel.find_or_create :server => server_identifier(stem), :name => channel
+    chan = Channel.find_or_create(:server => server_identifier(stem), :name => channel)
     scores = chan.scores.all
     scores.inject(Hash.new(0)) { |hsh, score| hsh[score.receiver.name] += score.change; hsh }
   end
@@ -51,10 +51,10 @@ class Controller < Autumn::Leaf
     giver = find_person(stem, sender[:nick])
     receiver = find_person(stem, victim)
     if giver.nil? and options[:scoring] == 'open' then
-      giver ||= Person.create :server => server_identifier(stem), :name => sender[:nick]
+      giver ||= Person.create(:server => server_identifier(stem), :name => sender[:nick])
     end
     if receiver.nil? and options[:scoring] == 'open' then
-      receiver ||= Person.create :server => server_identifier(stem), :name => find_in_channel(stem, channel, victim)
+      receiver ||= Person.create(:server => server_identifier(stem), :name => find_in_channel(stem, channel, victim))
     end
     unless authorized?(giver, receiver)
       var :unauthorized => true
@@ -71,7 +71,7 @@ class Controller < Autumn::Leaf
     date = argument.empty? ? nil : parse_date(argument)
     scores = Array.new
     
-    chan = Channel.first(:name => channel)
+    chan = Channel.named(channel).first
     person = find_person(stem, subject)
     if person.nil? then
       var :person => subject
@@ -81,11 +81,9 @@ class Controller < Autumn::Leaf
     
     if date then
       start, stop = find_range(date)
-      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND created_at >= ? AND created_at < ?", person.id, start, stop ], :order => [ :created_at.desc ], :limit => 5)
-      #TODO is there a way to scope by both channel and receiver?
+      scores = chan.scores.given_to(person).between(start, stop).newest_first.all(:limit => 5)
     elsif argument.empty? then
-      scores = chan.scores.all(:conditions => [ "receiver_id = ?", person.id ], :order => [ :created_at.desc ], :limit => 5)
-      #TODO is there a way to scope by both channel and receiver?
+      scores = chan.scores.given_to(person).newest_first.all(:limit => 5)
     else
       giver = find_person(stem, argument)
       if giver.nil? then
@@ -94,8 +92,7 @@ class Controller < Autumn::Leaf
         var :no_giver_history => true
         return
       end
-      scores = chan.scores.all(:conditions => [ "receiver_id = ? AND giver_id = ?", person.id, giver.id ], :order => [ :created_at.desc ], :limit => 5)
-      #TODO is there a way to scope by channel, receiver, and giver?
+      scores = chan.scores.given_by(giver).given_to(person).newest_first.all(:limit => 5)
     end
     var :receiver => person
     var :giver => giver
