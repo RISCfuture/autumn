@@ -151,7 +151,9 @@ module Autumn
       if MERGED_METHODS.include? meth then
         merged.send meth, *args, &block
       else
-        @hashes.last.send meth, *args, &block
+        returnval = @hashes.last.send(meth, *args, &block)
+        merged :reload
+        returnval
       end
     end
     
