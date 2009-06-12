@@ -9,4 +9,10 @@ class Channel
   property :name, String, :nullable => false
   
   has n, :scores
+  
+  # Returns a channel by name.
+  
+  def self.named(name)
+    all(:name => name)
+  end
 end
