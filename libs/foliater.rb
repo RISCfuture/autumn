@@ -45,6 +45,7 @@ module Autumn
     
     def hot_reload(leaf)
       type = leaf.class.to_s.split('::').first
+      load_leaf_libs type
       load_leaf_controller type
       load_leaf_helpers type
       load_leaf_models leaf
@@ -98,6 +99,7 @@ module Autumn
         
         config.leaf type, :module => Object.const_get(type)
         
+        load_leaf_libs type
         load_leaf_controller(type)
         load_leaf_helpers(type)
         load_leaf_views(type)
@@ -135,6 +137,10 @@ module Autumn
       mod.constants.select { |const_name| const_name =~ /Helper$/ }.map { |helper_name| mod.const_get helper_name }.each do |helper|
         config.leaf(type, :helpers) << helper
       end
+    end
+    
+    def load_leaf_libs(type)
+      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/lib/*.rb").each  { |lib_file| require lib_file }
     end
     
     def load_leaf_views(type)

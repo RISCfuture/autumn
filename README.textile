@@ -2,7 +2,7 @@ h1. Autumn: A Ruby IRC Bot Framework
 
 *Version 3.0 (Jul 4, 2008)*
 
-| Author | Tim Morgan (riscfuture@gmail.com) |
+| Author | Tim Morgan (autumn@timothymorgan.info) |
 | Copyright | Copyright (c)2007-2008 Tim Morgan |
 | License | Distributed under the same terms as Ruby. Portions of this code are copyright (c)2004 David Heinemeier Hansson; please see <tt>libs/inheritable_attributes.rb</tt> for more information. |
 
@@ -16,8 +16,8 @@ h2. Requirements
 
 Autumn requires "RubyGems":http://www.rubygems.org and the Daemons and Facets*
 gems, as well as some of the gems spun off from Facets. Install RubyGems then
-run @sudo gem install daemons facets anise english@ in a command line in order
-to run Autumn.
+run @sudo gem install daemons facets anise activesupport@ in a command line in
+order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the "DataMapper website":http://www.datamapper.org.
@@ -55,6 +55,7 @@ overview you can consult for future reference:
 *** controller.rb - The leaf's controller object
 *** *data/* - Optional directory for data storage (not used by Autumn)
 *** *helpers/* - Modules that extend the controller and views
+*** *lib/* - Library files loaded before the leaf
 *** *models/* - Active record-type database objects
 *** *tasks/* - Additional rake tasks for this leaf (see *Custom leaf tasks*)
 *** *views/* - ERb views for each of the leaf's commands
@@ -468,7 +469,7 @@ methods (like in Ruby on Rails). As an example, imagine you wanted your bot to
 say something after each command:
 
 <pre><code>
-class Controller > Autumn::Leaf
+class Controller < Autumn::Leaf
   after_filter :outro
 
   private
@@ -782,6 +783,12 @@ database helper and a network helper, you could create two modules named
 @DatabaseHelper@ and @NetworkHelper@. Any modules named in this fashion and
 placed in the <tt>helpers</tt> subdirectory will be loaded and appended to the
 controller and its views automatically.
+
+h3. Loading libraries
+
+Files placed in your leaf's <tt>lib</tt> directory will be loaded and run before
+your leaf's controller, helpers, and views are parsed. You can place any gem
+dependencies in this file, or preload any class definitions.
 
 h3. Debugging Your Leaf
 

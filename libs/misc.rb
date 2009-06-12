@@ -2,7 +2,7 @@
 # Core objects.
 
 require 'thread'
-require 'english/style'
+require 'active_support'
 
 class Numeric # :nodoc:
   
@@ -27,7 +27,6 @@ class Numeric # :nodoc:
 end
 
 class String # :nodoc:
-  include English::Style
   
   # Returns a copy of this string with the first character dropped.
   

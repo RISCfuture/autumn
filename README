@@ -2,7 +2,7 @@
 
 <b>Version 3.0 (Jul 4, 2008)</b>
 
-Author::    Tim Morgan (mailto:riscfuture@gmail.com)
+Author::    Tim Morgan (mailto:autumn@timothymorgan.info)
 Copyright:: Copyright (c)2007-2008 Tim Morgan
 License::   Distributed under the same terms as Ruby. Portions of this code are
             copyright (c)2004 David Heinemeier Hansson; please see
@@ -18,8 +18,8 @@ support.
 
 Autumn requires RubyGems (http://www.rubygems.org) and the Daemons and Facets*
 gems, as well as some of the gems spun off from Facets. Install RubyGems then
-run <tt>sudo gem install daemons facets anise english</tt> in a command line in
-order to run Autumn.
+run <tt>sudo gem install daemons facets anise activesupport</tt> in a command
+line in order to run Autumn.
 
 If you wish to use a database backend for your bot, you will need the DataMapper
 gem. To install, see the DataMapper website (http://www.datamapper.org).
@@ -57,6 +57,7 @@ overview you can consult for future reference:
     * controller.rb - The leaf's controller object
     * <b>data/</b> - Optional directory for data storage (not used by Autumn)
     * <b>helpers/</b> - Modules that extend the controller and views
+    * <b>lib</b> - Library files loaded before the leaf
     * <b>models/</b> - Active record-type database objects
     * <b>tasks</b> - Additional rake tasks for this leaf
     * <b>views/</b> - ERb views for each of the leaf's commands
@@ -464,7 +465,7 @@ and they are added to the filter chain using the +before_filter+ and
 +after_filter+ methods (like in Ruby on Rails). As an example, imagine you
 wanted your bot to say something after each command:
 
- class Controller > Autumn::Leaf
+ class Controller < Autumn::Leaf
    after_filter :outro
  
    private
@@ -752,6 +753,12 @@ database helper and a network helper, you could create two modules named
 +DatabaseHelper+ and +NetworkHelper+. Any modules named in this fashion and
 placed in the helpers subdirectory will be loaded and appended to the
 controller and its views automatically.
+
+=== Loading libraries
+
+Files placed in your leaf's lib directory will be loaded and run before your
+leaf's controller, helpers, and views are parsed. You can place any gem
+dependencies in this file, or preload any class definitions.
 
 === Debugging Your Leaf
 
