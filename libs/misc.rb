@@ -2,7 +2,6 @@
 # Core objects.
 
 require 'thread'
-require 'active_support'
 
 class Numeric # :nodoc:
   

@@ -3,6 +3,7 @@
 
 require 'set'
 require 'rubygems'
+require 'active_support'
 require 'yaml'
 require 'logger'
 require 'facets'
@@ -134,7 +135,6 @@ module Autumn # :nodoc:
         return
       end
       
-      gem 'addressable', '2.0.2'
       require 'dm-core'
       require 'libs/datamapper_hacks'
       

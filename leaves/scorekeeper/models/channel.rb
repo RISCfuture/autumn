@@ -4,7 +4,7 @@
 class Channel
   include DataMapper::Resource
   
-  property :id, Integer, :serial => true
+  property :id, Serial
   property :server, String, :key => true
   property :name, String, :key => true
   

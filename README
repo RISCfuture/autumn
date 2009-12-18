@@ -657,7 +657,7 @@ Let's further assume you have a simple DataMapper object:
 
  class Fortune
    include DataMapper::Resource
-   property :id, Integer, :serial => true
+   property :id, Serial
    property :text, String
  end
 

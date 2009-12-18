@@ -3,16 +3,16 @@
 class Score
   include DataMapper::Resource
   
-  property :id, Integer, :serial => true
-  property :giver_id, Integer, :nullable => false, :index => :giver_and_receiver
-  property :receiver_id, Integer, :nullable => false, :index => :giver_and_receiver
-  property :channel_id, Integer, :nullable => false, :index => true
-  property :change, Integer, :nullable => false, :default => 0
+  property :id, Serial
+  property :giver_id, Integer, :required => true, :index => :giver_and_receiver
+  property :receiver_id, Integer, :required => true, :index => :giver_and_receiver
+  property :channel_id, Integer, :required => true, :index => true
+  property :change, Integer, :required => true, :default => 0
   property :note, String
   timestamps :created_at
   
-  belongs_to :giver, :class_name => 'Person', :child_key => [ :giver_id ]
-  belongs_to :receiver, :class_name => 'Person', :child_key => [ :receiver_id ]
+  belongs_to :giver, :model => 'Person', :child_key => [ :giver_id ]
+  belongs_to :receiver, :model => 'Person', :child_key => [ :receiver_id ]
   belongs_to :channel
   
   validates_with_method :cant_give_scores_to_self

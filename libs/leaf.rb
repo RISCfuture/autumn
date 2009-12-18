@@ -355,10 +355,10 @@ module Autumn
     #
     #  alias_command :google, :g
 
-    def self.alias_command(old, new)
-      raise NoMethodError, "Unknown command #{old}" unless instance_methods.include?("#{old}_command")
-      alias_method "#{new}_command", "#{old}_command"
-      @@view_alias[new] = old
+    def self.alias_command(old, nw)
+      raise NoMethodError, "Unknown command #{old}" unless instance_methods.include?(:"#{old}_command")
+      alias_method :"#{nw}_command", :"#{old}_command"
+      @@view_alias[nw] = old
     end
 
     # Adds a filter to the end of the list of filters to be run before a command
@@ -558,7 +558,7 @@ module Autumn
     
     def commands_command(stem, sender, reply_to, msg)
       commands = self.class.instance_methods.select { |m| m =~ /^\w+_command$/ }
-      commands.map! { |m| m.match(/^(\w+)_command$/)[1] }
+      commands.map! { |m| m.to_s.match(/^(\w+)_command$/)[1] }
       commands.reject! { |m| UNADVERTISED_COMMANDS.include? m }
       return if commands.empty?
       commands.map! { |c| "#{options[:command_prefix]}#{c}" }
@@ -659,7 +659,7 @@ module Autumn
     end
     
     def leaf_name
-      Foliater.instance.leaves.index self
+      Foliater.instance.leaves.key self
     end
 
     def run_before_filters(cmd, stem, channel, sender, command, msg)

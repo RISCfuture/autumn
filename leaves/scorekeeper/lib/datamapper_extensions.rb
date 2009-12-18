@@ -12,7 +12,7 @@ DataMapper::Timestamp.class_eval do
   def set_timestamps
     return unless dirty? || new_record?
     TIMESTAMP_PROPERTIES.each do |name,(_type,proc)|
-      if model.properties(repository.name).has_property?(name)
+      if model.properties(repository.name).named?(name)
         model.properties(repository.name)[name].set(self, proc.call(self, model.properties(repository.name)[name])) unless attribute_dirty?(name)
       end
     end
