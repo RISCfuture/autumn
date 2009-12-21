@@ -1,8 +1,8 @@
 # Defines the Autumn::Script class, which runs the script/generate and
 # script/destroy utilities.
 
+require 'fileutils'
 require 'getoptlong'
-require 'rdoc/usage'
 require 'facets'
 require 'libs/generator'
 
