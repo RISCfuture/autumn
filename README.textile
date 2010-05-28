@@ -364,6 +364,8 @@ are:
 | @throttle_rate@ | Sets the number of seconds that pass between consecutive PRIVMSG's when the leaf's output is throttled. |
 | @throttle_threshold@ | Sets the number of simultaneous messages that must be queued before the leaf begins throttling output. |
 | @nick_regex@ | The regular expression used to match nicknames in server messages. By default, it conforms to the RFC-1459 definition. |
+| @max_message_length@ | Maximum number of characters in any message transmitted to the server. Defaults to 500. |
+| @when_long@ | What to do when the length of a message exceeds @max_message_length@. When @send@ (default), does not change the message. When @cut@, truncates the message. When @split@, splits the message into multiple messages (if applicable, truncates it otherwise). |
 
 The @channel@ and @channels@ directives can also be used to specify a password
 for a password protected channel, like so:
