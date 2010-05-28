@@ -165,16 +165,15 @@ module Autumn
     # A parameter in an IRC command.
   
     class Parameter # :nodoc:
-      attr :name
-      attr :required
-      attr :colonize
-      attr :list
+      attr_reader :name, :required, :colonize, :list, :truncatable, :splittable
     
       def initialize(newname, options={})
         @name = newname
-        @required = options[:required] or true
-        @colonize = options[:colonize] or false
-        @list = options[:list] or false
+        @required = options[:required] || true
+        @colonize = options[:colonize] || false
+        @list = options[:list] || false
+        @truncatable = options[:truncatable] || false
+        @splittable = options[:splittable] || false
       end
     end
   
@@ -188,7 +187,7 @@ module Autumn
       :nick => [ param('nickname') ],
       :user => [ param('user'), param('host'), param('server'), param('name') ],
       :oper => [ param('user'), param('password') ],
-      :quit => [ param('message', :required => false, :colonize => true) ],
+      :quit => [ param('message', :required => false, :colonize => true, :truncatable => true) ],
     
       :join => [ param('channels', :list => true), param('keys', :list => true) ],
       :part => [ param('channels', :list => true) ],
@@ -197,7 +196,7 @@ module Autumn
       :names => [ param('channels', :required => false, :list => true) ],
       :list => [ param('channels', :required => false, :list => true), param('server', :required => false) ],
       :invite => [ param('nick'), param('channel') ],
-      :kick => [ param('channels', :list => true), param('users', :list => true), param('comment', :required => false, :colonize => true) ],
+      :kick => [ param('channels', :list => true), param('users', :list => true), param('comment', :required => false, :colonize => true, :truncatable => true) ],
     
       :version => [ param('server', :required => false) ],
       :stats => [ param('query', :required => false), param('server', :required => false) ],
@@ -208,8 +207,8 @@ module Autumn
       :admin => [ param('server', :required => false) ],
       :info => [ param('server', :required => false) ],
     
-      :privmsg => [ param('receivers', :list => true), param('message', :colonize => true) ],
-      :notice => [ param('nick'), param('message', :colonize => true) ],
+      :privmsg => [ param('receivers', :list => true), param('message', :colonize => true, :truncatable => true, :splittable => true) ],
+      :notice => [ param('nick'), param('message', :colonize => true, :truncatable => true, :splittable => true) ],
     
       :who => [ param('name', :required => false), param('is mask', :required => false) ],
       :whois => [ param('server/nicks', :list => true), param('nicks', :list => true, :required => false) ],
@@ -283,6 +282,13 @@ module Autumn
     #                   PRIVMSG's when the leaf's output is throttled.
     # +throttle_threshold+:: Sets the number of simultaneous messages that must
     #                        be queued before the leaf begins throttling output.
+    # +max_message_length+:: Maximum number of characters in any message
+    #                        transmitted to the server. Defaults to 500.
+    # +when_long+:: What to do when the length of a message exceeds
+    #               +max_message_length+. When +send+ (default), does not change
+    #               the message. When +cut+, truncates the message. When
+    #               +split+, splits the message into multiple messages (if
+    #               applicable, truncates it otherwise).
     #
     # Any channel name can be a one-item hash, in which case it is taken to be
     # a channel name-channel password association.
@@ -316,6 +322,10 @@ module Autumn
       @throttle_rate ||= 1
       @throttle_threshold = opts[:throttle_threshold]
       @throttle_threshold ||= 5
+      
+      @when_long = (opts[:when_long] || :send).to_sym
+      @max_message_length = opts[:max_message_length].to_i
+      @max_message_length = 500 if @max_message_length < 1
       
       @nick_regex = (opts[:nick_regex] ? opts[:nick_regex].to_re : NICK_REGEX)
       
@@ -553,21 +563,86 @@ module Autumn
   
     def method_missing(meth, *args) # :nodoc:
       if IRC_COMMANDS.include? meth then
-        param_info = IRC_COMMANDS[meth]
-        params = Array.new
-        param_info.each do |param|
-          raise ArgumentError, "#{param.name} is required" if args.empty? and param.required
-          arg = args.shift
-          next if arg.nil? or arg.empty?
-          arg = (param.list and arg.kind_of? Array) ? arg.map(&:to_s).join(',') : arg.to_s
-          arg = ":#{arg}" if param.colonize
-          params << arg
-        end
-        raise ArgumentError, "Too many parameters" unless args.empty?
-        transmit "#{meth.to_s.upcase} #{params.join(' ')}"
+        messages = build_irc_message(meth, args)
+        messages.each { |message| transmit message }
       else
         super
       end
+    end
+    
+    def build_irc_message(meth, args)
+      param_info = IRC_COMMANDS[meth]
+      command_arguments = Array.new
+      size = meth.to_s.size # accumulator of message length
+      
+      param_info.each do |param|
+        raise ArgumentError, "#{param.name} is required" if args.empty? and param.required
+        arg = args.shift
+        arg = nil if arg and arg.empty?
+        arg = (param.list and arg.kind_of? Array) ? arg.map(&:to_s).join(',') : arg.to_s
+        arg = ":#{arg}" if param.colonize
+        command_arguments << arg
+        size += (arg.size + 1) # include the space
+      end
+      raise ArgumentError, "Too many parameters" unless args.empty?
+      
+      if @when_long == :split then
+        messages = apply_split_strategy(param_info, command_arguments, size).map { |subargs| "#{meth.to_s.upcase} #{subargs.join(' ')}" }
+      elsif @when_long == :cut then
+        command_arguments = apply_cut_strategy(meth, param_info, command_arguments, size)
+        messages = [ "#{meth.to_s.upcase} #{command_arguments.join(' ')}" ]
+      else
+        messages = [ "#{meth.to_s.upcase} #{command_arguments.join(' ')}" ]
+      end
+      
+      return messages
+    end
+    
+    def apply_split_strategy(param_info, args, size)
+      # we're only going to split on the last splittable index
+      index_to_split = (0..(param_info.size - 1)).select { |index| param_info[index].splittable }.last
+      return [ args ] if index_to_split.nil? # nothing to split, so don't split
+
+      size_of_param = args[index_to_split].size
+      size_of_param -= 1 if param_info[index_to_split].colonize # colon doesn't count
+      
+      # if we're over maxlength even without the splittable param, then it's hopeless
+      size_without_param = size - size_of_param
+      return args if size_without_param > @max_message_length
+      
+      # otherwise let's word_wrap that parameter and build new param strings
+      parts = args[index_to_split].word_wrap(@max_message_length - size_without_param).split("\n")
+      return parts.map do |part|
+        subargs = args.dup
+        subargs[index_to_split] = part
+        subargs
+      end
+    end
+    
+    def apply_cut_strategy(meth, param_info, args, size)
+      while (size > @max_message_length)
+        over = size - @max_message_length
+        truncatable_param_indexes = (0..(param_info.size - 1)).select { |index| param_info[index].truncatable }
+        
+        # start from the last and truncate our way back down
+        index_to_truncate = truncatable_param_indexes.pop
+        break if index_to_truncate.nil?
+        size_of_param = args[index_to_truncate].size
+        size_of_param -= 1 if param_info[index_to_truncate].colonize # colon doesn't count
+        
+        if size_of_param <= over then
+          # if truncating it all the way down wouldn't get us below maxlength,
+          # then just remove it
+          args[index_to_truncate] = nil
+        else
+          # otherwise truncate it
+          args[index_to_truncate].slice!(size_of_param - over, over + 1)
+        end
+        
+        size = meth.to_s.size + args.compact.inject(0) { |sum, cur| sum + cur.size + 1 }
+      end
+      
+      return args
     end
     
     # Given a full channel name, returns the channel type as a symbol. Values
