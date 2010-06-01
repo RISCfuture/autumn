@@ -64,7 +64,7 @@ module Autumn
     #  Foliater.instance.each_stem { |stem| stem.message "Here!" }
   
     def each_stem
-      @leaves.each { |leaf| yield leaf }
+      @stems.each { |stem| yield stem }
     end
 
     # This method yields each Leaf subclass that was loaded, allowing you to
