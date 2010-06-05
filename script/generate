@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #
-# == Synopsis
+# === Synopsis
 #
 # Generates template files for leaves, seasons, and other Autumn objects.
 #
-# == Usage
+# === Usage
 #
 # script/generate <options> <template> <name>
 #
@@ -13,7 +13,7 @@
 #          "script/generate leaf Scorekeeper" to create a leaf named
 #          Scorekeeper.
 #
-# == Options
+# === Options
 #
 # --help, -h:: Displays this usage information.
 # --vcs, -c:: Add any created files or directories to the project's version

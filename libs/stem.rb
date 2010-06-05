@@ -14,7 +14,7 @@ module Autumn
   # initialize a Stem, you should call add_listener one or more times to
   # indicate to the stem what objects are interested in working with it.
   #
-  # = Listeners and Listener Plug-Ins
+  # == Listeners and Listener Plug-Ins
   #
   # An object that functions as a listener should conform to an implicit
   # protocol. See the add_listener docs for more infortmation on what methods
@@ -27,7 +27,7 @@ module Autumn
   # other listeners, such as a Leaf instance). For more information, see the
   # add_listener docs.
   #
-  # = Starting the IRC Session
+  # == Starting the IRC Session
   #
   # Once you have finished configuring your stem and you are ready to begin the
   # IRC session, call the start method. This method blocks until the the socket
@@ -35,7 +35,7 @@ module Autumn
   # been made, you are free to send and receive IRC commands until you close the
   # connection, which is done with the quit method.
   #
-  # = Receiving and Sending IRC Commands
+  # == Receiving and Sending IRC Commands
   #
   # Receiving events is explained in the add_listener docs. To send an IRC
   # command, simply call a method named after the command name. For instance, if
@@ -47,7 +47,7 @@ module Autumn
   # +IRC_COMMANDS+ constant. For more information on the proper way to use these
   # commands (and thus, the methods that call them), consult the Daemon class.
   #
-  # = Compatibility with Different Server Types
+  # == Compatibility with Different Server Types
   #
   # Many different IRC server daemons exist, and each one has a slightly
   # different IRC implementation. To manage this, there is an option called
@@ -69,23 +69,23 @@ module Autumn
   # directory for valid Daemon names and hints on how to make your own Daemon
   # specification, should you desire.
   #
-  # = Channel Names
+  # == Channel Names
   #
   # The convention for Autumn channel names is: When you specify a channel to
-  # an Autumn stem, you can (but don't have to) prefix it with the '#'
+  # an Autumn stem, you can (but don't have to) prefix it with the '\#'
   # character, if it's a normal IRC channel. When an Autumn stem gives a channel
   # name to you, it will always start with the '#' character (assuming it's a
   # normal IRC channel, of course). If your channel is prefixed with a different
   # character (say, '&'), you will need to include that prefix every time you
   # pass a channel name to a stem method.
   #
-  # So, if you would like your stem to send a message to the "##kittens"
-  # channel, you can omit the '#' character; but if it's a server-local channel
+  # So, if you would like your stem to send a message to the "\#kittens"
+  # channel, you can omit the '\#' character; but if it's a server-local channel
   # called "&kittens", you will have to provide the '&' character. Likewise, if
   # you are overriding a hook method, you can be guaranteed that the channel
-  # given to you will always be called "##kittens", and not "kittens".
+  # given to you will always be called "\#kittens", and not "kittens".
   #
-  # = Synchronous Methods
+  # == Synchronous Methods
   #
   # Because new messages are received and processed in separate threads, methods
   # can sometimes receive messages out of order (for instance, if a first
@@ -127,7 +127,7 @@ module Autumn
   # the stem's channel data is consistent and "in sync" for the moment of time
   # that the message was received.
   #
-  # = Throttling
+  # == Throttling
   #
   # If you send a message with the +privmsg+ command, it will not be throttled.
   # (Most IRC servers have some form of flood control that throttles rapid
@@ -545,7 +545,7 @@ module Autumn
       @ready == true
     end
     
-    # Normalizes a channel name by placing a "#" character before the name if no
+    # Normalizes a channel name by placing a "\#" character before the name if no
     # channel prefix is otherwise present. Also converts the name to lowercase
     # if the +case_sensitive_channel_names+ option is false. You can suppress
     # the automatic prefixing by passing false for +add_prefix+.

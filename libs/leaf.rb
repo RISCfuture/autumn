@@ -47,7 +47,7 @@ module Autumn
   # If you want to separate view logic from the controller, you can use ERb to
   # template your views. See the render method for more information.
   #
-  # = Hook Methods
+  # == Hook Methods
   #
   # Aside from adding your own <tt>*_command</tt>-type methods, you should
   # investigate overriding the "hook" methods, such as will_start_up,
@@ -55,7 +55,7 @@ module Autumn
   # There's a laundry list of so-named methods you can override. Their default
   # implementations do nothing, so there's no need to call +super+.
   #
-  # = Stem Convenience Methods
+  # == Stem Convenience Methods
   #
   # Most of the IRC actions (such as joining and leaving a channel, setting a
   # topic, etc.) are part of a Stem object. If your leaf is only running off
@@ -71,7 +71,7 @@ module Autumn
   #
   #  stems.message "Ready for orders!"
   #
-  # = Filters
+  # == Filters
   #
   # Like Ruby on Rails, you can add filters to each of your commands to be
   # executed before or after the command is run. You can do this using the
@@ -88,7 +88,7 @@ module Autumn
   # See the documentation for the before_filter and after_filter methods and the
   # README file for more information on filters.
   #
-  # = Authentication
+  # == Authentication
   #
   # If a leaf is initialized with a hash for the +authentication+ option, the
   # values of that hash are used to choose an authenticator that will be run
@@ -123,7 +123,7 @@ module Autumn
   #    ann :destructive_command, :protected => true
   #  end
   #
-  # = Logging
+  # == Logging
   #
   # Autumn comes with a framework for logging as well. It's very similar to the
   # Ruby on Rails logging framework. To log an error message:
@@ -135,7 +135,7 @@ module Autumn
   # more on seasons.) To customize the logger, and for more information on
   # logging, see the LogFacade class documentation.
   #
-  # = Colorizing and Formatting Text
+  # == Colorizing and Formatting Text
   #
   # The Autumn::Formatting module contains sub-modules which handle formatting
   # for different clients (such as mIRC-style formatting, the most common). The

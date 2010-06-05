@@ -12,7 +12,7 @@ module Autumn
   # have access to protected commands. Leaf authors can designate certain
   # commands as protected.
   #
-  # = Writing Your Own Authenticators
+  # == Writing Your Own Authenticators
   #
   # When the Autumn::Leaf#authenticate method is called, it converts the symbol
   # from snake_case to CamelCase, and looks for a class in this model. Thus, a

@@ -1,11 +1,11 @@
 #!/usr/bin/env ruby
 #
-# == Synopsis
+# === Synopsis
 #
 # Destroys the files for leaves, seasons, and other objects of the Autumn
 # framework.
 #
-# == Usage
+# === Usage
 #
 # script/destroy <options> <object> <name>
 #
@@ -13,7 +13,7 @@
 # <name>:: The name of the object to destroy. For example, you can call
 #          "script/destroy leaf Scorekeeper" to remove a leaf named Scorekeeper.
 #
-# == Options
+# === Options
 #
 # --help, -h:: Displays this usage information.
 # --vcs, -c:: Remove any created files or directories from the project's version

@@ -26,8 +26,8 @@ module Autumn
   #    [...]
   #
   # Now let's say you had a trivia leaf that asked questions about fishing
-  # games. You'd want to run that leaf on the "#fishinggames" channel of each
-  # server, and the "#games" channel of the GamingServer, but not the other
+  # games. You'd want to run that leaf on the "\#fishinggames" channel of each
+  # server, and the "\#games" channel of the GamingServer, but not the other
   # channels. (Perhaps your Stem was also running other leaves relevant to those
   # channels.) You'd set up your leaves.yml file like so:
   #

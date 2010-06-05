@@ -17,7 +17,7 @@ support.
 == Requirements
 
 Autumn requires RubyGems (http://www.rubygems.org) and the Bundler gem. To
-install: +gem install bundler && bundle install+. The Gemfile in the root
+install: <tt>gem install bundler && bundle install</tt>. The Gemfile in the root
 directory lists Autumn's gem requirements; each individual bot can have its own
 Gemfile with its own requirements.
 
@@ -763,11 +763,19 @@ database helper and a network helper, you could create two modules named
 placed in the helpers subdirectory will be loaded and appended to the
 controller and its views automatically.
 
-=== Loading libraries
+=== Loading libraries and gems
 
 Files placed in your leaf's lib directory will be loaded and run before your
-leaf's controller, helpers, and views are parsed. You can place any gem
-dependencies in this file, or preload any class definitions.
+leaf's controller, helpers, and views are parsed. You can place any extra code
+in this file, or preload any class definitions.
+
+If you have specific gem requirements for your leaf, place them in a Gemfile in
+your leaf's root directory. If you place the gems in a group named after your
+leaf, the gems will only be loaded if your leaf is loaded. See the Scorekeeper
+Gemfile for an example.
+
+You can also extend the existing <tt>:default</tt> or <tt>:datamapper</tt>
+groups if your gem requires.
 
 === Debugging Your Leaf
 
@@ -790,11 +798,11 @@ yourself.
 
 Unfortunately, it's still possible that the bug might not appear when you do
 this, but only appear when the process is daemonized. In this situation, I'd
-recommend installing rdebug (<tt>sudo gem install rdebug</tt>) and stepping
-through the code to figure out what's going wrong. In particular, make sure you
-step into the +Foliater+'s +start_stems+ method, when it creates the new
-threads. It's possible your exception will rear its head once you step into that
-line of code.
+recommend installing rdebug (<tt>gem install rdebug</tt>) and stepping through
+the code to figure out what's going wrong. In particular, make sure you step
+into the +Foliater+'s +start_stems+ method, when it creates the new threads.
+It's possible your exception will rear its head once you step into that line of
+code.
 
 == Stems
 
