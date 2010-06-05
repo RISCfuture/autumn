@@ -115,7 +115,7 @@ module Autumn
       rescue Errno::ENOENT
         raise "controller.rb file for leaf #{type} not found"
       end
-      config.leaf(type, :module).module_eval controller_code
+      config.leaf(type, :module).module_eval controller_code, File.expand_path(controller_file)
     end
     
     def load_leaf_helpers(type)
@@ -182,7 +182,7 @@ module Autumn
       leaf.database do
         Dir.glob("#{AL_ROOT}/leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
-          mod.module_eval model_code
+          mod.module_eval model_code, File.expand_path(model_file)
         end
         # Need to manually set the table names of the models because we loaded
         # them inside a module
