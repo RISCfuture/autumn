@@ -1,0 +1,87 @@
+--- 
+hash: aa15ee85f9164ad34b1aabc9793c935648eb39cf
+sources: 
+- Rubygems: 
+    uri: http://gemcutter.org
+specs: 
+- rake: 
+    version: 0.8.7
+- activesupport: 
+    version: 2.3.8
+- addressable: 
+    version: 2.1.2
+- facets: 
+    version: 2.8.4
+- anise: 
+    version: 0.4.0
+- json_pure: 
+    version: 1.4.3
+- rubyforge: 
+    version: 2.0.4
+- hoe: 
+    version: 2.6.1
+- chronic: 
+    version: 0.2.3
+- daemons: 
+    version: 1.0.10
+- data_objects: 
+    version: 0.10.2
+- extlib: 
+    version: 0.9.15
+- dm-core: 
+    version: 0.10.2
+- dm-ar-finders: 
+    version: 0.10.2
+- dm-timestamps: 
+    version: 0.10.2
+- dm-validations: 
+    version: 0.10.2
+- do_mysql: 
+    version: 0.10.2
+dependencies: 
+  daemons: 
+    version: ">= 0"
+    group: 
+    - :default
+  anise: 
+    version: ">= 0"
+    group: 
+    - :default
+  activesupport: 
+    version: ">= 0"
+    group: 
+    - :pre_config
+    require: 
+    - active_support
+  facets: 
+    version: ">= 0"
+    group: 
+    - :pre_config
+  do_mysql: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  data_objects: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  dm-core: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  chronic: 
+    version: ">= 0"
+    group: 
+    - :scorekeeper
+  dm-ar-finders: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  dm-validations: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  dm-timestamps: 
+    version: ">= 0"
+    group: 
+    - :datamapper
