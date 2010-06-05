@@ -1,12 +1,3 @@
-require 'dm-ar-finders'
-
-begin
-  gem 'chronic'
-  require 'chronic'
-rescue Gem::LoadError
-  # Install the "chronic" gem for more robust date parsing
-end
-
 # Controller for the Scorekeeper leaf. This class contains only the methods
 # directly relating to IRC. Other methods are stored in the helper and model
 # classes.

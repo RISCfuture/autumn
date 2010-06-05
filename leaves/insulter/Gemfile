@@ -1,0 +1,3 @@
+group :insulter do
+  # No gem requirements
+end

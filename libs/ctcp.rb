@@ -1,7 +1,5 @@
 # Defines the Autum::CTCP class, which implements CTCP support.
 
-require 'time'
-
 module Autumn
 
   # A listener for a Stem that listens for and handles CTCP requests. You can

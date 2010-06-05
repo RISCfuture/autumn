@@ -1,18 +1,6 @@
 # Defines the Autumn::Genesis class, which bootstraps the Autumn environment
 # and starts the Foliater.
 
-require 'set'
-require 'rubygems'
-require 'active_support'
-require 'yaml'
-require 'logger'
-require 'facets'
-require 'facets/random'
-require 'anise'
-require 'libs/misc'
-require 'libs/speciator'
-require 'libs/authentication'
-
 AUTUMN_VERSION = "3.0 (7-4-08)"
 
 module Autumn # :nodoc:
@@ -29,6 +17,7 @@ module Autumn # :nodoc:
     # Creates a new instance that can be used to boot Autumn.
   
     def initialize
+      load_pre_config_files
       @config = Speciator.instance
     end
     
@@ -37,6 +26,7 @@ module Autumn # :nodoc:
     
     def boot!(invoke=true)
       load_global_settings
+      load_post_config_files
       load_season_settings
       load_libraries
       init_system_logger
@@ -58,6 +48,44 @@ module Autumn # :nodoc:
       end
       config.global :root => AL_ROOT
       config.global :season => ENV['SEASON'] if ENV['SEASON']
+    end
+    
+    # Loads the files and gems that do not require an instantiated Speciator.
+    #
+    # PREREQS: None
+    
+    def load_pre_config_files
+      require 'singleton'
+      
+      require 'rubygems'
+      require 'bundler'
+      Bundler.require(:pre_config)
+      
+      require 'libs/speciator'
+    end
+    
+    # Loads the files and gems that require an instantiated Speciator.
+    #
+    # PREREQS: load_global_settings
+    
+    def load_post_config_files
+      require 'set'
+      require 'yaml'
+      require 'logger'
+      require 'time'
+      require 'timeout'
+      require 'erb'
+      require 'thread'
+      require 'socket'
+      require 'openssl'
+      
+      Bundler.require(:default, config.global(:season).to_sym)
+      
+      require 'facets/random'
+      
+      require 'libs/misc'
+      require 'libs/authentication'
+      require 'libs/formatting'
     end
 
     # Loads the settings for the current season in its season.yml file.
@@ -135,7 +163,7 @@ module Autumn # :nodoc:
         return
       end
       
-      require 'dm-core'
+      Bundler.require(:datamapper)
       require 'libs/datamapper_hacks'
       
       dbconfig = YAML.load(File.open(db_file, 'r'))

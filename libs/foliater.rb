@@ -140,6 +140,8 @@ module Autumn
     end
     
     def load_leaf_libs(type)
+      Extlib::Hook # fix some retarded autoload BS
+      Bundler.require type.snakecase.to_sym
       Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/lib/*.rb").each  { |lib_file| require lib_file }
     end
     

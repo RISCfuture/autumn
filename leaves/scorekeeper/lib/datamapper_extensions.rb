@@ -1,6 +1,3 @@
-require 'dm-validations'
-require 'dm-timestamps'
-
 DataMapper::Timestamp.class_eval do
   private
   

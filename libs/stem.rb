@@ -1,9 +1,5 @@
 # Defines the Autumn::Stem class, an IRC client library.
 
-require 'thread'
-require 'socket'
-require 'openssl'
-
 module Autumn
   
   # A connection to an IRC server. The stem acts as the IRC client on which a

@@ -1,8 +1,6 @@
 # Miscellaneous extra methods and objects used by Autumn, and additions to Ruby
 # Core objects.
 
-require 'thread'
-
 class Numeric # :nodoc:
   
   # Possibly pluralizes a noun based on this number's value. Returns this number

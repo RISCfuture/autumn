@@ -92,6 +92,14 @@ module Autumn
         created dpath, options
       end
       
+      gname = "leaves/#{name.snakecase}/Gemfile"
+      if File.exist? gname then
+        exists gname, options
+      else
+        File.open(gname, 'w') { |file| file.puts "group :#{name.snakecase} do\n  # Insert your leaf's gem requirements here\nend" }
+        created gname, options
+      end
+      
       [ 'lib', 'helpers', 'models', 'tasks', 'views' ].each do |dir|
         path = "leaves/#{name.snakecase}/#{dir}"
         if File.directory? path then

@@ -1,11 +1,6 @@
 # Defines the Autumn::Leaf class, a library on which robust IRC bots can be
 # written.
 
-require 'yaml'
-require 'timeout'
-require 'erb'
-require 'libs/formatting'
-
 module Autumn
   
   # This is the superclass that all Autumn leaves use. To write a leaf, sublcass

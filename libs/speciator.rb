@@ -1,8 +1,6 @@
 # Defines the Autumn::Speciator class, which stores the configurations of many
 # Autumn objects.
 
-require 'singleton'
-
 module Autumn
 
   # The Speciator stores the global, season, stem, and leaf configurations. It
