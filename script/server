@@ -3,10 +3,9 @@
 # Runs Autumn from the command line. This script will not exit until all leaves
 # have exited. To use this script as a daemon, see the script/daemon script.
 
-AL_ROOT = File.expand_path("#{File.dirname(__FILE__)}/..")
-$: << AL_ROOT
-
+require 'libs/autumn'
+$: << Autumn::Config.root
 require 'libs/genesis'
 
-puts "Loading Autumn #{AUTUMN_VERSION}"
+puts "Loading Autumn #{Autumn::Config.version}"
 Autumn::Genesis.new.boot!

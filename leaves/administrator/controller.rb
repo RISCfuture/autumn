@@ -56,7 +56,7 @@ class Controller < Autumn::Leaf
   # that is running this leaf.
   
   def autumn_command(stem, sender, reply_to, msg)
-    var :version => AUTUMN_VERSION
+    var :version => Autumn::Config.version
   end
   
   # Suppress the !commands command; don't want to publicize the administrative

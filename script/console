@@ -2,8 +2,8 @@
 #
 # Launches an IRb console with the Autumn environment loaded.
 
-AL_ROOT = File.expand_path("#{File.dirname(__FILE__)}/..")
-Dir.chdir AL_ROOT
+require 'libs/autumn'
+Dir.chdir Autumn::Config.root
 
 # Some code below is from Ruby on Rails and copyright (c) David Heinemeier
 # Hansson.
@@ -22,5 +22,5 @@ libs =  " -r irb/completion"
 libs << " -r libs/console_boot"
 
 require 'libs/genesis'
-puts "Loading Autumn #{AUTUMN_VERSION}..."
+puts "Loading Autumn #{Autumn::Config.version}..."
 exec "#{options[:irb]} #{libs}"

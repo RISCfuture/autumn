@@ -1,7 +1,7 @@
 # Defines the Autumn::Genesis class, which bootstraps the Autumn environment
 # and starts the Foliater.
 
-AUTUMN_VERSION = "3.0 (7-4-08)"
+Autumn::Config.version = "3.0 (7-4-08)"
 
 module Autumn # :nodoc:
   
@@ -42,11 +42,11 @@ module Autumn # :nodoc:
   
     def load_global_settings
       begin
-        config.global YAML.load(File.open("#{AL_ROOT}/config/global.yml"))
+        config.global YAML.load(File.open("#{Autumn::Config.root}/config/global.yml"))
       rescue SystemCallError
         raise "Couldn't find your global.yml file."
       end
-      config.global :root => AL_ROOT
+      config.global :root => Autumn::Config.root
       config.global :season => ENV['SEASON'] if ENV['SEASON']
     end
     
@@ -93,7 +93,7 @@ module Autumn # :nodoc:
     # PREREQS: load_global_settings
   
     def load_season_settings
-      @season_dir = "#{AL_ROOT}/config/seasons/#{config.global :season}"
+      @season_dir = "#{Autumn::Config.root}/config/seasons/#{config.global :season}"
       raise "The current season doesn't have a directory." unless File.directory? @season_dir
       begin
         config.season YAML.load(File.open("#{@season_dir}/season.yml"))
@@ -140,7 +140,7 @@ module Autumn # :nodoc:
     # PREREQS: load_libraries
     
     def load_daemon_info
-      Dir.glob("#{AL_ROOT}/resources/daemons/*.yml").each do |yml_file|
+      Dir.glob("#{Autumn::Config.root}/resources/daemons/*.yml").each do |yml_file|
         yml = YAML.load(File.open(yml_file, 'r'))
         Daemon.new File.basename(yml_file, '.yml'), yml
       end
@@ -149,7 +149,7 @@ module Autumn # :nodoc:
     # Loads Ruby code in the shared directory.
     
     def load_shared_code
-      Dir.glob("#{AL_ROOT}/shared/**/*.rb").each { |lib| load lib }
+      Dir.glob("#{Autumn::Config.root}/shared/**/*.rb").each { |lib| load lib }
     end
     
     # Creates connections to databases using the DataMapper gem.
@@ -159,7 +159,7 @@ module Autumn # :nodoc:
     def load_databases
       db_file = "#{@season_dir}/database.yml"
       if not File.exist? db_file then
-        $NO_DATABASE = true
+        Autumn::Config.no_database = true
         return
       end
       
@@ -213,7 +213,7 @@ module Autumn # :nodoc:
     private
     
     def log_name
-      "#{AL_ROOT}/log/#{config.global(:season)}.log"
+      "#{Autumn::Config.root}/log/#{config.global(:season)}.log"
     end
   end
 end

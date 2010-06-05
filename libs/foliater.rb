@@ -80,7 +80,7 @@ module Autumn
     
     def load_configs(stem_config, leaf_config)
       leaf_config.each do |name, options|
-        global_config_file = "#{AL_ROOT}/leaves/#{options['class'].snakecase}/config.yml"
+        global_config_file = "#{Autumn::Config.root}/leaves/#{options['class'].snakecase}/config.yml"
         if File.exist? global_config_file then
           config.leaf name, YAML.load(File.open(global_config_file))
         end
@@ -107,11 +107,11 @@ module Autumn
     end
     
     def load_leaf_controller(type)
-      controller_file = "#{AL_ROOT}/leaves/#{type.snakecase}/controller.rb"
+      controller_file = "#{Autumn::Config.root}/leaves/#{type.snakecase}/controller.rb"
       raise "controller.rb file for leaf #{type} not found" unless File.exist? controller_file
       controller_code = nil
       begin
-        File.open("#{AL_ROOT}/leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
+        File.open("#{Autumn::Config.root}/leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
       rescue Errno::ENOENT
         raise "controller.rb file for leaf #{type} not found"
       end
@@ -121,7 +121,7 @@ module Autumn
     def load_leaf_helpers(type)
       mod = config.leaf(type, :module)
       helper_code = nil
-      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
+      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
       end
@@ -142,13 +142,13 @@ module Autumn
     def load_leaf_libs(type)
       Extlib::Hook # fix some retarded autoload BS
       Bundler.require type.snakecase.to_sym
-      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/lib/*.rb").each  { |lib_file| require lib_file }
+      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/lib/*.rb").each  { |lib_file| require lib_file }
     end
     
     def load_leaf_views(type)
       views = Hash.new
       view_text = nil
-      Dir.glob("#{AL_ROOT}/leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
+      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
         view_name = File.basename(view_file).match(/^(.+)\.txt\.erb$/)[1]
         File.open(view_file, 'r') { |f| view_text = f.read }
         views[view_name] = view_text
@@ -182,13 +182,13 @@ module Autumn
       model_code = nil
       mod = config.leaf(leaf.options[:class], :module)
       leaf.database do
-        Dir.glob("#{AL_ROOT}/leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
+        Dir.glob("#{Autumn::Config.root}/leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
           mod.module_eval model_code, File.expand_path(model_file)
         end
         # Need to manually set the table names of the models because we loaded
         # them inside a module
-        unless $NO_DATABASE
+        unless Autumn::Config.no_database
           mod.constants.map { |const_name| mod.const_get(const_name) }.select { |const| const.ancestors.include? DataMapper::Resource }.each do |model|
             model.storage_names[leaf.database_name] = model.to_s.demodulize.snakecase.pluralize
           end
