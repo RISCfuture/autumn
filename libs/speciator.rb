@@ -132,8 +132,6 @@ module Autumn
   end
   
   class OptionsProxy # :nodoc:
-    extend ActiveSupport::Memoizable
-    
     MERGED_METHODS = [ :[], :each, :each_key, :each_pair, :each_value, :eql?,
       :fetch, :has_key?, :include?, :key?, :member?, :has_value?, :value?,
       :hash, :index, :inspect, :invert, :keys, :length, :size, :merge, :reject,
@@ -150,18 +148,20 @@ module Autumn
         merged.send meth, *args, &block
       else
         returnval = @hashes.last.send(meth, *args, &block)
-        merged :reload
+        merged true
         returnval
       end
     end
     
     private
     
-    def merged
-      merged = Hash.new
-      @hashes.each { |hsh| merged.merge! hsh }
-      merged
+    def merged(reload=false)
+      @merged = nil if reload
+      @merged ||= begin
+        merged = Hash.new
+        @hashes.each { |hsh| merged.merge! hsh }
+        merged
+      end
     end
-    memoize :merged
   end
 end

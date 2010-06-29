@@ -192,7 +192,7 @@ module Autumn
     
     def preconfigure # :nodoc:
       if options[:authentication] then
-        @authenticator = Autumn::Authentication.const_get(options[:authentication]['type'].camelcase).new(options[:authentication].rekey(&:to_sym))
+        @authenticator = Autumn::Authentication.const_get(options[:authentication]['type'].camelcase(:upper)).new(options[:authentication].rekey(&:to_sym))
         stems.add_listener @authenticator
       end
     end

@@ -30,6 +30,12 @@ class String # :nodoc:
   def except_first
     self[1, size-1]
   end
+  
+  # Removes modules from a full class name.
+  
+  def demodulize
+    split("::").last
+  end
 end
 
 class Hash # :nodoc:

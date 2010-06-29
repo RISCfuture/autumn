@@ -1,13 +1,11 @@
 --- 
-hash: aa15ee85f9164ad34b1aabc9793c935648eb39cf
+hash: e20ec6131647f0225dd1d85532f5f0b84875dd52
 sources: 
 - Rubygems: 
     uri: http://gemcutter.org
 specs: 
 - rake: 
     version: 0.8.7
-- activesupport: 
-    version: 2.3.8
 - addressable: 
     version: 2.1.2
 - facets: 
@@ -23,21 +21,27 @@ specs:
 - chronic: 
     version: 0.2.3
 - daemons: 
-    version: 1.0.10
+    version: 1.1.0
 - data_objects: 
     version: 0.10.2
 - extlib: 
     version: 0.9.15
 - dm-core: 
-    version: 0.10.2
+    version: 1.0.0
 - dm-ar-finders: 
-    version: 0.10.2
-- dm-timestamps: 
-    version: 0.10.2
-- dm-validations: 
-    version: 0.10.2
+    version: 1.0.0
+- dm-do-adapter: 
+    version: 1.0.0
+- dm-migrations: 
+    version: 1.0.0
 - do_mysql: 
     version: 0.10.2
+- dm-mysql-adapter: 
+    version: 1.0.0
+- dm-timestamps: 
+    version: 1.0.0
+- dm-validations: 
+    version: 1.0.0
 dependencies: 
   daemons: 
     version: ">= 0"
@@ -47,25 +51,19 @@ dependencies:
     version: ">= 0"
     group: 
     - :default
-  activesupport: 
-    version: ">= 0"
-    group: 
-    - :pre_config
-    require: 
-    - active_support
   facets: 
     version: ">= 0"
     group: 
     - :pre_config
-  do_mysql: 
-    version: ">= 0"
-    group: 
-    - :datamapper
-  data_objects: 
+  dm-mysql-adapter: 
     version: ">= 0"
     group: 
     - :datamapper
   dm-core: 
+    version: ">= 0"
+    group: 
+    - :datamapper
+  dm-migrations: 
     version: ">= 0"
     group: 
     - :datamapper
