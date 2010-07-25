@@ -15,10 +15,10 @@ class Controller < Autumn::Leaf
   def points_command(stem, sender, reply_to, msg)
     if msg.nil? or msg.empty? then
       var :totals => totals(stem, reply_to)
-    elsif msg =~ /^(\w+)\s+history\s*(.*)$/ then
+    elsif msg =~ /^(#{stem.nick_regex})\s+history\s*(.*)$/ then
       parse_history stem, reply_to, $1, $2
       render :history
-    elsif msg =~ /^(\w+)\s+([\+\-]\d+)\s*(.*)$/ then
+    elsif msg =~ /^(#{nick_regex})\s+([\+\-]\d+)\s*(.*)$/ then
       parse_change stem, reply_to, sender, $1, $2.to_i, $3
       render :change
     else

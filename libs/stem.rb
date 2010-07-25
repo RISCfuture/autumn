@@ -232,6 +232,9 @@ module Autumn
     # new one, or GHOSTs the nick if possible. This block should return nil if
     # you do not want another NICK attempt to be made.
     attr :nick_generator
+    # The regular expression for valid nicks, as a string. By default it's equal
+    # to NICK_REGEX.
+    attr :nick_regex
     # The Daemon instance that describes the IRC server this client is connected
     # to.
     attr :server_type
@@ -660,7 +663,7 @@ module Autumn
     # Returns true if the string appears to be a nickname.
     
     def nick?(str)
-      str.match(@nick_regex) != nil
+      str.match(nick_regex) != nil
     end
 
     # Returns the nick this stem is using.
@@ -851,10 +854,10 @@ module Autumn
         msg = $1
         meths[:irc_server_error] = [ self, msg ]
         return meths
-      elsif comm =~ /^:(#{@nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         sender = { :nick => $1, :user => $2, :host => $3 }
         command, arg_str = $4, $5
-      elsif comm =~ /^:(#{@nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         sender = { :nick => $1 }
         command, arg_str = $2, $3
       elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
