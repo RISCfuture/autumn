@@ -3,8 +3,9 @@
 # Runs Autumn from the command line. This script will not exit until all leaves
 # have exited. To use this script as a daemon, see the script/daemon script.
 
+$: << Dir.getwd
 require 'libs/autumn'
-$: << Autumn::Config.root
+$: << Autumn::Config.root unless Autumn::Config.root == Dir.getwd
 require 'libs/genesis'
 
 puts "Loading Autumn #{Autumn::Config.version}"

@@ -81,8 +81,6 @@ module Autumn # :nodoc:
       
       Bundler.require(:default, config.global(:season).to_sym)
       
-      require 'facets/random'
-      
       require 'libs/misc'
       require 'libs/authentication'
       require 'libs/formatting'

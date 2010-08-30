@@ -2,6 +2,7 @@
 #
 # Launches an IRb console with the Autumn environment loaded.
 
+$: << Dir.getwd
 require 'libs/autumn'
 Dir.chdir Autumn::Config.root
 
@@ -23,4 +24,4 @@ libs << " -r libs/console_boot"
 
 require 'libs/genesis'
 puts "Loading Autumn #{Autumn::Config.version}..."
-exec "#{options[:irb]} #{libs}"
+exec "#{options[:irb]} -I. #{libs}"

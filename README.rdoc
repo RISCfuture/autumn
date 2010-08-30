@@ -169,13 +169,11 @@ constant. Now, we'll want it to respond to the "!fortune" command, and all you
 have to do is create a method called +fortune_command+ to make it work:
 
  def fortune_command(stem, sender, reply_to, msg)
-   FORTUNES.pick
+   FORTUNES.sample
  end
 
-The +pick+ method is provided by Facets, so you may need to add a <tt>require
-'facets/random'</tt> line at the top of your file. Our method returns a fortune
-at random, which is automatically transmitted to the channel or nick where the
-command was received.
+Our method returns a fortune at random, which is automatically transmitted to
+the channel or nick where the command was received.
 
 Of course, any self-respecting fortune bot announces its presence when it starts
 up, so, in your +Controller+ class, override the Autumn::Leaf#did_start_up
@@ -248,7 +246,7 @@ ERb parser by using the Autumn::Leaf#var method. Let's upgrade our
 +fortune_command+ method for that:
 
  def fortune_command(stem, sender, reply_to, msg)
-   var :fortune => FORTUNES.pick
+   var :fortune => FORTUNES.sample
  end
 
 We can then write a view, fortune.txt.erb, which will render the fortune:

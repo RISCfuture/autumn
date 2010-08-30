@@ -1,5 +1,7 @@
 require 'rake'
+$: << Dir.getwd
 require 'libs/autumn'
+$: << Autumn::Config.root unless Autumn::Config.root == Dir.getwd
 require 'libs/genesis'
 
 task :default do

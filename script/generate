@@ -19,6 +19,7 @@
 # --vcs, -c:: Add any created files or directories to the project's version
 #             control system. (Autodetects CVS and Subversion.)
 
+$: << Dir.getwd
 require 'libs/script'
 
 opts = GetoptLong.new(

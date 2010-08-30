@@ -19,6 +19,7 @@
 # --vcs, -c:: Remove any created files or directories from the project's version
 #             control system. (Autodetects CVS and Subversion.)
 
+$: << Dir.getwd
 require 'libs/script'
 
 opts = GetoptLong.new(
