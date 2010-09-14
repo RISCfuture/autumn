@@ -40,18 +40,21 @@ class Controller < Autumn::Leaf
 
   def parse_change(stem, channel, sender, victim, delta, note)
     giver = find_person(stem, sender[:nick])
-    receiver = find_person(stem, victim)
     if giver.nil? and options[:scoring] == 'open' then
       giver ||= Person.create(:server => server_identifier(stem), :name => sender[:nick])
     end
+    
+    receiver = find_person(stem, victim)
     if receiver.nil? and options[:scoring] == 'open' then
       receiver ||= Person.create(:server => server_identifier(stem), :name => find_in_channel(stem, channel, victim))
     end
+    
     unless authorized?(giver, receiver)
       var :unauthorized => true
       var :receiver => receiver.nil? ? victim : receiver.name
       return
     end
+    
     change_points stem, channel, giver, receiver, delta, note
     var :giver => giver
     var :receiver => receiver
