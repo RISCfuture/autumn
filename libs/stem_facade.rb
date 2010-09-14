@@ -135,7 +135,7 @@ module Autumn
     
     def set_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
-      propcode = server_type.channel_property.key(property).chr if server_type.channel_property.value? property
+      propcode = server_type.channel_mode.key(property).chr if server_type.channel_mode.value? property
       propcode ||= property
       mode channel, "+#{propcode}", argument
     end
@@ -148,7 +148,7 @@ module Autumn
     
     def unset_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
-      propcode = server_type.channel_property.key(property).chr if server_type.channel_property.value? property
+      propcode = server_type.channel_mode.key(property).chr if server_type.channel_mode.value? property
       propcode ||= property
       mode channel, "-#{propcode}", argument
     end
