@@ -165,7 +165,7 @@ module Autumn
     
       def initialize(newname, options={})
         @name = newname
-        @required = options[:required] || true
+        @required = options[:required].nil? ? true : options[:required]
         @colonize = options[:colonize] || false
         @list = options[:list] || false
         @truncatable = options[:truncatable] || false
