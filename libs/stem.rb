@@ -955,6 +955,8 @@ module Autumn
     end
     
     def post_startup
+      privmsg 'NickServ', "IDENTIFY #{options[:password]}" if options[:password]
+      
       @ready_thread = Thread.new do
         sleep 10
         should_broadcast = false
@@ -972,7 +974,6 @@ module Autumn
       @channels_to_join = @channels
       @channels = Set.new
       @channels_to_join.each { |chan| join chan, @channel_passwords[chan] }
-      privmsg 'NickServ', "IDENTIFY #{options[:password]}" if options[:password]
     end
     
     def update_names_list(channel, names)
