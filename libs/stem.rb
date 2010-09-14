@@ -288,6 +288,11 @@ module Autumn
     #               the message. When +cut+, truncates the message. When
     #               +split+, splits the message into multiple messages (if
     #               applicable, truncates it otherwise).
+    # +detailed_errors+:: Turn this on to have the bot announce the actual
+    #                     exceptions that are raised in-channel. (By default it
+    #                     only informs you that an error occurred with no other
+    #                     information.) Leave _off_ for live environments, as
+    #                     DataMapper exceptions can include passwords.
     #
     # Any channel name can be a one-item hash, in which case it is taken to be
     # a channel name-channel password association.
@@ -304,6 +309,7 @@ module Autumn
       @listeners = Set.new
       @listeners << self
       @logger = @options[:logger]
+      @detailed_errors = @options[:detailed_errors]
       @nick_generator = Proc.new do |oldnick|
         if options[:ghost_without_password] then
           message "GHOST #{oldnick}", 'NickServ'
@@ -484,7 +490,13 @@ module Autumn
             listener.respond meth, *args
           rescue Exception
             options[:logger].error $!
-            message("Listener #{listener.class.to_s} raised an exception responding to #{meth}: " + $!.to_s) rescue nil # Try to report the error if possible
+            
+            # Try to report the error if possible
+            if @detailed_errors then
+              message("Listener #{listener.class.to_s} raised an exception responding to #{meth}: " + $!.to_s) rescue nil
+            else
+              message("Listener #{listener.class.to_s} raised an exception -- check the logs for details.") rescue nil
+            end
           end
         end
       end
