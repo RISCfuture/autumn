@@ -614,11 +614,12 @@ or, in a smaller syntax:
 
  connection_name: mysql://root@pass:localhost/database_name
 
-If you are using the "sqlite3" adapter, the +database+ option is the path to the
+If you are using the "sqlite3" adapter, the +path+ option is the path to the
 file where the data should be written (example:
-leaves/fortune/data/my_database.db). You can name your connection however you
-want, but you _should_ name it after either your leaf or your leaf subclass.
-(More on this below.)
+leaves/fortune/data/my_database.db). Omit the +database+ option.
+
+You can name your connection however you want, but you _should_ name it after
+either your leaf or your leaf subclass. (More on this below.)
 
 You should also create DataMapper model classes for each of your model objects.
 You can place them within your leaf's models directory. This works almost
@@ -660,7 +661,7 @@ And you have a database connection for that leaf, named after the leaf's class:
 
  fortune_leaf:
    adapter: sqlite3
-   database: leaves/fortune_leaf/data/development.db
+   path: leaves/fortune_leaf/data/development.db
 
 Let's further assume you have a simple DataMapper object:
 
