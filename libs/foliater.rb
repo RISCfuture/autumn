@@ -121,9 +121,11 @@ module Autumn
     def load_leaf_helpers(type)
       mod = config.leaf(type, :module)
       helper_code = nil
+      helper_modules = Array.new
       Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
+        helper_modules << File.basename(helper_file, '.rb').camelcase.to_sym
       end
       
       leaf_class = nil
@@ -134,8 +136,9 @@ module Autumn
       end
       
       config.leaf type, :helpers => Set.new
-      mod.constants.select { |const_name| const_name =~ /Helper$/ }.map { |helper_name| mod.const_get helper_name }.each do |helper|
-        config.leaf(type, :helpers) << helper
+      helper_modules.each do |mod_name|
+        helper_module = mod.const_get(mod_name) rescue next
+        config.leaf(type, :helpers) << helper_module
       end
     end
     
