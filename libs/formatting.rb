@@ -128,6 +128,13 @@ module Autumn
       def uncolor(options={})
         options[:suppress_space] ? UNCOLOR_NO_SPACE : UNCOLOR
       end
+
+      # Removes formatting from a string. Due to mIRC's formatting quirkiness,
+      # this may leave the original string with some extra space characters here
+      # and there.
+      def deformat(str)
+        str.gsub(/#{Regexp.escape COLOR_CODE}(\d{2}(,\d{2})?)?/, '').gsub(PLAIN, '').gsub(BOLD, '').gsub(ITALIC, '').gsub(UNDERLINE, '')
+      end
     end
     
     # The default formatter for leaves that do not specify otherwise.
@@ -231,6 +238,11 @@ module Autumn
 
       # Sets all following text underline.
       def underline; UNDERLINE; end
+
+      # Removes formatting from a string.
+      def deformat(str)
+        str.gsub(/#{Regexp.escape COLOR_CODE}(\d{2}(,\d{2})?)?/, '').gsub(PLAIN, '').gsub(BOLD, '').gsub(ITALIC, '').gsub(UNDERLINE, '')
+      end
     end
   end
 end
