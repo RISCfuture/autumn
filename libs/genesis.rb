@@ -60,7 +60,8 @@ module Autumn # :nodoc:
       require 'rubygems'
       require 'bundler'
       Bundler.require(:pre_config)
-      
+
+      require 'libs/misc'
       require 'libs/speciator'
     end
     
@@ -81,7 +82,6 @@ module Autumn # :nodoc:
       
       Bundler.require(:default, config.global(:season).to_sym)
       
-      require 'libs/misc'
       require 'libs/authentication'
       require 'libs/formatting'
     end
