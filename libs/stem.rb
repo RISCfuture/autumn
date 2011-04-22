@@ -854,11 +854,7 @@ module Autumn
       meths = Hash.new
       logger.debug "<< " + comm
     
-      if comm =~ /^:(.+?)\s+NOTICE\s+(\S+)\s+:(.+?)[\r\n]*$/
-        server, sender, msg = $1, $2, $3
-        meths[:irc_server_notice] = [ self, server, sender, msg ]
-        return meths
-      elsif comm =~ /^NOTICE\s+(.+?)\s+:(.+?)[\r\n]*$/
+      if comm =~ /^NOTICE\s+(.+?)\s+:(.+?)[\r\n]*$/
         sender, msg = $1, $2
         meths[:irc_server_notice] = [ self, nil, sender, msg ]
         return meths
