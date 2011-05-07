@@ -143,7 +143,7 @@ module Autumn
   # initialization options; see initialize.
   
   class Leaf
-    include Anise::Annotation
+    include Anise
     
     # Default for the +command_prefix+ init option.
     DEFAULT_COMMAND_PREFIX = '!'

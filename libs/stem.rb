@@ -150,7 +150,7 @@ module Autumn
 
   class Stem
     include StemFacade
-    include Anise::Annotation
+    include Anise
     
     # Describes all possible channel names. Omits the channel prefix, as that
     # can vary from server to server. (See channel?)
@@ -462,7 +462,7 @@ module Autumn
   
     def add_listener(obj)
       @listeners << obj
-      obj.class.extend Anise::Annotation # give it the ability to sync
+      obj.class.send :include, Anise # give it the ability to sync
       obj.respond :added, self
     end
     
@@ -484,7 +484,7 @@ module Autumn
     # "Synchronous Methods" in the class docs.)
     
     def broadcast(meth, *args)
-      @listeners.select { |listener| not listener.class.ann(meth, :stem_sync) }.each do |listener|
+      asynchronous_listeners_for_method(meth).each do |listener|
         Thread.new do
           begin
             listener.respond meth, *args
@@ -506,7 +506,7 @@ module Autumn
     # _have_ been marked as synchronized.
     
     def broadcast_sync(meth, *args)
-      @listeners.select { |listener| listener.class.ann(meth, :stem_sync) }.each { |listener| listener.respond meth, *args }
+      synchronous_listeners_for_method(meth).each { |listener| listener.respond meth, *args }
     end
   
     # Opens a connection to the IRC server and begins listening on it. This
@@ -1007,6 +1007,14 @@ module Autumn
     
     def privmsgt(*args) # a throttled privmsg
       @messages_queue << args
+    end
+    
+    def asynchronous_listeners_for_method(meth)
+      @listeners.select { |listener| not listener.class.ann(meth, :stem_sync) }
+    end
+    
+    def synchronous_listeners_for_method(meth)
+      @listeners.select { |listener| listener.class.ann(meth, :stem_sync) }
     end
   end
 end
