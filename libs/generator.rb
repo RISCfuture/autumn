@@ -40,13 +40,7 @@ module Autumn
         'logging' => 'debug'
       },
       'database.yml' => {
-        'Example' => {
-          'adapter' => 'mysql',
-          'host' => 'localhost',
-          'username' => 'root',
-          'password' => '',
-          'database' => 'example_database'
-        }
+        'Example' => 'sqlite:path/to/example_database.db'
       }
     }
     

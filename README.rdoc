@@ -23,8 +23,8 @@ Gemfile with its own requirements.
 
 Autumn includes an optional DataMapper-backed persistent store. If you want to
 use this, you will need to ensure the correct adapter gem is loaded in the
-Gemfile (by default it's <tt>dm-mysql-adapter</tt>). Edit the Gemfile and
-replace <tt>dm-mysql-adapater</tt> with the adapter for your database, if
+Gemfile (by default it's <tt>dm-sqlite-adapter</tt>). Edit the Gemfile and
+replace <tt>dm-sqlite-adapater</tt> with the adapter for your database, if
 necessary.
 
 The included example bot Scorekeeper uses DataMapper. The other example bot,

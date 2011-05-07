@@ -1,7 +1,2 @@
 --- 
-Scorekeeper: 
-  username: root
-  adapter: mysql
-  host: localhost
-  database: scorekeeper
-  password: ""
+Scorekeeper: sqlite:leaves/scorekeeper/database.db

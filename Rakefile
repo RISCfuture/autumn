@@ -81,7 +81,7 @@ namespace :db do
   task :migrate => :boot do
     dname = ENV['DB']
     raise "Usage: DB=[Database config name] rake db:migrate" unless dname
-    raise "Unknown database config #{dname}" unless database = repository(dname.to_sym)
+    raise "Unknown database config #{dname}" unless repository(dname.to_sym)
     puts "Migrating the #{dname} database..."
     # Find models that have definitions for the selected database and migrate them
     repository(dname.to_sym) do
@@ -92,7 +92,7 @@ namespace :db do
   task :upgrade => :boot do
     dname = ENV['DB']
     raise "Usage: DB=[Database config name] rake db:upgrade" unless dname
-    raise "Unknown database config #{dname}" unless database = repository(dname.to_sym)
+    raise "Unknown database config #{dname}" unless repository(dname.to_sym)
     puts "Upgrading the #{dname} database..."
     # Find models that have definitions for the selected database and upgrade them
     repository(dname.to_sym) do
