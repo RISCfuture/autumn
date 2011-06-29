@@ -16,7 +16,7 @@ support.
 
 == Requirements
 
-Autumn requires RubyGems (http://www.rubygems.org) and the Bundler gem. To
+Autumn requires Ruby 1.9 and Bundler. It is incompatible with Ruby 1.8. To
 install: <tt>gem install bundler && bundle install</tt>. The Gemfile in the root
 directory lists Autumn's gem requirements; each individual bot can have its own
 Gemfile with its own requirements.
