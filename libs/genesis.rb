@@ -59,7 +59,8 @@ module Autumn # :nodoc:
       
       require 'rubygems'
       require 'bundler'
-      Bundler.require(:pre_config)
+      Dir.chdir Autumn::Config.root
+      Bundler.require :pre_config
 
       require 'libs/misc'
       require 'libs/speciator'

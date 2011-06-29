@@ -4,7 +4,6 @@
 
 $: << Dir.getwd
 require 'libs/autumn'
-Dir.chdir Autumn::Config.root
 
 # Some code below is from Ruby on Rails and copyright (c) David Heinemeier
 # Hansson.
