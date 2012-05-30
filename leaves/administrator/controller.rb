@@ -48,7 +48,7 @@ class Controller < Autumn::Leaf
   # Typing this command will cause the Stem to exit.
   
   def quit_command(stem, sender, reply_to, msg)
-    stem.quit
+    stem.quit(msg)
   end
   ann :quit_command, :protected => true
   
