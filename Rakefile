@@ -25,22 +25,22 @@ namespace :app do
   task :start do
     system 'script/daemon start'
   end
-  
+
   desc "Stop the Autumn daemon"
   task :stop do
     system 'script/daemon stop'
   end
-  
+
   desc "Restart the Autumn daemon"
   task :restart do
     system 'script/daemon restart'
   end
-  
+
   desc "Start Autumn but not as a daemon (stay on top)"
   task :run do
     system 'script/daemon run'
   end
-  
+
   desc "Force the daemon to a stopped state (clears PID files)"
   task :zap do
     system 'script/daemon zap'
@@ -52,7 +52,7 @@ namespace :log do
   task :clear do
     system 'rm -vf tmp/*.log tmp/*.output log/*.log*'
   end
-  
+
   desc "Print all error messages in the log files"
   task errors: :environment do
     season_log = "log/#{@genesis.config.global :season}.log"
@@ -107,7 +107,7 @@ namespace :doc do
     FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     system "rdoc --main README.rdoc --title 'Autumn API Documentation' -o doc/api libs README.rdoc"
   end
-  
+
   desc "Generate documentation for all leaves"
   task leaves: :environment do
     FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
@@ -117,7 +117,7 @@ namespace :doc do
       end
     end
   end
-  
+
   desc "Remove all documentation"
   task clear: :environment do
     FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'

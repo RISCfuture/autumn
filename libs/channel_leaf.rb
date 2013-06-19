@@ -2,7 +2,7 @@
 # selectively ignores channels.
 
 module Autumn
-  
+
   # A special kind of leaf that only responds to messages sent to certain
   # channels. Leaves that subclass ChannelLeaf can, in their config, specify a
   # +channels+ option that narrows down which channels the leaf listens to. The
@@ -47,29 +47,29 @@ module Autumn
   # +someone_did_join_channel+, it will only be called for the appropriate
   # channels; however, if you implement +irc_join_event+, it will still be
   # called for all channels the stem is in.
-  
+
   class ChannelLeaf < Leaf
     # The IRC channels that this leaf is responding to, mapped to server names.
     attr :channels
-    
+
     # Creates a new instance. (See the Leaf class for more information.)
-    
+
     def will_start_up
-      @channels = Hash.new
+      @channels           = Hash.new
       @options[:channels] ||= Hash.new
       @options[:channels].each do |server, chans|
         stem = Foliater.instance.stems[server]
         raise "Unknown stem #{server}" unless stem
-        chans = [ chans ] if chans.kind_of? String
+        chans = [chans] if chans.kind_of? String
         @channels[stem] = chans.map { |chan| stem.normalized_channel_name chan }
       end
       super
     end
-    
+
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
       super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
     end
-    
+
     def irc_join_event(stem, sender, arguments) # :nodoc:
       super if listening?(stem, arguments[:channel])
     end
@@ -97,9 +97,9 @@ module Autumn
     def irc_notice_event(stem, sender, arguments) # :nodoc:
       super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
     end
-    
+
     private
-    
+
     def listening?(stem, channel)
       @channels.include? stem and @channels[stem].include? channel
     end

@@ -3,15 +3,15 @@
 
 class Channel
   include DataMapper::Resource
-  
+
   property :id, Serial
   property :server, String, key: true
   property :name, String, key: true
-  
+
   has n, :scores
-  
+
   # Returns a channel by name.
-  
+
   def self.named(name)
     all(name: name)
   end

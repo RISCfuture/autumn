@@ -18,7 +18,7 @@ OptionParser.new do |opt|
   opt.parse!(ARGV)
 end
 
-libs =  " -r irb/completion"
+libs = " -r irb/completion"
 libs << " -r libs/console_boot"
 
 require 'libs/genesis'
