@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'daemons'
 gem 'anise'
+gem 'rake'
 
 group :pre_config do
   gem 'i18n'

@@ -33,6 +33,7 @@ GEM
     facets (2.9.3)
     i18n (0.6.4)
     multi_json (1.7.7)
+    rake (10.0.4)
 
 PLATFORMS
   ruby
@@ -50,3 +51,4 @@ DEPENDENCIES
   dm-validations
   facets
   i18n
+  rake
