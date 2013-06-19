@@ -1,5 +1,5 @@
 desc "Display the current scores of every channel"
-task :scores => :boot do
+task scores: :boot do
   Autumn::Foliater.instance.leaves.select { |name, leaf| leaf.kind_of? Scorekeeper::Controller }.each do |name, leaf|
     puts "Leaf #{name}"
     leaf.database do

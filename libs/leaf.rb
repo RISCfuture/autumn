@@ -120,7 +120,7 @@ module Autumn
   #    def destructive_command(stem, sender, reply_to, msg)
   #      # ...
   #    end
-  #    ann :destructive_command, :protected => true
+  #    ann :destructive_command, protected: true
   #  end
   #
   # == Logging
@@ -383,12 +383,12 @@ module Autumn
     # halted and the command will not be run. For example, if you create the
     # filter:
     #
-    #  before_filter :read_files, :only => [ :quit, :reload ], :remote_files => true
+    #  before_filter :read_files, only: [ :quit, :reload ], remote_files: true
     # 
     # then any time the bot receives a "!quit" or "!reload" command, it will
     # first evaluate:
     #
-    #  read_files_filter <stem>, <channel>, <sender hash>, <command>, <message>, { :remote_files => true }
+    #  read_files_filter <stem>, <channel>, <sender hash>, <command>, <message>, { remote_files: true }
     #
     # and if the result is not false or nil, the command will be executed.
     
@@ -412,12 +412,12 @@ module Autumn
     # method for more information. Unlike before_filter filters, however, any
     # return value is ignored. For example, if you create the filter:
     #
-    #  after_filter :clean_tmp, :only => :sendfile, :remove_symlinks => true
+    #  after_filter :clean_tmp, only: :sendfile, remove_symlinks: true
     # 
     # then any time the bot receives a "!sendfile" command, after running the
     # command it will evaluate:
     #
-    #  clean_tmp_filter <stem>, <channel>, <sender hash>, :sendfile, <message>, { :remove_symlinks => true }
+    #  clean_tmp_filter <stem>, <channel>, <sender hash>, :sendfile, <message>, { remove_symlinks: true }
     
     def self.after_filter(filter, options={})
       if options[:only] and not options[:only].kind_of? Array then
@@ -590,7 +590,7 @@ module Autumn
     # file:
     #
     #  def my_command(stem, sender, reply_to, msg)
-    #    var :num_lights => 4
+    #    var num_lights: 4
     #  end
     #
     # And in your my.txt.erb file:
@@ -618,7 +618,7 @@ module Autumn
         if matches then
           name = matches[1].to_sym
           msg = matches[2]
-          origin = sender.merge(:stem => stem)
+          origin = sender.merge(stem: stem)
           command_exec name, stem, arguments[:channel], sender, msg, reply_to
         end
       end

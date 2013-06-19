@@ -246,7 +246,7 @@ ERb parser by using the Autumn::Leaf#var method. Let's upgrade our
 +fortune_command+ method for that:
 
  def fortune_command(stem, sender, reply_to, msg)
-   var :fortune => FORTUNES.sample
+   var fortune: FORTUNES.sample
  end
 
 We can then write a view, fortune.txt.erb, which will render the fortune:
@@ -506,7 +506,7 @@ As an example, here's a simple form of authentication that just checks a
 person's nick:
 
  class Controller < Autumn::Leaf
-   before_filter :authenticate, :only => :quit, :admin => 'Yournick'
+   before_filter :authenticate, only: :quit, admin: 'Yournick'
  
    def authenticate_filter(stem, channel, sender, command, msg, opts)
      sender == opts[:admin]

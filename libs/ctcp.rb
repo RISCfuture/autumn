@@ -172,7 +172,7 @@ module Autumn
     
     def send_ctcp_reply(stem, recipient, command, *arguments)
       recipient = recipient[:nick] if recipient.kind_of? Hash
-      @reply_queue[stem] << { :recipient => recipient, :message => make_ctcp_message(command, *arguments) }
+      @reply_queue[stem] << { recipient: recipient, message: make_ctcp_message(command, *arguments) }
     end
     
     # When this listener is added to a stem, the stem gains the ability to send

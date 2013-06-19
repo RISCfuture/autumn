@@ -4,7 +4,7 @@ module GeneralHelper
   def parse_date(str)
     date = nil
     begin
-      date = Chronic.parse(str, :context => :past, :guess => false)
+      date = Chronic.parse(str, context: :past, guess: false)
     rescue NameError
       begin
         date = Date.parse(str)
@@ -31,7 +31,7 @@ module GeneralHelper
   end
   
   def find_person(stem, nick)
-    Person.all(:server => server_identifier(stem)).each do |person|
+    Person.all(server: server_identifier(stem)).each do |person|
       return person if person.name.downcase == normalize(nick) or person.pseudonyms.collect { |pn| pn.name.downcase }.include? normalize(nick)
     end
     return nil
@@ -54,8 +54,8 @@ module GeneralHelper
   
   def change_points(stem, channel, giver, receiver, delta, note=nil)
     return if delta.zero?
-    chan = Channel.find_or_create :server => server_identifier(stem), :name => channel
-    chan.scores.create :giver => giver, :receiver => receiver, :change => delta, :note => note.force_encoding('UTF-8')
+    chan = Channel.find_or_create server: server_identifier(stem), name: channel
+    chan.scores.create giver: giver, receiver: receiver, change: delta, note: note.force_encoding('UTF-8')
   end
   
   def server_identifier(stem)

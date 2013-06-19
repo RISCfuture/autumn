@@ -59,7 +59,7 @@ module Autumn
     # This method yields another Generator, which you can populate with the
     # contents of the method, if you wish. Example:
     #
-    #  gen.method("test", :required, { :optional => 'default' })
+    #  gen.method("test", :required, { optional: 'default' })
     #
     # produces:
     #

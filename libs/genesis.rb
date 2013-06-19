@@ -48,8 +48,8 @@ module Autumn # :nodoc:
       rescue SystemCallError
         raise "Couldn't find your global.yml file."
       end
-      config.global :root => Autumn::Config.root
-      config.global :season => ENV['SEASON'] if ENV['SEASON']
+      config.global root: Autumn::Config.root
+      config.global season: ENV['SEASON'] if ENV['SEASON']
     end
     
     # Loads the files and gems that do not require an instantiated Speciator.
@@ -124,14 +124,14 @@ module Autumn # :nodoc:
     # PREREQS: load_libraries
 
     def init_system_logger
-      config.global :logfile => Logger.new(log_name, config.global(:log_history) || 10, 1024*1024)
+      config.global logfile: Logger.new(log_name, config.global(:log_history) || 10, 1024*1024)
       begin
         config.global(:logfile).level = Logger.const_get(config.season(:logging).upcase)
       rescue NameError
         puts "The level #{config.season(:logging).inspect} was not understood; the log level has been raised to INFO."
         config.global(:logfile).level = Logger::INFO
       end
-      config.global :system_logger => LogFacade.new(config.global(:logfile), 'N/A', 'System')
+      config.global system_logger: LogFacade.new(config.global(:logfile), 'N/A', 'System')
       @logger = config.global(:system_logger)
     end
     

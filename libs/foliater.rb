@@ -85,11 +85,11 @@ module Autumn
           config.leaf name, YAML.load(File.open(global_config_file))
         end
         config.leaf name, options
-        config.leaf name, :logger => LogFacade.new(config.global(:logfile), 'Leaf', name)
+        config.leaf name, logger: LogFacade.new(config.global(:logfile), 'Leaf', name)
       end
       stem_config.each do |name, options|
         config.stem name, options
-        config.stem name, :logger => LogFacade.new(config.global(:logfile), 'Stem', name)
+        config.stem name, logger: LogFacade.new(config.global(:logfile), 'Stem', name)
       end
     end
     
@@ -97,7 +97,7 @@ module Autumn
       config.all_leaf_classes.each do |type|
         Object.class_eval "module #{type}; end"
         
-        config.leaf type, :module => Object.const_get(type)
+        config.leaf type, module: Object.const_get(type)
         
         load_leaf_libs type
         load_leaf_controller(type)
@@ -135,7 +135,7 @@ module Autumn
         raise NameError, "Couldn't find Controller class for leaf #{type}"
       end
       
-      config.leaf type, :helpers => Set.new
+      config.leaf type, helpers: Set.new
       helper_modules.each do |mod_name|
         helper_module = mod.const_get(mod_name) rescue next
         config.leaf(type, :helpers) << helper_module
@@ -155,7 +155,7 @@ module Autumn
         File.open(view_file, 'r') { |f| view_text = f.read }
         views[view_name] = view_text
       end
-      config.leaf type, :views => views
+      config.leaf type, views: views
     end
     
     def load_leaves

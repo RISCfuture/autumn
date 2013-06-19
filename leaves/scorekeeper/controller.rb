@@ -14,7 +14,7 @@ class Controller < Autumn::Leaf
   
   def points_command(stem, sender, reply_to, msg)
     if msg.nil? or msg.empty? then
-      var :totals => totals(stem, reply_to)
+      var totals: totals(stem, reply_to)
     elsif msg =~ /^(#{stem.nick_regex})\s+history\s*(.*)$/ then
       parse_history stem, reply_to, $1, $2
       render :history
@@ -29,7 +29,7 @@ class Controller < Autumn::Leaf
   private
   
   def points(stem, channel)
-    chan = Channel.find_or_create(:server => server_identifier(stem), :name => channel)
+    chan = Channel.find_or_create(server: server_identifier(stem), name: channel)
     scores = chan.scores.all
     scores.inject(Hash.new(0)) { |hsh, score| hsh[score.receiver.name] += score.change; hsh }
   end
@@ -41,24 +41,24 @@ class Controller < Autumn::Leaf
   def parse_change(stem, channel, sender, victim, delta, note)
     giver = find_person(stem, sender[:nick])
     if giver.nil? and options[:scoring] == 'open' then
-      giver ||= Person.create(:server => server_identifier(stem), :name => sender[:nick])
+      giver ||= Person.create(server: server_identifier(stem), name: sender[:nick])
     end
     
     receiver = find_person(stem, victim)
     if receiver.nil? and options[:scoring] == 'open' then
-      receiver ||= Person.create(:server => server_identifier(stem), :name => find_in_channel(stem, channel, victim))
+      receiver ||= Person.create(server: server_identifier(stem), name: find_in_channel(stem, channel, victim))
     end
     
     unless authorized?(giver, receiver)
-      var :unauthorized => true
-      var :receiver => receiver.nil? ? victim : receiver.name
+      var unauthorized: true
+      var receiver: receiver.nil? ? victim : receiver.name
       return
     end
     
     change_points stem, channel, giver, receiver, delta, note
-    var :giver => giver
-    var :receiver => receiver
-    var :delta => delta
+    var giver: giver
+    var receiver: receiver
+    var delta: delta
   end
   
   def parse_history(stem, channel, subject, argument)
@@ -68,28 +68,28 @@ class Controller < Autumn::Leaf
     chan = Channel.named(channel).first
     person = find_person(stem, subject)
     if person.nil? then
-      var :person => subject
-      var :no_history => true
+      var person: subject
+      var no_history: true
       return
     end
     
     if date then
       start, stop = find_range(date)
-      scores = chan.scores.given_to(person).between(start, stop).newest_first.all(:limit => 5)
+      scores = chan.scores.given_to(person).between(start, stop).newest_first.all(limit: 5)
     elsif argument.empty? then
-      scores = chan.scores.given_to(person).newest_first.all(:limit => 5)
+      scores = chan.scores.given_to(person).newest_first.all(limit: 5)
     else
       giver = find_person(stem, argument)
       if giver.nil? then
-        var :giver => argument
-        var :receiver => person
-        var :no_giver_history => true
+        var giver: argument
+        var receiver: person
+        var no_giver_history: true
         return
       end
-      scores = chan.scores.given_by(giver).given_to(person).newest_first.all(:limit => 5)
+      scores = chan.scores.given_by(giver).given_to(person).newest_first.all(limit: 5)
     end
-    var :receiver => person
-    var :giver => giver
-    var :scores => scores
+    var receiver: person
+    var giver: giver
+    var scores: scores
   end
 end

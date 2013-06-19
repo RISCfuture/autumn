@@ -59,7 +59,7 @@ module Autumn
     # value of +vcs+.
     
     def call_generator(meth)
-      generator.send(meth, name, :verbose => true, :vcs => vcs)
+      generator.send(meth, name, verbose: true, vcs: vcs)
     end
     
     private

@@ -6,7 +6,7 @@ gem 'rake'
 
 group :pre_config do
   gem 'i18n'
-  gem 'activesupport', :require => 'active_support/core_ext/string'
+  gem 'activesupport', require: 'active_support/core_ext/string'
   gem 'facets'
 end
 

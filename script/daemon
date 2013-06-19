@@ -27,4 +27,11 @@ require 'daemons'
 $: << Dir.getwd
 require 'libs/autumn'
 
-Daemons.run "#{Autumn::Config.root}/script/server", :app_name => 'autumn', :dir_mode => :normal, :dir => "#{Autumn::Config.root}/tmp", :multiple => false, :backtrace => true, :monitor => false, :log_output => true
+Daemons.run "#{Autumn::Config.root}/script/server",
+            app_name:   'autumn',
+            dir_mode:   :normal,
+            dir:        "#{Autumn::Config.root}/tmp",
+            multiple:   false,
+            backtrace:  true,
+            monitor:    false,
+            log_output: true

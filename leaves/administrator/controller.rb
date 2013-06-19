@@ -12,7 +12,7 @@ class Controller < Autumn::Leaf
   # code.
   
   def reload_command(stem, sender, reply_to, msg)
-    var :leaves => Hash.new
+    var leaves: Hash.new
     if msg then
       if Foliater.instance.leaves.include?(msg) then
         begin
@@ -26,7 +26,7 @@ class Controller < Autumn::Leaf
         end
         logger.info "#{msg}: Reloaded"
       else
-        var :not_found => msg
+        var not_found: msg
       end
     else
       Foliater.instance.leaves.each do |name, leaf|
@@ -43,20 +43,20 @@ class Controller < Autumn::Leaf
       end
     end
   end
-  ann :reload_command, :protected => true
+  ann :reload_command, protected: true
   
   # Typing this command will cause the Stem to exit.
   
   def quit_command(stem, sender, reply_to, msg)
     stem.quit
   end
-  ann :quit_command, :protected => true
+  ann :quit_command, protected: true
   
   # Typing this command will display information about the version of Autumn
   # that is running this leaf.
   
   def autumn_command(stem, sender, reply_to, msg)
-    var :version => Autumn::Config.version
+    var version: Autumn::Config.version
   end
   
   # Suppress the !commands command; don't want to publicize the administrative

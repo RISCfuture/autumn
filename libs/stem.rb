@@ -107,8 +107,8 @@ module Autumn
   #      [...]
   #    end
   #    
-  #    ann :irc_rpl_namreply_response, :stem_sync => true
-  #    ann :irc_rpl_endofnames_response, :stem_sync => true
+  #    ann :irc_rpl_namreply_response, stem_sync: true
+  #    ann :irc_rpl_endofnames_response, stem_sync: true
   #  end
   #
   # All such methods will be run in a single thread, and will receive server
@@ -179,38 +179,38 @@ module Autumn
   
     # Valid IRC command names, mapped to information about their parameters.
     IRC_COMMANDS = {
-      :pass => [ param('password') ],
-      :nick => [ param('nickname') ],
-      :user => [ param('user'), param('host'), param('server'), param('name') ],
-      :oper => [ param('user'), param('password') ],
-      :quit => [ param('message', :required => false, :colonize => true, :truncatable => true) ],
+      pass: [ param('password') ],
+      nick: [ param('nickname') ],
+      user: [ param('user'), param('host'), param('server'), param('name') ],
+      oper: [ param('user'), param('password') ],
+      quit: [ param('message', required: false, colonize: true, truncatable: true) ],
     
-      :join => [ param('channels', :list => true), param('keys', :list => true) ],
-      :part => [ param('channels', :list => true) ],
-      :mode => [ param('channel/nick'), param('mode'), param('limit', :required => false), param('user', :required => false), param('mask', :required => false) ],
-      :topic => [ param('channel'), param('topic', :required => false, :colonize => true) ],
-      :names => [ param('channels', :required => false, :list => true) ],
-      :list => [ param('channels', :required => false, :list => true), param('server', :required => false) ],
-      :invite => [ param('nick'), param('channel') ],
-      :kick => [ param('channels', :list => true), param('users', :list => true), param('comment', :required => false, :colonize => true, :truncatable => true) ],
+      join: [ param('channels', list: true), param('keys', list: true) ],
+      part: [ param('channels', list: true) ],
+      mode: [ param('channel/nick'), param('mode'), param('limit', required: false), param('user', required: false), param('mask', required: false) ],
+      topic: [ param('channel'), param('topic', required: false, colonize: true) ],
+      names: [ param('channels', required: false, list: true) ],
+      list: [ param('channels', required: false, list: true), param('server', required: false) ],
+      invite: [ param('nick'), param('channel') ],
+      kick: [ param('channels', list: true), param('users', list: true), param('comment', required: false, colonize: true, truncatable: true) ],
     
-      :version => [ param('server', :required => false) ],
-      :stats => [ param('query', :required => false), param('server', :required => false) ],
-      :links => [ param('server/mask', :required => false), param('server/mask', :required => false) ],
-      :time => [ param('server', :required => false) ],
-      :connect => [ param('target server'), param('port', :required => false), param('remote server', :required => false) ],
-      :trace => [ param('server', :required => false) ],
-      :admin => [ param('server', :required => false) ],
-      :info => [ param('server', :required => false) ],
+      version: [ param('server', required: false) ],
+      stats: [ param('query', required: false), param('server', required: false) ],
+      links: [ param('server/mask', required: false), param('server/mask', required: false) ],
+      time: [ param('server', required: false) ],
+      connect: [ param('target server'), param('port', required: false), param('remote server', required: false) ],
+      trace: [ param('server', required: false) ],
+      admin: [ param('server', required: false) ],
+      info: [ param('server', required: false) ],
     
-      :privmsg => [ param('receivers', :list => true), param('message', :colonize => true, :truncatable => true, :splittable => true) ],
-      :notice => [ param('nick'), param('message', :colonize => true, :truncatable => true, :splittable => true) ],
+      privmsg: [ param('receivers', list: true), param('message', colonize: true, truncatable: true, splittable: true) ],
+      notice: [ param('nick'), param('message', colonize: true, truncatable: true, splittable: true) ],
     
-      :who => [ param('name', :required => false), param('is mask', :required => false) ],
-      :whois => [ param('server/nicks', :list => true), param('nicks', :list => true, :required => false) ],
-      :whowas => [ param('nick'), param('history count', :required => false), param('server', :required => false) ],
+      who: [ param('name', required: false), param('is mask', required: false) ],
+      whois: [ param('server/nicks', list: true), param('nicks', list: true, required: false) ],
+      whowas: [ param('nick'), param('history count', required: false), param('server', required: false) ],
     
-      :pong => [ param('code', :required => false, :colonize => true) ]
+      pong: [ param('code', required: false, colonize: true) ]
     }
     
     # The address of the server this stem is connected to.
@@ -691,7 +691,7 @@ module Autumn
     def irc_ping_event(stem, sender, arguments) # :nodoc:
       arguments[:message].nil? ? pong : pong(arguments[:message])
     end
-    ann :irc_ping_event, :stem_sync => true # To avoid overhead of a whole new thread just for a pong
+    ann :irc_ping_event, stem_sync: true # To avoid overhead of a whole new thread just for a pong
     
     def irc_rpl_yourhost_response(stem, sender, recipient, arguments, msg) # :nodoc:
       return if options[:server_type]
@@ -709,7 +709,7 @@ module Autumn
       @server_type = Daemon[type] 
       logger.info "Auto-detected #{type} server daemon type"
     end
-    ann :irc_rpl_yourhost_response, :stem_sync => true # So methods that synchronize can be guaranteed the host is known ASAP
+    ann :irc_rpl_yourhost_response, stem_sync: true # So methods that synchronize can be guaranteed the host is known ASAP
     
     def irc_err_nicknameinuse_response(stem, sender, recipient, arguments, msg) # :nodoc:
       return unless nick_generator
@@ -728,12 +728,12 @@ module Autumn
     def irc_rpl_namreply_response(stem, sender, recipient, arguments, msg) # :nodoc:
       update_names_list normalized_channel_name(arguments[1]), msg.words unless arguments[1] == "*" # "*" refers to users not on a channel
     end
-    ann :irc_rpl_namreply_response, :stem_sync => true # So endofnames isn't processed before namreply
+    ann :irc_rpl_namreply_response, stem_sync: true # So endofnames isn't processed before namreply
     
     def irc_rpl_endofnames_response(stem, sender, recipient, arguments, msg) # :nodoc:
       finish_names_list_update normalized_channel_name(arguments[0])
     end
-    ann :irc_rpl_endofnames_response, :stem_sync => true # so endofnames isn't processed before namreply
+    ann :irc_rpl_endofnames_response, stem_sync: true # so endofnames isn't processed before namreply
     
     def irc_kick_event(stem, sender, arguments) # :nodoc:
       if arguments[:recipient] == @nick then
@@ -750,12 +750,12 @@ module Autumn
         end
       end
     end
-    ann :irc_kick_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
+    ann :irc_kick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
     
     def irc_mode_event(stem, sender, arguments) # :nodoc:
       names arguments[:channel] if arguments[:parameter] and server_type.privilege_mode?(arguments[:mode])
     end
-    ann :irc_mode_event, :stem_sync => true # To avoid overhead of a whole new thread for a names reply
+    ann :irc_mode_event, stem_sync: true # To avoid overhead of a whole new thread for a names reply
     
     def irc_join_event(stem, sender, arguments) # :nodoc:
       if sender[:nick] == @nick then
@@ -791,7 +791,7 @@ module Autumn
         end
       end
     end
-    ann :irc_join_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
+    ann :irc_join_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
     
     def irc_part_event(stem, sender, arguments) # :nodoc:
       @chan_mutex.synchronize do
@@ -803,7 +803,7 @@ module Autumn
         #TODO what should we do if we are in the middle of receiving NAMES replies?
       end
     end
-    ann :irc_part_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
+    ann :irc_part_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
     
     def irc_nick_event(stem, sender, arguments) # :nodoc:
       @nick = arguments[:nick] if sender[:nick] == @nick
@@ -812,7 +812,7 @@ module Autumn
         #TODO what should we do if we are in the middle of receiving NAMES replies?
       end
     end
-    ann :irc_nick_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
+    ann :irc_nick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
     def irc_quit_event(stem, sender, arguments) # :nodoc:
       @chan_mutex.synchronize do
@@ -820,7 +820,7 @@ module Autumn
         #TODO what should we do if we are in the middle of receiving NAMES replies?
       end
     end
-    ann :irc_quit_event, :stem_sync => true # So methods that synchronize can be guaranteed the channel variables are up to date
+    ann :irc_quit_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
     
     private
   
@@ -861,10 +861,10 @@ module Autumn
         meths[:irc_server_error] = [ self, msg ]
         return meths
       elsif comm =~ /^:(#{nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
-        sender = { :nick => $1, :user => $2, :host => $3 }
+        sender = { nick: $1, user: $2, host: $3 }
         command, arg_str = $4, $5
       elsif comm =~ /^:(#{nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
-        sender = { :nick => $1 }
+        sender = { nick: $1 }
         command, arg_str = $2, $3
       elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
         server, command, arg_str = $1, $2, $3
@@ -896,7 +896,7 @@ module Autumn
     
       case command
         when :nick then
-          arguments = { :nick => arg_array.at(0) }
+          arguments = { nick: arg_array.at(0) }
           # Some IRC servers put the nick in the message field
           unless arguments[:nick]
             arguments[:nick] = msg
@@ -905,42 +905,42 @@ module Autumn
         when :quit then
           arguments = { }
         when :join then
-          arguments = { :channel => (msg || arg_array.at(0)) }
+          arguments = { channel: (msg || arg_array.at(0)) }
           msg = nil
         when :part then
-          arguments = { :channel => arg_array.at(0) }
+          arguments = { channel: arg_array.at(0) }
         when :mode then
-          arguments = if channel?(arg_array.at(0)) then { :channel => arg_array.at(0) } else { :recipient => arg_array.at(0) } end
+          arguments = if channel?(arg_array.at(0)) then { channel: arg_array.at(0) } else { :recipient => arg_array.at(0) } end
           params = arg_array[2, arg_array.size]
           if params then
             params = params.only if params.size == 1
             params = nil if params.empty? # empty? is a method on String too, so this has to come second to prevent an error
           end
-          arguments.update(:mode => arg_array.at(1), :parameter => params)
+          arguments.update(mode: arg_array.at(1), parameter: params)
           # Usermodes stick the mode in the message
           if arguments[:mode].nil? and msg =~ /^[\+\-]\w+$/ then
             arguments[:mode] = msg
             msg = nil
           end
         when :topic then
-          arguments = { :channel => arg_array.at(0), :topic => msg }
+          arguments = { channel: arg_array.at(0), topic: msg }
           msg = nil
         when :invite then
-          arguments = { :recipient => arg_array.at(0), :channel => msg }
+          arguments = { recipient: arg_array.at(0), channel: msg }
           msg = nil
         when :kick then
-          arguments = { :channel => arg_array.at(0), :recipient => arg_array.at(1) }
+          arguments = { channel: arg_array.at(0), recipient: arg_array.at(1) }
         when :privmsg then
-          arguments = if channel?(arg_array.at(0)) then { :channel => arg_array.at(0) } else { :recipient => arg_array.at(0) } end
+          arguments = if channel?(arg_array.at(0)) then { channel: arg_array.at(0) } else { :recipient => arg_array.at(0) } end
         when :notice then
-          arguments = if channel?(arg_array.at(0)) then { :channel => arg_array.at(0) } else { :recipient => arg_array.at(0) } end
+          arguments = if channel?(arg_array.at(0)) then { channel: arg_array.at(0) } else { :recipient => arg_array.at(0) } end
         when :ping then
-          arguments = { :server => arg_array.at(0) }
+          arguments = { server: arg_array.at(0) }
         else
           logger.warn "Unknown IRC command #{command.to_s}"
           return
       end
-      arguments.update :message => msg
+      arguments.update message: msg
       arguments[:channel] = normalized_channel_name(arguments[:channel]) if arguments[:channel]
     
       method = "irc_#{command}_event".to_sym

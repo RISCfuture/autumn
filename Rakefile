@@ -54,7 +54,7 @@ namespace :log do
   end
   
   desc "Print all error messages in the log files"
-  task :errors => :environment do
+  task errors: :environment do
     season_log = "log/#{@genesis.config.global :season}.log"
     system_log = 'tmp/autumn.log'
     if File.exists? season_log then
@@ -78,7 +78,7 @@ end
 
 namespace :db do
   desc "Recreate database tables according to the model objects"
-  task :migrate => :boot do
+  task migrate: :boot do
     dname = ENV['DB']
     raise "Usage: DB=[Database config name] rake db:migrate" unless dname
     raise "Unknown database config #{dname}" unless repository(dname.to_sym)
@@ -89,7 +89,7 @@ namespace :db do
     end
   end
   desc "Nondestructively update database tables according to the model objects"
-  task :upgrade => :boot do
+  task upgrade: :boot do
     dname = ENV['DB']
     raise "Usage: DB=[Database config name] rake db:upgrade" unless dname
     raise "Unknown database config #{dname}" unless repository(dname.to_sym)
@@ -103,13 +103,13 @@ end
 
 namespace :doc do
   desc "Generate API documentation for Autumn"
-  task :api => :environment do
+  task api: :environment do
     FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     system "rdoc --main README.rdoc --title 'Autumn API Documentation' -o doc/api libs README.rdoc"
   end
   
   desc "Generate documentation for all leaves"
-  task :leaves => :environment do
+  task leaves: :environment do
     FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
     Dir.glob("leaves/*").each do |leaf_dir|
       Dir.chdir leaf_dir do
@@ -119,7 +119,7 @@ namespace :doc do
   end
   
   desc "Remove all documentation"
-  task :clear => :environment do
+  task clear: :environment do
     FileUtils.remove_dir 'doc/api' if File.directory? 'doc/api'
     FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
   end
