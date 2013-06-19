@@ -113,7 +113,7 @@ namespace :doc do
     FileUtils.remove_dir 'doc/leaves' if File.directory? 'doc/leaves'
     Dir.glob("leaves/*").each do |leaf_dir|
       Dir.chdir leaf_dir do
-        system "rdoc --main README.rdoc --title '#{File.basename(leaf_dir).camelcase} Documentation' -o ../../doc/leaves/#{File.basename leaf_dir} --line-numbers --inline-source controller.rb helpers models README"
+        system "rdoc --main README.rdoc --title '#{File.basename(leaf_dir).camelcase(:upper)} Documentation' -o ../../doc/leaves/#{File.basename leaf_dir} --line-numbers --inline-source controller.rb helpers models README"
       end
     end
   end

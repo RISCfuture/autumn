@@ -125,7 +125,7 @@ module Autumn
       Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
-        helper_modules << (File.basename(helper_file, '.rb').camelcase + 'Helper').to_sym
+        helper_modules << (File.basename(helper_file, '.rb').camelcase(:upper) + 'Helper').to_sym
       end
 
       leaf_class = nil

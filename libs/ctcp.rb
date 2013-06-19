@@ -64,6 +64,8 @@ module Autumn
   # method for more detail.
 
   class CTCP
+    extend Anise::Annotations
+    
     # Format of an embedded CTCP request.
     CTCP_REQUEST = /\x01(.+?)\x01/
     # CTCP commands whose arguments are encoded according to the CTCP spec (as

@@ -150,7 +150,7 @@ module Autumn
 
   class Stem
     include StemFacade
-    include Anise
+    extend Anise::Annotations
     
     # Describes all possible channel names. Omits the channel prefix, as that
     # can vary from server to server. (See channel?)
@@ -462,7 +462,7 @@ module Autumn
   
     def add_listener(obj)
       @listeners << obj
-      obj.class.send :include, Anise # give it the ability to sync
+      obj.class.send :extend, Anise::Annotations
       obj.respond :added, self
     end
     
@@ -687,9 +687,7 @@ module Autumn
     def inspect # :nodoc:
       "#<#{self.class.to_s} #{server}:#{port}>"
     end
-  
-    protected
-    
+
     def irc_ping_event(stem, sender, arguments) # :nodoc:
       arguments[:message].nil? ? pong : pong(arguments[:message])
     end

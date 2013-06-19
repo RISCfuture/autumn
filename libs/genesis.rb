@@ -1,6 +1,8 @@
 # Defines the Autumn::Genesis class, which bootstraps the Autumn environment
 # and starts the Foliater.
 
+require 'yaml'
+
 Autumn::Config.version = "3.0 (7-4-08)"
 
 module Autumn # :nodoc:
@@ -192,7 +194,7 @@ module Autumn # :nodoc:
           leaf_config = Hash.new
           Dir.entries("leaves").each do |dir|
             next if not File.directory? "leaves/#{dir}" or dir[0,1] == '.'
-            leaf_name = dir.camelcase
+            leaf_name = dir.camelcase(:upper)
             leaf_config[leaf_name] = { 'class' => leaf_name }
           end
         end

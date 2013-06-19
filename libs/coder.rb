@@ -159,7 +159,7 @@ module Autumn
           about << '# This method renders the file "about.txt.erb"'
         end
       end
-      controller.doc = "Controller for the #{name.camelcase} leaf."
+      controller.doc = "Controller for the #{name.camelcase(:upper)} leaf."
       return controller
     end
   end
