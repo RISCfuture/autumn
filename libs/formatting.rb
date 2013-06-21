@@ -53,7 +53,7 @@ module Autumn
       # The mIRC color code sentinel.
       COLOR_CODE       = 3.chr
       # Insert this character to stop colorizing text.
-      UNCOLOR          = COLOR_CODE + " "
+      UNCOLOR          = COLOR_CODE + ' '
       # Same as UNCOLOR, but suppresses the trailing space for situations where
       # no conflict is assured.
       UNCOLOR_NO_SPACE = COLOR_CODE
@@ -104,21 +104,21 @@ module Autumn
 
       def color(fgcolor, bgcolor=nil, options={})
         fgcolor = :black unless COLORS.include? fgcolor
-        bgcolor = :white unless (bgcolor.nil? or COLORS.include? bgcolor)
+        bgcolor = :white unless (bgcolor.nil? || COLORS.include?(bgcolor))
         "#{COLOR_CODE}#{COLORS[fgcolor]}#{bgcolor ? (',' + COLORS[bgcolor]) : ''}#{options[:suppress_space] ? '' : ' '}"
       end
 
       # Sets all following text unformatted.
-      def plain; PLAIN; end
+      def plain() PLAIN end
 
       # Sets all following text bold.
-      def bold; BOLD; end
+      def bold() BOLD end
 
       # Sets all following text italic.
-      def italic; ITALIC; end
+      def italic() ITALIC end
 
       # Sets all following text underline.
-      def underline; UNDERLINE; end
+      def underline() UNDERLINE end
 
       # Removes coloring from all following text. Options:
       #
@@ -228,16 +228,16 @@ module Autumn
       end
 
       # Sets all following text unformatted.
-      def plain; PLAIN; end
+      def plain() PLAIN end
 
       # Sets all following text bold.
-      def bold; BOLD; end
+      def bold() BOLD end
 
       # Sets all following text italic.
-      def italic; ITALIC; end
+      def italic() ITALIC end
 
       # Sets all following text underline.
-      def underline; UNDERLINE; end
+      def underline() UNDERLINE end
 
       # Removes formatting from a string.
       def deformat(str)

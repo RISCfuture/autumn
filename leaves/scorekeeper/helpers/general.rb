@@ -9,18 +9,17 @@ module GeneralHelper
       begin
         date = Date.parse(str)
       rescue ArgumentError
+        # ignored
       end
     end
     return date
   end
 
   def find_range(date)
-    start = nil
-    stop  = nil
-    if date.kind_of? Range then
+    if date.kind_of? Range
       start = date.first
       stop  = date.last
-    elsif date.kind_of? Time then
+    elsif date.kind_of? Time
       start = date.to_date
       stop  = date.to_date + 1
     else
@@ -32,13 +31,13 @@ module GeneralHelper
 
   def find_person(stem, nick)
     Person.all(server: server_identifier(stem)).each do |person|
-      return person if person.name.downcase == normalize(nick) or person.pseudonyms.collect { |pn| pn.name.downcase }.include? normalize(nick)
+      return person if person.name.downcase == normalize(nick) || person.pseudonyms.collect { |pn| pn.name.downcase }.include?(normalize(nick))
     end
     return nil
   end
 
   def find_in_channel(stem, channel, victim)
-    stem.channel_members[channel].each do |name, privilege|
+    stem.channel_members[channel].each do |name, _|
       return normalize(name, false) if normalize(name) == normalize(victim)
     end
     return victim
@@ -49,7 +48,7 @@ module GeneralHelper
   end
 
   def authorized?(giver, receiver)
-    giver and receiver and giver.authorized? and giver.name != receiver.name
+    giver && receiver && giver.authorized? && giver.name != receiver.name
   end
 
   def change_points(stem, channel, giver, receiver, delta, note=nil)

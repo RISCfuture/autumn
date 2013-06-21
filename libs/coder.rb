@@ -32,13 +32,13 @@ module Autumn
     #  end
 
     def klass(name, superclass=nil)
-      if superclass then
+      if superclass
         self << "class #{name} < #{superclass}"
       else
         self << "class #{name}"
       end
 
-      if block_given? then
+      if block_given?
         generator = self.class.new
         yield generator
         indent!
@@ -46,7 +46,7 @@ module Autumn
         unindent!
       end
 
-      self << "end"
+      self << 'end'
 
       return self
     end
@@ -67,13 +67,13 @@ module Autumn
     #  end
 
     def method(name, *params)
-      if params.empty? then
+      if params.empty?
         self << "def #{name}"
       else
         self << "def #{name}(#{parameterize params})"
       end
 
-      if block_given? then
+      if block_given?
         generator = self.class.new
         yield generator
         indent!
@@ -81,7 +81,7 @@ module Autumn
         unindent!
       end
 
-      self << "end"
+      self << 'end'
 
       return self
     end
@@ -110,7 +110,7 @@ module Autumn
 
     def doc=(str)
       doc_lines = str.line_wrap(80 - tab.size - 2).split("\n")
-      doc_lines.map! { |str| "#{tab}# #{str}\n" }
+      doc_lines.map! { |l| "#{tab}# #{l}\n" }
       @output = doc_lines.join + "\n" + @output
     end
 
@@ -125,12 +125,12 @@ module Autumn
     def parameterize(params)
       param_strs = Array.new
       params.each do |param|
-        if param.kind_of? Hash and param.size == 1 then
+        if param.kind_of? Hash && param.size == 1
           name    = param.keys.only
           default = param.values.only
-          raise ArgumentError, "Invalid parameter #{name.inspect}" unless name.respond_to? :to_s and not name.to_s.empty?
+          raise ArgumentError, "Invalid parameter #{name.inspect}" unless name.respond_to?(:to_s) && !name.to_s.empty?
           param_strs << "#{name.to_s}=#{default.inspect}"
-        elsif param.respond_to? :to_s and not param.to_s.empty? then
+        elsif param.respond_to?(:to_s) && !param.to_s.empty?
           param_strs << param.to_s
         else
           raise ArgumentError, "Invalid parameter #{param.inspect}"
@@ -155,7 +155,7 @@ module Autumn
         leaf.newline!
         leaf << '# Typing "!about" displays some basic information about this leaf.'
         leaf.newline!
-        about_command = leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
+        leaf.method('about_command', 'stem', 'sender', 'reply_to', 'msg') do |about|
           about << '# This method renders the file "about.txt.erb"'
         end
       end

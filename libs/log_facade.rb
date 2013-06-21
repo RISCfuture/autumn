@@ -39,7 +39,7 @@ module Autumn
     end
 
     def method_missing(meth, *args) # :nodoc:
-      if args.size == 1 and args.only.kind_of? String then
+      if args.size == 1 && args.only.kind_of?(String)
         args = ["#{name} (#{type}): #{args.only}"]
       end
       @logger.send meth, *args

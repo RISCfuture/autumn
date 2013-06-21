@@ -30,7 +30,7 @@ opts = GetoptLong.new(
 script = Autumn::Script.new
 
 begin
-  opts.each do |opt, arg|
+  opts.each do |opt, _|
     case opt
       when '--help' then RDoc::usage
       when '--vcs' then script.use_vcs

@@ -57,6 +57,7 @@ class ForgetfulQueue < Queue # :nodoc:
 
   def initialize(capacity)
     @max = capacity
+    @mutex = Mutex.new
   end
 
   # Returns true if this queue is at maximum size.
@@ -69,7 +70,7 @@ class ForgetfulQueue < Queue # :nodoc:
   # does nothing.
 
   def push(obj)
-    Thread.exclusive { super unless full? }
+    @mutex.synchronize { super unless full? }
   end
   alias_method :<<, :push
   alias_method :enq, :push

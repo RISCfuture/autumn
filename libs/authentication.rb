@@ -79,7 +79,7 @@ module Autumn
 
       def authenticate(stem, channel, sender, leaf) # :nodoc:
         # Returns true if the sender has any of the privileges listed below
-        not (@privileges & [stem.privilege(channel, sender)].flatten).empty?
+        !(@privileges & [stem.privilege(channel, sender)].flatten).empty?
       end
 
       def unauthorized # :nodoc:
@@ -140,7 +140,7 @@ module Autumn
         @hostmask = options[:hostmask]
         @hostmask ||= /^.+?\.(.+)$/
         @hostmask = @hostmask.to_rx(false) if @hostmask.kind_of? String
-        if @hostmask.kind_of? Regexp then
+        if @hostmask.kind_of? Regexp
           mask      = @hostmask
           @hostmask = lambda do |host|
             (matches = host.match(mask)) ? matches[1] : nil
@@ -187,7 +187,7 @@ module Autumn
       end
 
       def irc_privmsg_event(stem, sender, arguments) # :nodoc:
-        if arguments[:recipient] and arguments[:message] == @password then
+        if arguments[:recipient] && arguments[:message] == @password
           @an_lock.synchronize do
             @authorized_nicks[stem] << sender[:nick]
             @last_protected_action[stem][sender[:nick]] = Time.now
@@ -204,17 +204,17 @@ module Autumn
         end
       end
 
-      def irc_kick_event(stem, sender, arguments) # :nodoc:
+      def irc_kick_event(stem, _, arguments) # :nodoc:
         @an_lock.synchronize { revoke stem, arguments[:nick] }
       end
 
-      def irc_quit_event(stem, sender, arguments) # :nodoc:
+      def irc_quit_event(stem, sender, _) # :nodoc:
         @an_lock.synchronize { revoke stem, sender[:nick] }
       end
 
       def authenticate(stem, channel, sender, leaf) # :nodoc:
         @an_lock.synchronize do
-          if Time.now - @last_protected_action[stem][sender[:nick]] > @expire_time then
+          if Time.now - @last_protected_action[stem][sender[:nick]] > @expire_time
             revoke stem, sender[:nick]
           else
             @last_protected_action[stem][sender[:nick]] = Time.now

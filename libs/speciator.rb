@@ -36,7 +36,7 @@ module Autumn
     # symbol. Season-scope config options will override global ones.
 
     def [](sym)
-      @season_options[sym] or @global_options[sym]
+      @season_options[sym] || @global_options[sym]
     end
 
     # When called with a hash: Takes a hash of options and values, and sets them
@@ -144,7 +144,7 @@ module Autumn
     end
 
     def method_missing(meth, *args, &block)
-      if MERGED_METHODS.include? meth then
+      if MERGED_METHODS.include?(meth)
         merged.send meth, *args, &block
       else
         returnval = @hashes.last.send(meth, *args, &block)

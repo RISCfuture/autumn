@@ -67,7 +67,7 @@ module Autumn
     end
 
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
-      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
+      super if arguments[:channel].nil? || listening?(stem, arguments[:channel])
     end
 
     def irc_join_event(stem, sender, arguments) # :nodoc:
@@ -79,7 +79,7 @@ module Autumn
     end
 
     def irc_mode_event(stem, sender, arguments) # :nodoc:
-      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
+      super if arguments[:channel].nil? || listening?(stem, arguments[:channel])
     end
 
     def irc_topic_event(stem, sender, arguments) # :nodoc:
@@ -87,7 +87,7 @@ module Autumn
     end
 
     def irc_invite_event(stem, sender, arguments) # :nodoc:
-      super if listening?(stem, arguments[:channel]) or not stem.channels.include? arguments[:channel]
+      super if listening?(stem, arguments[:channel]) || !stem.channels.include?(arguments[:channel])
     end
 
     def irc_kick_event(stem, sender, arguments) # :nodoc:
@@ -95,13 +95,13 @@ module Autumn
     end
 
     def irc_notice_event(stem, sender, arguments) # :nodoc:
-      super if arguments[:channel].nil? or listening?(stem, arguments[:channel])
+      super if arguments[:channel].nil? || listening?(stem, arguments[:channel])
     end
 
     private
 
     def listening?(stem, channel)
-      @channels.include? stem and @channels[stem].include? channel
+      @channels.include? stem && @channels[stem].include?(channel)
     end
   end
 end

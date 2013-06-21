@@ -181,7 +181,7 @@ module Autumn
       # Let the stems array respond to methods as if it were a single stem
       class << @stems
         def method_missing(meth, *args)
-          if all? { |stem| stem.respond_to? meth } then
+          if all? { |stem| stem.respond_to? meth }
             collect { |stem| stem.send(meth, *args) }
           else
             super
@@ -191,7 +191,7 @@ module Autumn
     end
 
     def preconfigure # :nodoc:
-      if options[:authentication] then
+      if options[:authentication]
         @authenticator = Autumn::Authentication.const_get(options[:authentication]['type'].camelcase(:upper)).new(options[:authentication].rekey(&:to_sym))
         stems.add_listener @authenticator
       end
@@ -200,7 +200,7 @@ module Autumn
     # Simplifies method calls for one-stem leaves.
 
     def method_missing(meth, *args) # :nodoc:
-      if stems.size == 1 and stems.only.respond_to? meth then
+      if stems.size == 1 && stems.only.respond_to?(meth)
         stems.only.send meth, *args
       else
         super
@@ -209,14 +209,14 @@ module Autumn
 
     ########################## METHODS INVOKED BY STEM #########################
 
-    def stem_ready(stem) # :nodoc:
-      return unless Thread.exclusive { stems.ready?.all? }
+    def stem_ready(_) # :nodoc:
+      return unless (@ready_mutex ||= Mutex.new).synchronize { stems.ready?.all? }
       database { startup_check }
     end
 
     def irc_privmsg_event(stem, sender, arguments) # :nodoc:
       database do
-        if arguments[:channel] then
+        if arguments[:channel]
           command_parse stem, sender, arguments
           did_receive_channel_message stem, sender, arguments[:channel], arguments[:message]
         else
@@ -236,10 +236,10 @@ module Autumn
 
     def irc_mode_event(stem, sender, arguments) # :nodoc:
       database do
-        if arguments[:recipient] then
+        if arguments[:recipient]
           gained_usermodes(stem, arguments[:mode]) { |prop| someone_did_gain_usermode stem, arguments[:recipient], prop, arguments[:parameter], sender }
           lost_usermodes(stem, arguments[:mode]) { |prop| someone_did_lose_usermode stem, arguments[:recipient], prop, arguments[:parameter], sender }
-        elsif arguments[:parameter] and stem.server_type.privilege_mode?(arguments[:mode]) then
+        elsif arguments[:parameter] && stem.server_type.privilege_mode?(arguments[:mode])
           gained_privileges(stem, arguments[:mode]) { |prop| someone_did_gain_privilege stem, arguments[:channel], arguments[:parameter], prop, sender }
           lost_privileges(stem, arguments[:mode]) { |prop| someone_did_lose_privilege stem, arguments[:channel], arguments[:parameter], prop, sender }
         else
@@ -263,7 +263,7 @@ module Autumn
 
     def irc_notice_event(stem, sender, arguments) # :nodoc:
       database do
-        if arguments[:recipient] then
+        if arguments[:recipient]
           did_receive_notice stem, sender, arguments[:recipient], arguments[:message]
         else
           did_receive_notice stem, sender, arguments[:channel], arguments[:message]
@@ -311,7 +311,7 @@ module Autumn
 
     def database(dbname=nil, &block)
       dbname ||= database_name
-      if dbname then
+      if dbname
         repository dbname, &block
       else
         yield
@@ -323,8 +323,8 @@ module Autumn
     # or this leaf's class name. Returns nil if no suitable connection is found.
 
     def database_name # :nodoc:
-      return nil unless Module.constants.include? 'DataMapper' or Module.constants.include? :DataMapper
-      raise "No such database connection #{options[:database]}" if options[:database] and DataMapper::Repository.adapters[options[:database]].nil?
+      return nil unless Module.constants.include?('DataMapper') || Module.constants.include?(:DataMapper)
+      raise "No such database connection #{options[:database]}" if options[:database] && DataMapper::Repository.adapters[options[:database]].nil?
       # Custom database connection specified
       return options[:database].to_sym if options[:database]
       # Leaf config name
@@ -393,10 +393,10 @@ module Autumn
     # and if the result is not false or nil, the command will be executed.
 
     def self.before_filter(filter, options={})
-      if options[:only] and not options[:only].kind_of? Array then
+      if options[:only] && !options[:only].kind_of?(Array)
         options[:only] = [options[:only]]
       end
-      if options[:except] and not options[:except].kind_of? Array then
+      if options[:except] && !options[:except].kind_of?(Array)
         options[:except] = [options[:except]]
       end
       write_inheritable_array 'before_filters', [[filter.to_sym, options]]
@@ -420,10 +420,10 @@ module Autumn
     #  clean_tmp_filter <stem>, <channel>, <sender hash>, :sendfile, <message>, { remove_symlinks: true }
 
     def self.after_filter(filter, options={})
-      if options[:only] and not options[:only].kind_of? Array then
+      if options[:only] && !options[:only].kind_of?(Array)
         options[:only] = [options[:only]]
       end
-      if options[:except] and not options[:except].kind_of? Array then
+      if options[:except] && !options[:except].kind_of?(Array)
         options[:except] = [options[:except]]
       end
       write_inheritable_array 'after_filters', [[filter.to_sym, options]]
@@ -546,7 +546,7 @@ module Autumn
     def someone_did_quit(stem, person, msg)
     end
 
-    UNADVERTISED_COMMANDS = ['about', 'commands'] # :nodoc:
+    UNADVERTISED_COMMANDS = %w(about commands) # :nodoc:
 
     # Typing this command displays a list of all commands for each leaf running
     # off this stem.
@@ -612,13 +612,12 @@ module Autumn
     end
 
     def command_parse(stem, sender, arguments)
-      if arguments[:channel] or options[:respond_to_private_messages] then
+      if arguments[:channel] || options[:respond_to_private_messages]
         reply_to = arguments[:channel] ? arguments[:channel] : sender[:nick]
         matches  = arguments[:message].match(/^#{Regexp.escape options[:command_prefix]}(\w+)\s*(.*)$/)
-        if matches then
+        if matches
           name   = matches[1].to_sym
           msg    = matches[2]
-          origin = sender.merge(stem: stem)
           command_exec name, stem, arguments[:channel], sender, msg, reply_to
         end
       end
@@ -627,7 +626,7 @@ module Autumn
     def command_exec(name, stem, channel, sender, msg, reply_to)
       cmd_sym = "#{name}_command".to_sym
       return unless respond_to? cmd_sym
-      msg = nil if msg.empty?
+      msg = nil if msg.presence
 
       return unless authenticated?(name, stem, channel, sender)
       return unless run_before_filters(name, stem, channel, sender, name, msg)
@@ -636,9 +635,9 @@ module Autumn
       return_val            = send(cmd_sym, stem, sender, reply_to, msg)
       view                  = Thread.current[:render_view]
       view                  ||= @@view_alias[name]
-      if return_val.kind_of? String then
+      if return_val.kind_of? String
         stem.message return_val, reply_to
-      elsif options[:views][view.to_s] then
+      elsif options[:views][view.to_s]
         stem.message parse_view(view.to_s), reply_to
       #else
       #  raise "You must either specify a view to render or return a string to send."
@@ -657,23 +656,23 @@ module Autumn
       Foliater.instance.leaves.key self
     end
 
-    def run_before_filters(cmd, stem, channel, sender, command, msg)
+    def run_before_filters(cmd, stem, channel, sender, _, msg)
       command = cmd.to_sym
       self.class.before_filters.each do |filter, options|
         local_opts = options.dup
-        next if local_opts[:only] and not local_opts.delete(:only).include? command
-        next if local_opts[:except] and local_opts.delete(:except).include? command
+        next if local_opts[:only] && !local_opts.delete(:only).include?(command)
+        next if local_opts[:except] && local_opts.delete(:except).include?(command)
         return false unless method("#{filter}_filter")[stem, channel, sender, command, msg, local_opts]
       end
       return true
     end
 
-    def run_after_filters(cmd, stem, channel, sender, command, msg)
+    def run_after_filters(cmd, stem, channel, sender, _, msg)
       command = cmd.to_sym
       self.class.after_filters.each do |filter, options|
         local_opts = options.dup
-        next if local_opts[:only] and not local_opts.delete(:only).include? command
-        next if local_opts[:except] and local_opts.delete(:except).include? command
+        next if local_opts[:only] && !local_opts.delete(:only).include?(command)
+        next if local_opts[:except] && local_opts.delete(:except).include?(command)
         method("#{filter}_filter")[stem, channel, sender, command, msg, local_opts]
       end
     end
@@ -681,10 +680,8 @@ module Autumn
     def authenticated?(cmd, stem, channel, sender)
       return true if @authenticator.nil?
       # Any method annotated as protected is authenticated unconditionally
-      if not self.class.ann("#{cmd}_command".to_sym, :protected) then
-        return true
-      end
-      if @authenticator.authenticate(stem, channel, sender, self) then
+      return true unless self.class.ann("#{cmd}_command".to_sym, :protected)
+      if @authenticator.authenticate(stem, channel, sender, self)
         return true
       else
         stem.message @authenticator.unauthorized, channel unless options[:authentication]['silent']
@@ -723,11 +720,11 @@ module Autumn
     end
 
     def self.before_filters
-      read_inheritable_attribute('before_filters') or []
+      read_inheritable_attribute('before_filters') || []
     end
 
     def self.after_filters
-      read_inheritable_attribute('after_filters') or []
+      read_inheritable_attribute('after_filters') || []
     end
   end
 end

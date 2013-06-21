@@ -18,7 +18,8 @@ group :datamapper do
 end
 
 # load each leaf's gem requirements in its own group
-Dir.glob("#{File.dirname __FILE__}/leaves/*/Gemfile").each do |gemfile|
+files = Pathname.new(__FILE__).dirname.join('leaves', '*', 'Gemfile')
+Pathname.glob(files).each do |gemfile|
   eval File.read(gemfile)
 end
 

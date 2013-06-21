@@ -166,10 +166,10 @@ module Autumn
       def initialize(newname, options={})
         @name        = newname
         @required    = options[:required].nil? ? true : options[:required]
-        @colonize    = options[:colonize] || false
-        @list        = options[:list] || false
-        @truncatable = options[:truncatable] || false
-        @splittable  = options[:splittable] || false
+        @colonize    = options[:colonize]
+        @list        = options[:list]
+        @truncatable = options[:truncatable]
+        @splittable  = options[:splittable]
       end
     end
 
@@ -298,7 +298,7 @@ module Autumn
     # a channel name-channel password association.
 
     def initialize(server, newnick, opts)
-      raise ArgumentError, "Please specify at least one channel" unless opts[:channel] or opts[:channels]
+      raise ArgumentError, "Please specify at least one channel" unless opts[:channel] || opts[:channels]
 
       @nick      = newnick
       @server    = server
@@ -311,10 +311,10 @@ module Autumn
       @logger             = @options[:logger]
       @detailed_errors    = @options[:detailed_errors]
       @nick_generator     = Proc.new do |oldnick|
-        if options[:ghost_without_password] then
+        if options[:ghost_without_password]
           message "GHOST #{oldnick}", 'NickServ'
           nil
-        elsif options[:dont_ghost] or options[:password].nil? then
+        elsif options[:dont_ghost] || options[:password].nil?
           "#{oldnick}_"
         else
           message "GHOST #{oldnick} #{options[:password]}", 'NickServ'
@@ -338,7 +338,7 @@ module Autumn
       @channels.merge opts[:channels] if opts[:channels]
       @channels << opts[:channel] if opts[:channel]
       @channels.map! do |chan|
-        if chan.kind_of? Hash then
+        if chan.kind_of? Hash
           { normalized_channel_name(chan.keys.only) => chan.values.only }
         else
           normalized_channel_name chan
@@ -351,14 +351,14 @@ module Autumn
       @channel_members          = Hash.new
       @updating_channel_members = Hash.new # stores the NAMES list as its being built
 
-      if @throttle = opts[:throttle] then
+      if (@throttle = opts[:throttle])
         @messages_queue  = Queue.new
         @messages_thread = Thread.new do
           throttled = false
           loop do
             args = @messages_queue.pop
-            throttled = true if not throttled and @messages_queue.length >= @throttle_threshold
-            throttled = false if throttled and @messages_queue.empty?
+            throttled = true if !throttled && @messages_queue.length >= @throttle_threshold
+            throttled = false if throttled && @messages_queue.empty?
             sleep @throttle_rate if throttled
             privmsg *args
           end
@@ -492,7 +492,7 @@ module Autumn
             options[:logger].error $!
 
             # Try to report the error if possible
-            if @detailed_errors then
+            if @detailed_errors
               message("Listener #{listener.class.to_s} raised an exception responding to #{meth}: " + $!.to_s) rescue nil
             else
               message("Listener #{listener.class.to_s} raised an exception -- check the logs for details.") rescue nil
@@ -543,7 +543,7 @@ module Autumn
       user username, @nick, @nick, realname
       nick @nick
 
-      while line = @socket.gets
+      while (line = @socket.gets)
         meths = receive line # parse the line and get a list of methods to call
         @messages.push meths # push the methods on the queue; the consumer thread will execute all the synchronous methods
         # then execute all the other methods in their own thread
@@ -557,7 +557,7 @@ module Autumn
     # channels could not be joined.
 
     def ready?
-      @ready == true
+      @ready
     end
 
     # Normalizes a channel name by placing a "\#" character before the name if no
@@ -568,12 +568,12 @@ module Autumn
     def normalized_channel_name(channel, add_prefix=true)
       norm_chan = channel.dup
       norm_chan.downcase! unless options[:case_sensitive_channel_names]
-      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0, 1]) or not add_prefix
+      norm_chan = "##{norm_chan}" unless server_type.channel_prefix?(channel[0, 1]) || !add_prefix
       return norm_chan
     end
 
     def method_missing(meth, *args) # :nodoc:
-      if IRC_COMMANDS.include? meth then
+      if IRC_COMMANDS.include? meth
         messages = build_irc_message(meth, args)
         messages.each { |message| transmit message }
       else
@@ -587,19 +587,18 @@ module Autumn
       size              = meth.to_s.size # accumulator of message length
 
       param_info.each do |param|
-        raise ArgumentError, "#{param.name} is required" if args.empty? and param.required
-        arg = args.shift
-        arg = nil if arg and arg.empty?
-        arg = (param.list and arg.kind_of? Array) ? arg.map(&:to_s).join(',') : arg.to_s
+        raise ArgumentError, "#{param.name} is required" if args.empty? && param.required
+        arg = args.shift.presence
+        arg = (param.list && arg.kind_of?(Array)) ? arg.map(&:to_s).join(',') : arg.to_s
         arg = ":#{arg}" if param.colonize
         command_arguments << arg
         size += (arg.size + 1) # include the space
       end
       raise ArgumentError, "Too many parameters" unless args.empty?
 
-      if @when_long == :split then
+      if @when_long == :split
         messages = apply_split_strategy(param_info, command_arguments, size).map { |subargs| "#{meth.to_s.upcase} #{subargs.join(' ')}" }
-      elsif @when_long == :cut then
+      elsif @when_long == :cut
         command_arguments = apply_cut_strategy(meth, param_info, command_arguments, size)
         messages          = ["#{meth.to_s.upcase} #{command_arguments.join(' ')}"]
       else
@@ -631,7 +630,7 @@ module Autumn
     end
 
     def apply_cut_strategy(meth, param_info, args, size)
-      while (size > @max_message_length)
+      while size > @max_message_length
         over                      = size - @max_message_length
         truncatable_param_indexes = (0..(param_info.size - 1)).select { |index| param_info[index].truncatable }
 
@@ -641,7 +640,7 @@ module Autumn
         size_of_param = args[index_to_truncate].size
         size_of_param -= 1 if param_info[index_to_truncate].colonize # colon doesn't count
 
-        if size_of_param <= over then
+        if size_of_param <= over
           # if truncating it all the way down wouldn't get us below maxlength,
           # then just remove it
           args[index_to_truncate] = nil
@@ -688,17 +687,17 @@ module Autumn
       "#<#{self.class.to_s} #{server}:#{port}>"
     end
 
-    def irc_ping_event(stem, sender, arguments) # :nodoc:
+    def irc_ping_event(_, _, arguments) # :nodoc:
       arguments[:message].nil? ? pong : pong(arguments[:message])
     end
     ann :irc_ping_event, stem_sync: true # To avoid overhead of a whole new thread just for a pong
 
-    def irc_rpl_yourhost_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_rpl_yourhost_response(_, _, _, _, msg) # :nodoc:
       return if options[:server_type]
       type = nil
       Daemon.each_name do |name|
         next unless msg.include? name
-        if type then
+        if type
           logger.info "Ambiguous server type; could be #{type} or #{name}"
           return
         else
@@ -711,32 +710,32 @@ module Autumn
     end
     ann :irc_rpl_yourhost_response, stem_sync: true # So methods that synchronize can be guaranteed the host is known ASAP
 
-    def irc_err_nicknameinuse_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_err_nicknameinuse_response(_, _, _, arguments, _) # :nodoc:
       return unless nick_generator
       newnick = nick_generator.call(arguments[0])
       nick newnick if newnick
     end
 
-    def irc_rpl_endofmotd_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_rpl_endofmotd_response(_, _, _, _, _) # :nodoc:
       post_startup
     end
 
-    def irc_err_nomotd_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_err_nomotd_response(_, _, _, _, _) # :nodoc:
       post_startup
     end
 
-    def irc_rpl_namreply_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_rpl_namreply_response(_, _, _, arguments, msg) # :nodoc:
       update_names_list normalized_channel_name(arguments[1]), msg.words unless arguments[1] == "*" # "*" refers to users not on a channel
     end
     ann :irc_rpl_namreply_response, stem_sync: true # So endofnames isn't processed before namreply
 
-    def irc_rpl_endofnames_response(stem, sender, recipient, arguments, msg) # :nodoc:
+    def irc_rpl_endofnames_response(_, _, _, arguments, _) # :nodoc:
       finish_names_list_update normalized_channel_name(arguments[0])
     end
     ann :irc_rpl_endofnames_response, stem_sync: true # so endofnames isn't processed before namreply
 
-    def irc_kick_event(stem, sender, arguments) # :nodoc:
-      if arguments[:recipient] == @nick then
+    def irc_kick_event(_, _, arguments) # :nodoc:
+      if arguments[:recipient] == @nick
         old_pass = @channel_passwords[arguments[:channel]]
         @chan_mutex.synchronize do
           drop_channel arguments[:channel]
@@ -752,13 +751,13 @@ module Autumn
     end
     ann :irc_kick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_mode_event(stem, sender, arguments) # :nodoc:
-      names arguments[:channel] if arguments[:parameter] and server_type.privilege_mode?(arguments[:mode])
+    def irc_mode_event(_, _, arguments) # :nodoc:
+      names arguments[:channel] if arguments[:parameter] && server_type.privilege_mode?(arguments[:mode])
     end
     ann :irc_mode_event, stem_sync: true # To avoid overhead of a whole new thread for a names reply
 
-    def irc_join_event(stem, sender, arguments) # :nodoc:
-      if sender[:nick] == @nick then
+    def irc_join_event(_, sender, arguments) # :nodoc:
+      if sender[:nick] == @nick
         should_broadcast = false
         @chan_mutex.synchronize do
           @channels << arguments[:channel]
@@ -768,9 +767,9 @@ module Autumn
           #TODO can we assume that all new channel members are unvoiced?
         end
         @join_mutex.synchronize do
-          if @channels_to_join then
+          if @channels_to_join
             @channels_to_join.delete arguments[:channel]
-            if @channels_to_join.empty? then
+            if @channels_to_join.empty?
               should_broadcast = true unless @ready
               @ready            = true
               @channels_to_join = nil
@@ -793,9 +792,9 @@ module Autumn
     end
     ann :irc_join_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_part_event(stem, sender, arguments) # :nodoc:
+    def irc_part_event(_, sender, arguments) # :nodoc:
       @chan_mutex.synchronize do
-        if sender[:nick] == @nick then
+        if sender[:nick] == @nick
           drop_channel arguments[:channel]
         else
           @channel_members[arguments[:channel]].delete sender[:nick]
@@ -805,7 +804,7 @@ module Autumn
     end
     ann :irc_part_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_nick_event(stem, sender, arguments) # :nodoc:
+    def irc_nick_event(_, sender, arguments) # :nodoc:
       @nick = arguments[:nick] if sender[:nick] == @nick
       @chan_mutex.synchronize do
         @channel_members.each { |chan, members| members[arguments[:nick]] = members.delete(sender[:nick]) }
@@ -814,7 +813,7 @@ module Autumn
     end
     ann :irc_nick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_quit_event(stem, sender, arguments) # :nodoc:
+    def irc_quit_event(_, sender, _) # :nodoc:
       @chan_mutex.synchronize do
         @channel_members.each { |chan, members| members.delete sender[:nick] }
         #TODO what should we do if we are in the middle of receiving NAMES replies?
@@ -842,7 +841,7 @@ module Autumn
     def transmit(comm)
       @socket_mutex.synchronize do
         raise "IRC connection not opened yet" unless @socket
-        logger.debug ">> " + comm
+        logger.debug '>> ' + comm
         @socket.puts comm
       end
     end
@@ -850,33 +849,37 @@ module Autumn
     # Parses a message and returns a hash of methods to their arguments
     def receive(comm)
       meths = Hash.new
-      logger.debug "<< " + comm
+      logger.debug '<< ' + comm
 
+      arg_str = nil
+      msg     = nil
+      sender  = nil
       if comm =~ /^NOTICE\s+(.+?)\s+:(.+?)[\r\n]*$/
         sender, msg               = $1, $2
         meths[:irc_server_notice] = [self, nil, sender, msg]
         return meths
-      elsif comm =~ /^ERROR :(.+?)[\r\n]*$/ then
+      elsif comm =~ /^ERROR :(.+?)[\r\n]*$/
         msg                      = $1
         meths[:irc_server_error] = [self, msg]
         return meths
-      elsif comm =~ /^:(#{nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{nick_regex})!(\S+?)@(\S+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/
         sender           = { nick: $1, user: $2, host: $3 }
         command, arg_str = $4, $5
-      elsif comm =~ /^:(#{nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:(#{nick_regex})\s+([A-Z]+)\s+(.*?)[\r\n]*$/
         sender           = { nick: $1 }
         command, arg_str = $2, $3
-      elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/ then
-        server, command, arg_str = $1, $2, $3
-        arg_array, msg           = split_out_message(arg_str)
-      elsif comm =~ /^(\w+)\s+:(.+?)[\r\n]*$/ then
+      elsif comm =~ /^:([^\s:]+?)\s+([A-Z]+)\s+(.*?)[\r\n]*$/
+        _, command, arg_str = $1, $2, $3
+        _, msg              = split_out_message(arg_str)
+      elsif comm =~ /^(\w+)\s+:(.+?)[\r\n]*$/
         command, msg = $1, $2
-      elsif comm =~ /^:([^\s:]+?)\s+(\d+)\s+(.*?)[\r\n]*$/ then
+      elsif comm =~ /^:([^\s:]+?)\s+(\d+)\s+(.*?)[\r\n]*$/
         server, code, arg_str = $1, $2, $3
         arg_array, msg        = split_out_message(arg_str)
 
-        numeric_method = "irc_#{code}_response".to_sym
-        readable_method = "irc_#{server_type.event[code.to_i]}_response".to_sym if not code.to_i.zero? and server_type.event?(code.to_i)
+        numeric_method  = "irc_#{code}_response".to_sym
+        readable_method = nil
+        readable_method = "irc_#{server_type.event[code.to_i]}_response".to_sym if !code.to_i.zero? && server_type.event?(code.to_i)
         name                  = arg_array.shift
         meths[numeric_method] = [self, server, name, arg_array, msg]
         meths[readable_method] = [self, server, name, arg_array, msg] if readable_method
@@ -887,7 +890,7 @@ module Autumn
         return meths
       end
 
-      if arg_str then
+      if arg_str
         arg_array, msg = split_out_message(arg_str)
       else
         arg_array = Array.new
@@ -910,19 +913,19 @@ module Autumn
         when :part then
           arguments = { channel: arg_array.at(0) }
         when :mode then
-          arguments = if channel?(arg_array.at(0)) then
+          arguments = if channel?(arg_array.at(0))
                         { channel: arg_array.at(0) }
                       else
                         { :recipient => arg_array.at(0) }
                       end
           params    = arg_array[2, arg_array.size]
-          if params then
+          if params
             params = params.only if params.size == 1
-            params = nil if params.empty? # empty? is a method on String too, so this has to come second to prevent an error
+            params = params.presence
           end
           arguments.update(mode: arg_array.at(1), parameter: params)
           # Usermodes stick the mode in the message
-          if arguments[:mode].nil? and msg =~ /^[\+\-]\w+$/ then
+          if arguments[:mode].nil? && msg =~ /^[\+\-]\w+$/
             arguments[:mode] = msg
             msg              = nil
           end
@@ -935,13 +938,13 @@ module Autumn
         when :kick then
           arguments = { channel: arg_array.at(0), recipient: arg_array.at(1) }
         when :privmsg then
-          arguments = if channel?(arg_array.at(0)) then
+          arguments = if channel?(arg_array.at(0))
                         { channel: arg_array.at(0) }
                       else
                         { :recipient => arg_array.at(0) }
                       end
         when :notice then
-          arguments = if channel?(arg_array.at(0)) then
+          arguments = if channel?(arg_array.at(0))
                         { channel: arg_array.at(0) }
                       else
                         { :recipient => arg_array.at(0) }
@@ -962,7 +965,7 @@ module Autumn
     end
 
     def split_out_message(arg_str)
-      if arg_str.match(/^(.*?):(.*)$/) then
+      if arg_str.match(/^(.*?):(.*)$/)
         arg_array = $1.strip.words
         msg       = $2
         return arg_array, msg
@@ -1020,7 +1023,7 @@ module Autumn
     end
 
     def asynchronous_listeners_for_method(meth)
-      @listeners.select { |listener| not listener.class.ann(meth, :stem_sync) }
+      @listeners.select { |listener| !listener.class.ann(meth, :stem_sync) }
     end
 
     def synchronous_listeners_for_method(meth)

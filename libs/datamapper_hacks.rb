@@ -5,7 +5,7 @@
 
 DataMapper::Repository.class_eval do # :nodoc:
   def models # :nodoc
-    DataMapper::Model.descendants.select { |cl| not cl.properties(name).empty? or not cl.relationships(name).empty? }
+    DataMapper::Model.descendants.select { |cl| !cl.properties(name).empty? || !cl.relationships(name).empty? }
     #HACK we are assuming that if a model has properties or relationships
     #     defined for a repository, then it must be contextual to that repo
   end

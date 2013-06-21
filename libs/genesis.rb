@@ -3,7 +3,7 @@
 
 require 'yaml'
 
-Autumn::Config.version = "3.0 (7-4-08)"
+Autumn::Config.version = '3.0 (7-4-08)'
 
 module Autumn # :nodoc:
 
@@ -44,7 +44,7 @@ module Autumn # :nodoc:
 
     def load_global_settings
       begin
-        config.global YAML.load(File.open("#{Autumn::Config.root}/config/global.yml"))
+        config.global YAML.load_file(Autumn::Config.root.join('config', 'global.yml'))
       rescue SystemCallError
         raise "Couldn't find your global.yml file."
       end
@@ -63,6 +63,8 @@ module Autumn # :nodoc:
       require 'bundler'
       Dir.chdir Autumn::Config.root
       Bundler.require :pre_config
+
+      require 'facets/pathname'
 
       require 'libs/misc'
       require 'libs/speciator'
@@ -83,7 +85,7 @@ module Autumn # :nodoc:
       require 'socket'
       require 'openssl'
 
-      Bundler.require(:default, config.global(:season).to_sym)
+      Bundler.require :default, config.global(:season).to_sym
 
       require 'libs/authentication'
       require 'libs/formatting'
@@ -94,10 +96,10 @@ module Autumn # :nodoc:
     # PREREQS: load_global_settings
 
     def load_season_settings
-      @season_dir = "#{Autumn::Config.root}/config/seasons/#{config.global :season}"
-      raise "The current season doesn't have a directory." unless File.directory? @season_dir
+      @season_dir = Autumn::Config.root.join('config', 'seasons', config.global(:season))
+      raise "The current season doesn't have a directory." unless @season_dir.directory?
       begin
-        config.season YAML.load(File.open("#{@season_dir}/season.yml"))
+        config.season YAML.load_file(@season_dir.join('season.yml'))
       rescue
         # season.yml is optional
       end
@@ -141,16 +143,16 @@ module Autumn # :nodoc:
     # PREREQS: load_libraries
 
     def load_daemon_info
-      Dir.glob("#{Autumn::Config.root}/resources/daemons/*.yml").each do |yml_file|
-        yml = YAML.load(File.open(yml_file, 'r'))
-        Daemon.new File.basename(yml_file, '.yml'), yml
+      Autumn::Config.root.join('resources', 'daemons').glob('*.yml').each do |yml_file|
+        yml = YAML.load_file(yml_file)
+        Daemon.new yml_file.basename('.yml'), yml
       end
     end
 
     # Loads Ruby code in the shared directory.
 
     def load_shared_code
-      Dir.glob("#{Autumn::Config.root}/shared/**/*.rb").each { |lib| load lib }
+      Pathname.glob(Autumn::Config.root.join('shared', '**', '*.rb')).each { |lib| load lib }
     end
 
     # Creates connections to databases using the DataMapper gem.
@@ -158,16 +160,16 @@ module Autumn # :nodoc:
     # PREREQS: load_season_settings
 
     def load_databases
-      db_file = "#{@season_dir}/database.yml"
-      if not File.exist? db_file then
+      db_file = @season_dir.join('database.yml')
+      unless db_file.exist?
         Autumn::Config.no_database = true
         return
       end
 
-      Bundler.require(:datamapper)
+      Bundler.require :datamapper
       require 'libs/datamapper_hacks'
 
-      dbconfig = YAML.load(File.open(db_file, 'r'))
+      dbconfig = YAML.load_file(db_file)
       dbconfig.rekey(&:to_sym).each do |db, config|
         DataMapper.setup(db, config.kind_of?(Hash) ? config.rekey(&:to_sym) : config)
       end
@@ -183,24 +185,24 @@ module Autumn # :nodoc:
     def invoke_foliater(invoke=true)
       begin
         begin
-          stem_config = YAML.load(File.open("#{@season_dir}/stems.yml", 'r'))
+          stem_config = YAML.load_file(@season_dir.join('stems.yml'))
         rescue Errno::ENOENT
           raise "Couldn't find stems.yml file for season #{config.global :season}"
         end
         begin
-          leaf_config = YAML.load(File.open("#{@season_dir}/leaves.yml", 'r'))
+          leaf_config = YAML.load_file(@season_dir.join('leaves.yml'))
         rescue Errno::ENOENT
           # build a default leaf config
           leaf_config = Hash.new
-          Dir.entries("leaves").each do |dir|
-            next if not File.directory? "leaves/#{dir}" or dir[0, 1] == '.'
-            leaf_name              = dir.camelcase(:upper)
+          Autumn::Config.root.join('leaves').glob('*').each do |dir|
+            next if !dir.directory?
+            leaf_name              = dir.basename.camelcase(:upper)
             leaf_config[leaf_name] = { 'class' => leaf_name }
           end
         end
 
         Foliater.instance.load stem_config, leaf_config, invoke
-        if invoke then
+        if invoke
           # suspend execution of the master thread until all stems are dead
           while Foliater.instance.alive?
             Thread.stop
@@ -214,7 +216,7 @@ module Autumn # :nodoc:
     private
 
     def log_name
-      "#{Autumn::Config.root}/log/#{config.global(:season)}.log"
+      Autumn::Config.root.join('log', config.global(:season) + '.log')
     end
   end
 end

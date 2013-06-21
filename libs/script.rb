@@ -35,13 +35,13 @@ module Autumn
     # Outputs an error and returns false if the given arguments are invalid.
 
     def parse_argv(argv)
-      if ARGV.length != 2 then
+      if argv.length != 2
         $stderr.puts "Please specify an object (e.g., 'leaf') and its name (e.g., 'Scorekeeper')."
         return false
       end
 
-      @object = ARGV.shift
-      @name   = ARGV.shift
+      @object = argv.shift
+      @name   = argv.shift
 
       return true
     end
@@ -65,9 +65,9 @@ module Autumn
     private
 
     def find_vcs
-      return :svn if File.exist? '.svn' and File.directory? '.svn'
-      return :cvs if File.exist? 'CVS' and File.directory? 'CVS'
-      return :git if File.exist? '.git' and File.directory? '.git'
+      return :svn if File.exist?('.svn') && File.directory?('.svn')
+      return :cvs if File.exist?('CVS') && File.directory?('CVS')
+      return :git if File.exist?('.git') && File.directory?('.git')
       return nil
     end
   end

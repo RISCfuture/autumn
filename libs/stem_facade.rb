@@ -20,10 +20,12 @@ module Autumn
     #  message "Learn to RTFM", '#help', 'NoobGuy' # Sends a message to two channels or people
 
     def message(msg, *chans)
-      return if msg.nil? or msg.empty?
+      return if msg.blank?
       chans = channels if chans.empty?
-      if @throttle then
-        Thread.exclusive { msg.each_line { |line| privmsgt chans.to_a, line.strip unless line.strip.empty? } }
+      if @throttle
+        (@message_mutex ||= Mutex.new).synchronize do
+          msg.each_line { |line| privmsgt chans.to_a, line.strip unless line.strip.empty? }
+        end
       else
         msg.each_line { |line| privmsg chans.to_a, line.strip unless line.strip.empty? }
       end
@@ -108,7 +110,7 @@ module Autumn
     def grant_usermode(nick, property)
       propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
       propcode ||= property
-      mode nick, "+#{property}"
+      mode nick, "+#{propcode}"
     end
 
     # Revokes a usermode from an IRC nick, such as removing invisibility. The

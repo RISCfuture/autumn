@@ -33,7 +33,7 @@ module Autumn
     # pass in the hashes for it to store.
 
     def initialize(name, info)
-      if name.nil? and info.nil? then # it's the default hash
+      if name.nil? && info.nil? # it's the default hash
         raise "Already created a default Daemon" if self.class.class_variable_defined? :@@default
         @usermode       = Hash.parroting
         @privilege      = Hash.parroting
@@ -60,9 +60,9 @@ module Autumn
           next unless @@default.respond_to? hname.to_sym
           default_hash = @@default.send(hname.to_sym)
 
-          uniques = hsh.reject { |k, v| default_hash.include? k }
+          uniques = hsh.reject { |k, _| default_hash.include? k }
           default_hash.update uniques
-          default_hash.reject! { |k, v| hsh.include?(k) and hsh[k] != v }
+          default_hash.reject! { |k, v| hsh.include?(k) && hsh[k] != v }
         end
       end
     end
@@ -180,10 +180,10 @@ module Autumn
     end
 
     def method_missing(meth, *args) # :nodoc:
-      if meth.to_s =~ /^([a-z_]+)\?$/ then
+      if meth.to_s =~ /^([a-z_]+)\?$/
         base = $1
-        if (instance_variables.include?("@#{base}") or instance_variables.include?("@#{base}".to_sym)) and args.size == 1 then
-          if base.end_with?('_prefix') and args.only.kind_of?(Numeric) then
+        if (instance_variables.include?("@#{base}") || instance_variables.include?("@#{base}".to_sym)) && args.size == 1
+          if base.end_with?('_prefix') && args.only.kind_of?(Numeric) then
             arg = args.only.chr
           else
             arg = args.only

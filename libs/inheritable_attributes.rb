@@ -56,7 +56,7 @@ class Class # :nodoc:
         def #{sym}=(obj)
           self.class.#{sym} = obj
         end
-        " unless options[:instance_writer] == false }
+        " if options[:instance_writer] }
       EOS
     end
   end
@@ -73,7 +73,7 @@ class Class # :nodoc:
         def #{sym}=(obj)
           self.class.#{sym} = obj
         end
-        " unless options[:instance_writer] == false }
+        " if options[:instance_writer] }
       EOS
     end
   end
@@ -90,7 +90,7 @@ class Class # :nodoc:
         def #{sym}=(obj)
           self.class.#{sym} = obj
         end
-        " unless options[:instance_writer] == false }
+        " if options[:instance_writer] }
       EOS
     end
   end

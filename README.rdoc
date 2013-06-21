@@ -289,7 +289,7 @@ and in production, it contains:
 Now, in your code, you might have a method like:
 
  def scores_command(stem, sender, reply_to, msg)
-   if options[:dont_http] then
+   if options[:dont_http]
      return "Some fake sports scores."
    else
      # go on the web and find real sports scores

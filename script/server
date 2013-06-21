@@ -5,7 +5,7 @@
 
 $: << Dir.getwd
 require 'libs/autumn'
-$: << Autumn::Config.root unless Autumn::Config.root == Dir.getwd
+$: << Autumn::Config.root.to_s unless Autumn::Config.root.to_s == Dir.getwd
 require 'libs/genesis'
 
 puts "Loading Autumn #{Autumn::Config.version}"

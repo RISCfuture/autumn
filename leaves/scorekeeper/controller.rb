@@ -6,19 +6,19 @@ class Controller < Autumn::Leaf
 
   # Displays an about message.
 
-  def about_command(stem, sender, reply_to, msg)
+  def about_command(_, _, _, _)
   end
 
   # Displays the current point totals, or modifies someone's score, depending on
   # the message provided with the command.
 
   def points_command(stem, sender, reply_to, msg)
-    if msg.nil? or msg.empty? then
+    if msg.blank?
       var totals: totals(stem, reply_to)
-    elsif msg =~ /^(#{stem.nick_regex})\s+history\s*(.*)$/ then
+    elsif msg =~ /^(#{stem.nick_regex})\s+history\s*(.*)$/
       parse_history stem, reply_to, $1, $2
       render :history
-    elsif msg =~ /^(#{nick_regex})\s+([\+\-]\d+)\s*(.*)$/ then
+    elsif msg =~ /^(#{nick_regex})\s+([\+\-]\d+)\s*(.*)$/
       parse_change stem, reply_to, sender, $1, $2.to_i, $3
       render :change
     else
@@ -40,12 +40,12 @@ class Controller < Autumn::Leaf
 
   def parse_change(stem, channel, sender, victim, delta, note)
     giver = find_person(stem, sender[:nick])
-    if giver.nil? and options[:scoring] == 'open' then
+    if giver.nil? && options[:scoring] == 'open'
       giver ||= Person.create(server: server_identifier(stem), name: sender[:nick])
     end
 
     receiver = find_person(stem, victim)
-    if receiver.nil? and options[:scoring] == 'open' then
+    if receiver.nil? && options[:scoring] == 'open'
       receiver ||= Person.create(server: server_identifier(stem), name: find_in_channel(stem, channel, victim))
     end
 
@@ -63,24 +63,24 @@ class Controller < Autumn::Leaf
 
   def parse_history(stem, channel, subject, argument)
     date   = argument.empty? ? nil : parse_date(argument)
-    scores = Array.new
 
     chan   = Channel.named(channel).first
     person = find_person(stem, subject)
-    if person.nil? then
+    if person.nil?
       var person: subject
       var no_history: true
       return
     end
 
-    if date then
+    giver = nil
+    if date
       start, stop = find_range(date)
       scores      = chan.scores.given_to(person).between(start, stop).newest_first.all(limit: 5)
-    elsif argument.empty? then
+    elsif argument.empty?
       scores = chan.scores.given_to(person).newest_first.all(limit: 5)
     else
       giver = find_person(stem, argument)
-      if giver.nil? then
+      if giver.nil?
         var giver: argument
         var receiver: person
         var no_giver_history: true

@@ -70,7 +70,7 @@ module Autumn
     CTCP_REQUEST     = /\x01(.+?)\x01/
     # CTCP commands whose arguments are encoded according to the CTCP spec (as
     # opposed to other commands, whose arguments are plaintext).
-    ENCODED_COMMANDS = ['VERSION', 'PING']
+    ENCODED_COMMANDS = %w(VERSION PING)
 
     # Creates a new CTCP parser. Options are:
     #
@@ -139,9 +139,10 @@ module Autumn
     # override this method to return a single plaintext string and remove the
     # VERSION command from +ENCODED_COMMANDS+.
 
-    def ctcp_version_request(handler, stem, sender, arguments)
+    def ctcp_version_request(handler, stem, sender, _)
       return unless handler == self
-      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn #{Autumn::Config.version}, a Ruby IRC framework", `uname -sr`.chomp, "http://github.com/RISCfuture/autumn"
+      send_ctcp_reply stem, sender[:nick], 'VERSION', "Autumn #{Autumn::Config.version}, a Ruby IRC framework", RUBY_PLATFORM, 'http://github.com/RISCfuture/autumn'
+      #TODO platform-independence
     end
 
     # Replies to a CTCP PING request by sending back the same arguments as a
@@ -155,7 +156,7 @@ module Autumn
     # Replies to a CTCP TIME request by sending back the local time in RFC-822
     # format.
 
-    def ctcp_time_request(handler, stem, sender, arguments)
+    def ctcp_time_request(handler, stem, sender, _)
       return unless handler == self
       send_ctcp_reply stem, sender[:nick], 'TIME', Time.now.rfc822
     end
@@ -205,9 +206,9 @@ module Autumn
       stem.instance_variable_set :@ctcp, self
       class << stem
         def method_missing(meth, *args)
-          if meth.to_s =~ /^ctcp_reply_([a-z]+)$/ then
+          if meth.to_s =~ /^ctcp_reply_([a-z]+)$/
             @ctcp.send_ctcp_reply self, args.shift, $1.to_s.upcase, *args
-          elsif meth.to_s =~ /^ctcp_([a-z]+)$/ then
+          elsif meth.to_s =~ /^ctcp_([a-z]+)$/
             privmsg args.shift, @ctcp.make_ctcp_message($1.to_s.upcase, *args)
           else
             super
@@ -235,7 +236,7 @@ module Autumn
           when "\1" then '\1'
           when "\n" then '\n'
           when "\r" then '\r'
-          when " " then '\@'
+          when ' ' then '\@'
           when "\\" then '\\\\'
           else char
         end
@@ -244,7 +245,7 @@ module Autumn
     end
 
     def unquote(str)
-      str.gsub('\\\\', '\\').gsub('\@', " ").gsub('\r', "\r").gsub('\n', "\n").gsub('\1', "\1").gsub('\0', "\0")
+      str.gsub('\\\\', '\\').gsub('\@', ' ').gsub('\r', "\r").gsub('\n', "\n").gsub('\1', "\1").gsub('\0', "\0")
     end
   end
 end

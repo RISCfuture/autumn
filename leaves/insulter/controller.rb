@@ -5,13 +5,13 @@ class Controller < Autumn::Leaf
 
   # Insults the unfortunate argument of this command.
 
-  def insult_command(stem, sender, reply_to, msg)
+  def insult_command(_, _, _, msg)
     msg.nil? ? render(:help) : insult(msg.capitalize)
   end
 
   # Displays information about the leaf.
 
-  def about_command(stem, sender, reply_to, msg)
+  def about_command(_, _, _, _)
   end
 
   private
@@ -29,31 +29,26 @@ class Controller < Autumn::Leaf
       'a warped', 'a wayward', 'a weedy', 'a yeasty'
   ]
 
-  PARTICIPLES = [
-      'base-court', 'bat-fowling', 'beef-witted', 'beetle-headed', 'boil-brained',
-      'clapper-clawed', 'clay-brained', 'common-kissing', 'crook-pated',
-      'dismal-dreaming', 'dizzy-eyed', 'doghearted', 'dread-bolted',
-      'earth-vexing', 'elf-skinned', 'fat-kidneyed', 'fen-sucked', 'flap-mouthed',
-      'fly-bitten', 'folly-fallen', 'fool-born', 'full-gorged', 'guts-griping',
-      'half-faced', 'hasty-witted', 'hedge-born', 'hell-hated', 'idle-headed',
-      'ill-breeding', 'ill-nurtured', 'knotty-pated', 'milk-livered',
-      'motley-minded', 'onion-eyed', 'plume-plucked', 'pottle-deep', 'pox-marked',
-      'reeling-ripe', 'rough-hewn', 'rude-growing', 'rump-fed', 'shard-borne',
-      'sheep-biting', 'spur-galled', 'swag-bellied', 'tardy-gaited',
-      'tickle-brained', 'toad-spotted', 'urchin-snouted', 'weather-bitten'
-  ]
+  PARTICIPLES = %w(base-court bat-fowling beef-witted beetle-headed boil-brained
+                   clapper-clawed clay-brained common-kissing crook-pated
+                   dismal-dreaming dizzy-eyed doghearted dread-bolted
+                   earth-vexing elf-skinned fat-kidneyed fen-sucked flap-mouthed
+                   fly-bitten folly-fallen fool-born full-gorged guts-griping
+                   half-faced hasty-witted hedge-born hell-hated idle-headed
+                   ill-breeding ill-nurtured knotty-pated milk-livered
+                   motley-minded onion-eyed plume-plucked pottle-deep pox-marked
+                   reeling-ripe rough-hewn rude-growing rump-fed shard-borne
+                   sheep-biting spur-galled swag-bellied tardy-gaited
+                   tickle-brained toad-spotted urchin-snouted weather-bitten)
 
-  NOUNS = [
-      'apple-john', 'baggage', 'barnacle', 'bladder', 'boar-pig', 'bugbear',
-      'bum-bailey', 'canker-blossom', 'clack-dish', 'clotpole', 'codpiece',
-      'coxcomb', 'death-token', 'dewberry', 'flap-dragon', 'flax-wench',
-      'flirt-gill', 'foot-licker', 'fustilarian', 'giglet', 'gudgeon', 'haggard',
-      'harpy', 'hedge-pig', 'horn-beast', 'hugger-mugger', 'joithead', 'lewdster',
-      'lout', 'maggot-pie', 'malt-worm', 'mammet', 'measle', 'minnow',
-      'miscreant', 'moldwarp', 'mumble-news', 'nut-hook', 'pigeon-egg', 'pignut',
-      'pumpion', 'puttock', 'ratsbane', 'scut', 'skainsmate', 'strumpet',
-      'varlet', 'vassal', 'wagtail', 'whey-face'
-  ]
+  NOUNS = %w(apple-john baggage barnacle bladder boar-pig bugbear bum-bailey
+             canker-blossom clack-dish clotpole codpiece coxcomb death-token
+             dewberry flap-dragon flax-wench flirt-gill foot-licker fustilarian
+             giglet gudgeon haggard harpy hedge-pig horn-beast hugger-mugger
+             joithead lewdster lout maggot-pie malt-worm mammet measle minnow
+             miscreant moldwarp mumble-news nut-hook pigeon-egg pignut pumpion
+             puttock ratsbane scut skainsmate strumpet varlet vassal wagtail
+             whey-face)
 
   def insult(victim)
     var adjective: ADJECTIVES.sample

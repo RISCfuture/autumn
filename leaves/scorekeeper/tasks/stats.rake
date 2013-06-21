@@ -1,6 +1,6 @@
 desc "Display the current scores of every channel"
 task scores: :boot do
-  Autumn::Foliater.instance.leaves.select { |name, leaf| leaf.kind_of? Scorekeeper::Controller }.each do |name, leaf|
+  Autumn::Foliater.instance.leaves.select { |_, leaf| leaf.kind_of? Scorekeeper::Controller }.each do |name, leaf|
     puts "Leaf #{name}"
     leaf.database do
       Scorekeeper::Channel.all.group_by { |chan| chan.server }.each do |server, channels|

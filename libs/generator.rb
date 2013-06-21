@@ -13,7 +13,7 @@ module Autumn
                   # The names of the required files in a season's directory, and example
                   # for each file.
     SEASON_FILES = {
-        "leaves.yml"   => {
+        'leaves.yml' => {
             'Scorekeeper'   => {
                 'class' => 'Scorekeeper'
             },
@@ -27,16 +27,16 @@ module Autumn
                 }
             }
         },
-        "stems.yml"    => {
+        'stems.yml' => {
             'Example' => {
                 'server'  => 'irc.yourircserver.com',
                 'nick'    => 'MyIRCBot',
                 'channel' => '#yourchannel',
                 'rejoin'  => true,
-                'leaves'  => ['Administrator', 'Scorekeeper', 'Insulter']
+                'leaves'  => %w(Administrator Scorekeeper Insulter)
             }
         },
-        "season.yml"   => {
+        'season.yml' => {
             'logging' => 'debug'
         },
         'database.yml' => {
@@ -58,19 +58,19 @@ module Autumn
     #         VCS.
 
     def leaf(name, options={})
-      lpath = "leaves/#{name.snakecase}"
-      if File.directory? lpath then
+      lpath = Pathname.new('leaves').join(name.snakecase)
+      if lpath.directory?
         exists lpath, options
         return
-      elsif File.exist? lpath then
+      elsif lpath.exist?
         raise "There is a file named #{lpath} in the way."
       else
         Dir.mkdir lpath
         created lpath, options
       end
 
-      cname = "leaves/#{name.snakecase}/controller.rb"
-      if File.exist? cname then
+      cname = lpath.join('controller.rb')
+      if cname.exist?
         exists cname, options
       else
         @coder.leaf(name)
@@ -78,27 +78,27 @@ module Autumn
         created cname, options
       end
 
-      dpath = "leaves/#{name.snakecase}/data"
-      if File.directory? dpath then
+      dpath = lpath.join('data')
+      if dpath.directory?
         exists dpath, options
       else
         Dir.mkdir dpath
         created dpath, options
       end
 
-      gname = "leaves/#{name.snakecase}/Gemfile"
-      if File.exist? gname then
+      gname = lpath.join('Gemfile')
+      if gname.exist?
         exists gname, options
       else
         File.open(gname, 'w') { |file| file.puts "group :#{name.snakecase} do\n  # Insert your leaf's gem requirements here\nend" }
         created gname, options
       end
 
-      ['lib', 'helpers', 'models', 'tasks', 'views'].each do |dir|
-        path = "leaves/#{name.snakecase}/#{dir}"
-        if File.directory? path then
+      %w(lib helpers models tasks views).each do |dir|
+        path = lpath.join('dir')
+        if path.directory?
           exists path, options
-        elsif File.exist? path then
+        elsif path.exist?
           raise "There is a file named #{path} in the way."
         else
           Dir.mkdir path
@@ -106,16 +106,16 @@ module Autumn
         end
       end
 
-      vname = "leaves/#{name.snakecase}/views/about.txt.erb"
-      if File.exist? vname then
+      vname = lpath.join('views', 'about.txt.erb')
+      if vname.exist?
         exists cname, options
       else
         File.open(vname, 'w') { |file| file.puts "Insert your about string here!" }
         created vname, options
       end
 
-      rname = "leaves/#{name.snakecase}/README"
-      if File.exist? rname then
+      rname = lpath.join('README')
+      if rname.exist?
         exists rname, options
       else
         File.open(rname, 'w') { |file| file.puts "This is the read-me for your leaf." }
@@ -131,12 +131,14 @@ module Autumn
     #         project's VCS.
 
     def unleaf(name, options={})
-      lpath = "leaves/#{name.snakecase}"
-      if not File.directory? lpath then
+      lpath = Pathname.new('leaves').join(name.snakecase)
+
+      unless lpath.directory?
         raise "The directory #{lpath} doesn't exist."
       end
 
-      if File.directory? "#{lpath}/data" and Dir.entries("#{lpath}/data").size > 2 then
+      data = lpath.join('data')
+      if data.directory? && data.entries.size > 2
         print "\a" # ring the bell
         puts "WARNING: Files exist in this leaf's data directory!"
         puts "Type Ctrl-C in the next ten seconds if you don't want these files to be deleted..."
@@ -161,17 +163,17 @@ module Autumn
     #         VCS.
 
     def season(name, options={})
-      dname = "config/seasons/#{name.snakecase}"
-      if File.directory? dname then
+      dname = Pathname.new('config').join('seasons', name.snakecase)
+      if dname.directory?
         raise "The directory #{dname} already exists."
-      elsif File.exist? dname then
+      elsif dname.exist?
         raise "There is a file named #{dname} in the way."
       else
         Dir.mkdir dname
         created dname, options
         SEASON_FILES.each do |fname, content|
-          fpath = File.join(dname, fname)
-          if File.exist? fpath then
+          fpath = dname.join(fname)
+          if fpath.exist?
             exists fpath, options
           else
             File.open(fpath, 'w') { |file| file.puts content.to_yaml }
@@ -190,8 +192,8 @@ module Autumn
     #         project's VCS.
 
     def unseason(name, options={})
-      dname = "config/seasons/#{name.snakecase}"
-      if not File.directory? dname then
+      dname = Pathname.new('config').join('seasons', name.snakecase)
+      unless dname.directory?
         raise "The directory #{dname} doesn't exist."
       end
 
@@ -203,23 +205,23 @@ module Autumn
 
     def created(path, options)
       puts "-- created #{path}" if options[:verbose]
-      system "cvs add #{path}" if options[:vcs] == :cvs
-      system "svn add #{path}" if options[:vcs] == :svn
-      system "git add #{path}" if options[:vcs] == :git
+      system 'cvs', 'add', path if options[:vcs] == :cvs
+      system 'svn', 'add', path if options[:vcs] == :svn
+      system 'git', 'add', path if options[:vcs] == :git
     end
 
     def exists(path, options)
       puts "-- exists #{path}" if options[:verbose]
-      system "cvs add #{path}" if options[:vcs] == :cvs
-      system "svn add #{path}" if options[:vcs] == :svn
-      system "git add #{path}" if options[:vcs] == :git
+      system 'cvs', 'add', path if options[:vcs] == :cvs
+      system 'svn', 'add', path if options[:vcs] == :svn
+      system 'git', 'add', path if options[:vcs] == :git
     end
 
     def deleted(path, options)
       puts "-- deleted #{path}" if options[:verbose]
-      system "cvs remove #{path}" if options[:vcs] == :cvs
-      system "svn del --force #{path}" if options[:vcs] == :svn
-      system "git rm -r #{path}" if options[:vcs] == :git
+      system 'cvs', 'remove', path if options[:vcs] == :cvs
+      system 'svn', 'del', '--force', path if options[:vcs] == :svn
+      system 'git', 'rm', '-r', path if options[:vcs] == :git
     end
 
     def notempty(path, options)

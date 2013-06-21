@@ -55,7 +55,7 @@ module Autumn
     # Returns true if there is at least one stem still running.
 
     def alive?
-      @stem_threads and @stem_threads.any? { |name, thread| thread.alive? }
+      @stem_threads && @stem_threads.any? { |name, thread| thread.alive? }
     end
 
     # This method yields each Stem that was loaded, allowing you to iterate over
@@ -80,9 +80,9 @@ module Autumn
 
     def load_configs(stem_config, leaf_config)
       leaf_config.each do |name, options|
-        global_config_file = "#{Autumn::Config.root}/leaves/#{options['class'].snakecase}/config.yml"
-        if File.exist? global_config_file then
-          config.leaf name, YAML.load(File.open(global_config_file))
+        global_config_file = Autumn::Config.root.join('leaves', options['class'].snakecase, 'config.yml')
+        if global_config_file.exist?
+          config.leaf name, YAML.load_file(global_config_file)
         end
         config.leaf name, options
         config.leaf name, logger: LogFacade.new(config.global(:logfile), 'Leaf', name)
@@ -107,30 +107,29 @@ module Autumn
     end
 
     def load_leaf_controller(type)
-      controller_file = "#{Autumn::Config.root}/leaves/#{type.snakecase}/controller.rb"
-      raise "controller.rb file for leaf #{type} not found" unless File.exist? controller_file
+      controller_file = Autumn::Config.root.join('leaves', type.snakecase, 'controller.rb')
+      raise "controller.rb file for leaf #{type} not found" unless controller_file.exist?
       controller_code = nil
       begin
-        File.open("#{Autumn::Config.root}/leaves/#{type.snakecase}/controller.rb", 'r') { |f| controller_code = f.read }
+        File.open(controller_file, 'r') { |f| controller_code = f.read }
       rescue Errno::ENOENT
         raise "controller.rb file for leaf #{type} not found"
       end
-      config.leaf(type, :module).module_eval controller_code, File.expand_path(controller_file)
+      config.leaf(type, :module).module_eval controller_code, controller_file.realpath.to_s
     end
 
     def load_leaf_helpers(type)
       mod            = config.leaf(type, :module)
       helper_code    = nil
       helper_modules = Array.new
-      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/helpers/*.rb").each do |helper_file|
+      Autumn::Config.root.join('leaves', type.snakecase, 'helpers').glob('*.rb').each do |helper_file|
         File.open(helper_file, 'r') { |f| helper_code = f.read }
         mod.module_eval helper_code
-        helper_modules << (File.basename(helper_file, '.rb').camelcase(:upper) + 'Helper').to_sym
+        helper_modules << (helper_file.basename('.rb').to_s.camelcase(:upper) + 'Helper').to_sym
       end
 
-      leaf_class = nil
       begin
-        leaf_class = mod.const_get('Controller')
+        mod.const_get('Controller')
       rescue NameError
         raise NameError, "Couldn't find Controller class for leaf #{type}"
       end
@@ -144,14 +143,14 @@ module Autumn
 
     def load_leaf_libs(type)
       Bundler.require type.snakecase.to_sym
-      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/lib/*.rb").each { |lib_file| require lib_file }
+      Autumn::Config.root.join('leaves', type.snakecase, 'lib').glob('*.rb').each { |lib_file| require lib_file }
     end
 
     def load_leaf_views(type)
       views     = Hash.new
       view_text = nil
-      Dir.glob("#{Autumn::Config.root}/leaves/#{type.snakecase}/views/*.txt.erb").each do |view_file|
-        view_name = File.basename(view_file).match(/^(.+)\.txt\.erb$/)[1]
+      Autumn::Config.root.join('leaves', type.snakecase, 'views').glob('*.txt.erb').each do |view_file|
+        view_name = view_file.basename.to_s.match(/^(.+)\.txt\.erb$/)[1]
         File.open(view_file, 'r') { |f| view_text = f.read }
         views[view_name] = view_text
       end
@@ -159,16 +158,16 @@ module Autumn
     end
 
     def load_leaves
-      config.each_leaf do |name, options|
+      config.each_leaf do |name, _|
         options        = config.options_for_leaf(name)
-        options[:root] = "#{config.global :root}/leaves/#{options[:class].snakecase}"
+        options[:root] = config.global(:root).join('leaves', options[:class].snakecase)
         begin
           leaf_class = options[:module].const_get('Controller')
         rescue NameError
           raise NameError, "Couldn't find Controller class for leaf #{name}"
         end
         @leaves[name] = leaf_class.new(options)
-        formatter = Autumn::Formatting.const_get options[:formatter].to_sym if options[:formatter] and (Autumn::Formatting.constants.include? options[:formatter] or Autumn::Formatting.constants.include? options[:formatter].to_sym)
+        formatter = Autumn::Formatting.const_get options[:formatter].to_sym if options[:formatter] && (Autumn::Formatting.constants.include? options[:formatter] || Autumn::Formatting.constants.include?(options[:formatter].to_sym))
         formatter ||= Autumn::Formatting::DEFAULT
         @leaves[name].extend formatter
         options[:helpers].each { |helper| @leaves[name].extend helper }
@@ -177,16 +176,16 @@ module Autumn
     end
 
     def load_all_leaf_models
-      @leaves.each { |name, instance| load_leaf_models instance }
+      @leaves.each { |_, instance| load_leaf_models instance }
     end
 
     def load_leaf_models(leaf)
       model_code = nil
       mod        = config.leaf(leaf.options[:class], :module)
       leaf.database do
-        Dir.glob("#{Autumn::Config.root}/leaves/#{leaf.options[:class].snakecase}/models/*.rb").each do |model_file|
+        Autumn::Config.root.join('leaves', leaf.options[:class].snakecase, 'models').glob('*.rb').each do |model_file|
           File.open(model_file, 'r') { |f| model_code = f.read }
-          mod.module_eval model_code, File.expand_path(model_file)
+          mod.module_eval model_code, model_file.realpath
         end
         # Need to manually set the table names of the models because we loaded
         # them inside a module
@@ -199,7 +198,7 @@ module Autumn
     end
 
     def load_stems
-      config.each_stem do |name, options|
+      config.each_stem do |name, _|
         options = config.options_for_stem(name)
         server  = options[:server]
         nick    = options[:nick]
@@ -218,8 +217,8 @@ module Autumn
     end
 
     def start_stems
-      @leaves.each { |name, leaf| leaf.preconfigure }
-      @leaves.each { |name, leaf| leaf.will_start_up }
+      @leaves.each { |_, leaf| leaf.preconfigure }
+      @leaves.each { |_, leaf| leaf.will_start_up }
       @stem_threads = Hash.new
       config.each_stem do |name, options|
         @stem_threads[name] = Thread.new(@stems[name], Thread.current) do |stem, parent_thread|
