@@ -33,7 +33,9 @@ GEM
     facets (2.9.3)
     i18n (0.6.4)
     multi_json (1.7.7)
-    rake (10.0.4)
+    rake (10.1.0)
+    redcarpet (2.3.0)
+    yard (0.8.6.1)
 
 PLATFORMS
   ruby
@@ -52,3 +54,5 @@ DEPENDENCIES
   facets
   i18n
   rake
+  redcarpet
+  yard

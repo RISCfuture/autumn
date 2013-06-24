@@ -1,6 +1,3 @@
-# Defines the Autumn::Formatting class, which provides macros for different
-# protocols for IRC message stylization.
-
 module Autumn
 
   # Adds text formatting to Autumn objects. Text formatting (color and styles)
@@ -14,8 +11,8 @@ module Autumn
   # class.
   #
   # Where possible, all modules in the Formatting module follow an implicit
-  # protocol, which includes methods like +color+, +bold+, +plain+, and
-  # +underline+.
+  # protocol, which includes methods like `color`, `bold`, `plain`, and
+  # `underline`.
 
   module Formatting
 
@@ -26,19 +23,22 @@ module Autumn
     # the color method for more information.
     #
     # To stylize your text, insert the appropriate style code in your text where
-    # desired. For example (assuming you have <tt>include</tt>d the Mirc
-    # module):
+    # desired. For example (assuming you have `include`d the Mirc module):
     #
-    #  "I'm feeling #{BOLD}bold today, and #{ITALIC}how#{PLAIN}!"
+    # ```` ruby
+    # "I'm feeling #{BOLD}bold today, and #{ITALIC}how#{PLAIN}!"
+    # ````
     #
     # yields:
     #
-    # I'm feeling <b>bold today, and <i>how</i></b>!
+    # I'm feeling **bold today, and _how_**!
     #
-    # To colorize text, you must call the color method, and insert an UNCOLOR
+    # To colorize text, you must call the color method, and insert an {UNCOLOR}
     # token at the end of the colorized text:
     #
-    #  "The system is: #{color(:red)}down#{UNCOLOR}!"
+    # ```` ruby
+    # "The system is: #{color(:red)}down#{UNCOLOR}!"
+    # ````
 
     module Mirc
       # Insert this character to set all following text unformatted.
@@ -54,8 +54,8 @@ module Autumn
       COLOR_CODE       = 3.chr
       # Insert this character to stop colorizing text.
       UNCOLOR          = COLOR_CODE + ' '
-      # Same as UNCOLOR, but suppresses the trailing space for situations where
-      # no conflict is assured.
+      # Same as `UNCOLOR`, but suppresses the trailing space for situations
+      # where no conflict is assured.
       UNCOLOR_NO_SPACE = COLOR_CODE
       # Valid IRC colors, in the mIRC style, to be used with the color method.
       COLORS           = {
@@ -88,10 +88,10 @@ module Autumn
       }
 
       # Colors the following text with a foreground and background color. Colors
-      # are a symbol in the COLORS hash. By default the background is left
+      # are a symbol in the {COLORS} hash. By default the background is left
       # uncolored. This method returns a string that should be prepended to the
-      # text you want to colorize. Append an UNCOLOR token when you wish to end
-      # colorization.
+      # text you want to colorize. Append an {UNCOLOR} token when you wish to
+      # end colorization.
       #
       # Because of limitations in the mIRC color-coding system, a space will be
       # added after the color code (and before any colorized text). Without this
@@ -100,7 +100,14 @@ module Autumn
       # commas in them, such as "1,160".) If you would like to suppress this
       # space, because you either are sure that your text will be formatted
       # correctly anyway, or you simply don't care, you can pass
-      # <tt>suppress_space: true</tt> to this method.
+      # `suppress_space: true` to this method.
+      #
+      # @param [Symbol] fgcolor The foreground color.
+      # @param [Symbol] bgcolor The background color.
+      # @param [Hash] options Additional options.
+      # @option options [true, false] :suppress_space (false) If `false`, a
+      #   space is added after the colorization text to ensure that no
+      #   formatting errors occur.
 
       def color(fgcolor, bgcolor=nil, options={})
         fgcolor = :black unless COLORS.include? fgcolor
@@ -120,11 +127,13 @@ module Autumn
       # Sets all following text underline.
       def underline() UNDERLINE end
 
-      # Removes coloring from all following text. Options:
+      # Removes coloring from all following text.
       #
-      # +suppress_space+:: By default, this method places a space after the
-      #                    uncolor token to prevent "color bleed." If you would
-      #                    like to suppress this behavior, set this to true.
+      # @param [Hash] options Additional options.
+      # @option options [true, false] :suppress_space (false) If `false`, a
+      #   space is added after the colorization text to ensure that no
+      #   formatting errors occur.
+
       def uncolor(options={})
         options[:suppress_space] ? UNCOLOR_NO_SPACE : UNCOLOR
       end
@@ -132,6 +141,10 @@ module Autumn
       # Removes formatting from a string. Due to mIRC's formatting quirkiness,
       # this may leave the original string with some extra space characters here
       # and there.
+      #
+      # @param [String] str A color-formatted string.
+      # @return [String] The unformatted, plain string.
+
       def deformat(str)
         str.gsub(/#{Regexp.escape COLOR_CODE}(\d{2}(,\d{2})?)?/, '').gsub(PLAIN, '').gsub(BOLD, '').gsub(ITALIC, '').gsub(UNDERLINE, '')
       end
@@ -153,7 +166,9 @@ module Autumn
     # Styling text is done exactly as it is in the Mirc module; coloring text is
     # done with the COLORS hash, as so:
     #
-    #  "The system is: #{COLORS[:red]}down#{PLAIN}!"
+    # ```` ruby
+    # "The system is: #{COLORS[:red]}down#{PLAIN}!"
+    # ````
     #
     # Note that there is no support for background coloring.
 
@@ -222,6 +237,10 @@ module Autumn
       # For purposes of cross-compatibility, this method has been added to match
       # the Mirc method with the same name. All inapplicable parameters and
       # color names are ignored.
+      #
+      # @param [Symbol] fgcolor The foreground color.
+      # @param [Object] bgcolor Ignored.
+      # @param [Object] options Ignored.
 
       def color(fgcolor, bgcolor=nil, options={})
         COLORS[fgcolor]
@@ -240,6 +259,10 @@ module Autumn
       def underline() UNDERLINE end
 
       # Removes formatting from a string.
+      #
+      # @param [String] str The colored string.
+      # @return [String] The unformatted, plain string.
+
       def deformat(str)
         str.gsub(/#{Regexp.escape COLOR_CODE}(\d{2}(,\d{2})?)?/, '').gsub(PLAIN, '').gsub(BOLD, '').gsub(ITALIC, '').gsub(UNDERLINE, '')
       end

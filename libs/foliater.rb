@@ -1,6 +1,3 @@
-# Defines the Autumn::Foliater class, which instantiates stems and leaves and
-# keeps watch over their threads.
-
 module Autumn
 
   # Loads Stems and Leaves and executes them in their own threads. Manages the
@@ -9,14 +6,17 @@ module Autumn
   class Foliater
     include Singleton
 
-    # The Speciator singleton.
+    # @return [Speciator] The Speciator singleton.
     attr_reader :config
-    # A hash of all Stem instances by their config names.
+    # @return [Hash<String, Stem>] A hash of all Stem instances by their config
+    #   names.
     attr_reader :stems
-    # A hash of all Leaf instances by their config names.
+    # @return [Hash<String, Leaf>] A hash of all Leaf instances by their config
+    #   names.
     attr_reader :leaves
 
-    def initialize # :nodoc:
+    # @private
+    def initialize
       @config = Speciator.instance
       @stems  = Hash.new
       @leaves = Hash.new
@@ -25,10 +25,15 @@ module Autumn
 
     # Loads the config files and their classes, initializes all stems and leaves
     # and begins the stems' execution processes in their own threads. You must
-    # pass the stem and leaf config hashes (from the stems.yml and leaves.yml
-    # files).
+    # pass the stem and leaf config hashes (from the `stems.yml` and
+    # `leaves.yml` files).
     #
-    # If +invoke+ is set to false, start_stems will not be called.
+    # @param [Hash] stem_config The stem configuration hash loaded from
+    #   `stems.yml`.
+    # @param [Hash] leaf_config The stem configuration hash loaded from
+    #   `leaves.yml`.
+    # @param [true, false] invoke If set to `false`, {#start_stems} will not be
+    #   called (used for loading an interactive console).
 
     def load(stem_config, leaf_config, invoke=true)
       load_configs stem_config, leaf_config
@@ -39,9 +44,11 @@ module Autumn
       start_stems if invoke
     end
 
-    # Reloads a leaf while it is running. Re-opens class definition files and
+    # Reloads a Leaf while it is running. Re-opens class definition files and
     # runs them to redefine the classes. Does not work exactly as it should,
     # but well enough for a rough hot-reload capability.
+    #
+    # @param [Leaf] leaf A Leaf to hot-reload.
 
     def hot_reload(leaf)
       type = leaf.class.to_s.split('::').first
@@ -52,25 +59,33 @@ module Autumn
       load_leaf_views type
     end
 
-    # Returns true if there is at least one stem still running.
+    # @return [true, false] `true` if there is at least one Stem still running.
 
     def alive?
-      @stem_threads && @stem_threads.any? { |name, thread| thread.alive? }
+      @stem_threads && @stem_threads.any? { |_, thread| thread.alive? }
     end
 
     # This method yields each Stem that was loaded, allowing you to iterate over
-    # each stem. For instance, to take attendance:
+    # each stem.
     #
-    #  Foliater.instance.each_stem { |stem| stem.message "Here!" }
+    # @yield [stem] A block to execute for each Stem.
+    # @yieldparam [Stem] stem Each Stem, in turn.
+    #
+    # @example Take attendance:
+    #   Foliater.instance.each_stem { |stem| stem.message "Here!" }
 
     def each_stem
       @stems.each { |stem| yield stem }
     end
 
-    # This method yields each Leaf subclass that was loaded, allowing you to
-    # iterate over each leaf. For instance, to take attendance:
+    # This method yields each Leaf that was loaded, allowing you to iterate over
+    # each stem.
     #
-    #  Foliater.instance.each_leaf { |leaf| leaf.stems.message "Here!" }
+    # @yield [leaf] A block to execute for each Leaf.
+    # @yieldparam [Leaf] leaf Each Leaf, in turn.
+    #
+    # @example Take attendance:
+    #   Foliater.instance.each_leaf { |leaf| leaf.stems.message "Here!" }
 
     def each_leaf
       @leaves.each { |leaf| yield leaf }

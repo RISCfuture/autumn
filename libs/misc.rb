@@ -1,7 +1,8 @@
 # Miscellaneous extra methods and objects used by Autumn, and additions to Ruby
 # Core objects.
 
-class Numeric # :nodoc:
+# @private
+class Numeric
 
   # Possibly pluralizes a noun based on this number's value. Returns this number
   # and the noun as a string. This method attempts to use the Ruby English gem
@@ -9,9 +10,9 @@ class Numeric # :nodoc:
   # to the word to make it plural. If the Ruby English gem is not available, you
   # can specify a custom plural form for the word. Examples:
   #
-  #  5.pluralize('dog') #=> "5 dogs"
-  #  1.pluralize('car') #=> "1 car"
-  #  7.pluralize('mouse', 'mice') #=> "7 mice" (only necessary if Ruby English is not installed)
+  # 5.pluralize('dog') #=> "5 dogs"
+  # 1.pluralize('car') #=> "1 car"
+  # 7.pluralize('mouse', 'mice') #=> "7 mice" (only necessary if Ruby English is not installed)
 
   def pluralize(singular, plural=nil)
     begin
@@ -23,7 +24,8 @@ class Numeric # :nodoc:
   end
 end
 
-class String # :nodoc:
+# @private
+class String
 
   # Returns a copy of this string with the first character dropped.
 
@@ -38,7 +40,8 @@ class String # :nodoc:
   end
 end
 
-class Hash # :nodoc:
+# @private
+class Hash
 
   # Returns a hash that gives back the key if it has no value for that key.
 
@@ -48,16 +51,19 @@ class Hash # :nodoc:
   end
 end
 
-# An implementation of +SizedQueue+ that, instead of blocking when the queue is
+# @private
+#
+# An implementation of `SizedQueue` that, instead of blocking when the queue is
 # full, simply discards the overflow, forgetting it.
 
-class ForgetfulQueue < Queue # :nodoc:
+class ForgetfulQueue < Queue
 
   # Creates a new sized queue.
 
   def initialize(capacity)
     super()
     @max = capacity
+    @mutex = Mutex.new
   end
 
   # Returns true if this queue is at maximum size.
@@ -76,9 +82,9 @@ class ForgetfulQueue < Queue # :nodoc:
   alias_method :enq, :push
 end
 
-# Adds the only method to Set.
+# @private Adds the only method to Set.
 
-class Set # :nodoc:
+class Set
 
   # Returns the only element of a one-element set. Raises an exception if there
   # isn't exactly one element in the set.

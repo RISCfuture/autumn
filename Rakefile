@@ -1,4 +1,9 @@
+require 'bundler'
+Bundler.require :pre_config, :default, :documentation
+
 require 'rake'
+require 'facets/pathname'
+
 $: << Dir.getwd
 require 'libs/autumn'
 $: << Autumn::Config.root.to_s unless Autumn::Config.root.to_s == Dir.getwd
@@ -54,7 +59,7 @@ namespace :log do
   end
 
   desc "Print all error messages in the log files"
-  task errors: :environment do
+  task :errors do
     season_log = Pathname.new('log').join(@genesis.config.global(:season), 'log')
     system_log = Pathname.new('tmp').join('autumn.log')
     if season_log.exist?
@@ -101,38 +106,65 @@ namespace :db do
   end
 end
 
+# bring sexy back (sexy == tables)
+module YARD::Templates::Helpers::HtmlHelper
+  def html_markup_markdown(text)
+    markup_class(:markdown).new(text, :gh_blockcode, :fenced_code, :autolink, :tables).to_html
+  end
+end
+
 namespace :doc do
   desc "Generate API documentation for Autumn"
-  task api: :environment do
+  YARD::Rake::YardocTask.new(:api) do |doc|
     api_doc = Pathname.new('doc').join('api')
-    FileUtils.remove_dir api_doc if api_doc.directory?
-    system 'rdoc',
-           '--main', 'README.rdoc',
-           '--title', "Autumn API Documentation",
-           '-o', api_doc,
-           'libs', 'README.rdoc'
+    FileUtils.mkdir_p api_doc unless api_doc.directory?
+
+    doc.options << '-m' << 'markdown' << '-M' << 'redcarpet'
+    doc.options << '--protected' << '--no-private'
+    doc.options << '-r' << 'README.md'
+    doc.options << '-o' << api_doc.to_s
+    doc.options << '--title' << "Autumn API Documentation"
+
+    doc.files = %w( libs/**/*.rb README.md )
   end
 
-  desc "Generate documentation for all leaves"
-  task leaves: :environment do
-    leaves_doc = Pathname.new('doc').join('leaves')
-    FileUtils.remove_dir leaves_doc if leaves_doc.directory?
-    Pathname.new('leaves').glob('*').each do |leaf_dir|
-      Dir.chdir leaf_dir do
-        system 'rdoc',
-                   '--main', 'README.rdoc',
-                   '--title', "#{leaf_dir.basename.camelcase(:upper)} Documentation",
-                   '-o', Pathname.new(__FILE__).basename.join('doc', 'leaves', leaf_dir.basename).to_s,
-                   '--line-numbers',
-                   '--inline-source',
-                   'controller.rb', 'helpers', 'models', 'README'
-      end
+  leaf_names_and_dirs = Pathname.new('leaves').glob('*').inject({}) do |hsh, path|
+    leaf_dir       = path.realpath
+    leaf_name      = leaf_dir.basename.to_s.camelcase(:upper)
+    hsh[leaf_name] = leaf_dir
+    hsh
+  end
+
+  leaf_names_and_dirs.each do |name, path|
+    desc "Generate documentation for the #{name} leaf"
+    YARD::Rake::YardocTask.new(name.snakecase.to_sym) do |doc|
+      output_dir = path.join('..', '..', 'doc', 'leaves', name.snakecase)
+      FileUtils.mkdir_p output_dir unless output_dir.directory?
+
+      doc.options << '-m' << 'markdown' << '-M' << 'redcarpet'
+      doc.options << '--protected' << '--no-private'
+      doc.options << '-r' << path.join('README.md').to_s
+      doc.options << '-o' << output_dir.realpath.to_s
+      doc.options << '--title' << "#{name} Documentation"
+
+      doc.files = [
+          path.join('controller.rb'),
+          path.join('helpers', '**', '*.rb'),
+          path.join('models', '**', '*.rb'),
+          path.join('README.md')
+      ].map(&:to_s)
     end
   end
 
+  desc "Generate documentation for all leaves"
+  task leaves: leaf_names_and_dirs.map { |(name, _)| name.snakecase.to_sym }
+
+  desc "Generate all documentation"
+  task all: [:api, :leaves]
+
   desc "Remove all documentation"
-  task clear: :environment do
-    api_doc = Pathname.new('doc').join('api')
+  task :clear do
+    api_doc    = Pathname.new('doc').join('api')
     leaves_doc = Pathname.new('doc').join('leaves')
     FileUtils.remove_dir api_doc if api_doc.directory?
     FileUtils.remove_dir leaves_doc if leaves_doc.directory?
@@ -141,7 +173,7 @@ end
 
 # Load any custom Rake tasks in the bot's tasks directory.
 Pathname.new('leaves').glob('*').each do |leaf|
-  leaf_name = leaf.basename('.rb').downcase
+  leaf_name = leaf.basename('.rb').to_s.downcase
   namespace leaf_name.to_sym do # Tasks are placed in a namespace named after the leaf
     Pathname.glob(leaf.join('tasks', '**', '*.rake')).sort.each do |task|
       load task

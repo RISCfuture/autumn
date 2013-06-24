@@ -1,10 +1,7 @@
-# Defines the Autumn::StemFacade class, which provides additional convenience
-# methods to Autumn::Stem.
-
 module Autumn
 
   # A collection of convenience methods that are added to the Stem class. These
-  # methods serve two purposes; one, to allow easier backwards compatibility
+  # methods serve two purposes: one, to allow easier backwards compatibility
   # with Autumn Leaves 1.0 (which had a simpler one-stem-per-leaf approach), and
   # two, to make it easier or more Ruby-like to perform certain IRC actions.
 
@@ -15,9 +12,14 @@ module Autumn
     # you are sending a message to a channel you must prefix it correctly; the
     # "#" will not be added before the channel name for you.
     #
-    #  message "Look at me!" # Broadcasts to all channels
-    #  message "I love kitties", '#kitties' # Sends a message to one channel or person
-    #  message "Learn to RTFM", '#help', 'NoobGuy' # Sends a message to two channels or people
+    # @example
+    #   message "Look at me!" # Broadcasts to all channels
+    #   message "I love kitties", '#kitties' # Sends a message to one channel or person
+    #   message "Learn to RTFM", '#help', 'NoobGuy' # Sends a message to two channels or people
+    #
+    # @param [String] msg The message to send.
+    # @param [Array<String>] chans The channels or nicks to broadcast to
+    #   (channels must include prefix).
 
     def message(msg, *chans)
       return if msg.blank?
@@ -34,7 +36,11 @@ module Autumn
     # Sets the topic for one or more channels. If no channels are specified,
     # sets the topic of every channel the stem is in.
     #
-    #  set_topic "Bots sure are fun!", 'bots', 'morebots'
+    # @example
+    #   set_topic "Bots sure are fun!", 'bots', 'morebots'
+    #
+    # @param [String] motd The new topic.
+    # @param [Array<String>] chans The channels to set the topic for.
 
     def set_topic(motd, *chans)
       return if motd.nil?
@@ -43,11 +49,15 @@ module Autumn
     end
 
     # Joins a channel by name. If the channel is password-protected, specify the
-    # +password+ parameter. Of course, you could always just call the +join+
+    # `password` parameter. Of course, you could always just call the `join`
     # method (since each IRC command has a method named after it), but the
     # advantage to using this method is that it will also update the
-    # <tt>@channel_passwords</tt> instance variable. Internal consistency is a
-    # good thing, so please use this method.
+    # `@channel_passwords` instance variable. Internal consistency is a good
+    # thing, so please use this method.
+    #
+    # @param [String] channel The channel to join.
+    # @param [String] password The password for the channel, if it is
+    #   password-protected.
 
     def join_channel(channel, password=nil)
       channel = normalized_channel_name(channel)
@@ -57,6 +67,8 @@ module Autumn
     end
 
     # Leaves a channel, specified by name.
+    #
+    # @param [String] channel The channel to leave.
 
     def leave_channel(channel)
       channel = normalized_channel_name(channel)
@@ -66,6 +78,8 @@ module Autumn
 
     # Changes this stem's IRC nick. Note that the stem's original nick will
     # still be used by the logger.
+    #
+    # @param [String] new_nick The new nickname.
 
     def change_nick(new_nick)
       nick new_nick
@@ -73,11 +87,16 @@ module Autumn
 
     # Grants a privilege to a channel member, such as voicing a member. The stem
     # must have the required privilege level to perform this command.
-    # +privilege+ can either be a symbol from the Daemon instance or a string
-    # with the letter code for the privilege.
     #
-    #  grant_user_privilege 'mychannel', 'Somedude', :operator
-    #  grant_user_privilege '#mychannel', 'Somedude', 'oa'
+    # @example
+    #   grant_user_privilege 'mychannel', 'Somedude', :operator
+    #   grant_user_privilege '#mychannel', 'Somedude', 'oa'
+    #
+    # @param [String] channel The channel to grant the user the privilege for.
+    # @param [String] nick The user's nickname.
+    # @param [Symbol, String] privilege The privilege to grant (can either be a
+    #   symbol from the {Daemon} instance or a string with the letter code for
+    #   the privilege.)
 
     def grant_user_privilege(channel, nick, privilege)
       channel = normalized_channel_name(channel)
@@ -88,8 +107,12 @@ module Autumn
 
     # Removes a privilege to a channel member, such as voicing a member. The
     # stem must have the required privilege level to perform this command.
-    # +privilege+ can either be a symbol from the Daemon instance or a string
-    # with the letter code for the privilege.
+    #
+    # @param [String] channel The channel to revoke the user the privilege for.
+    # @param [String] nick The user's nickname.
+    # @param [Symbol, String] privilege The privilege to revoke (can either be a
+    #   symbol from the {Daemon} instance or a string with the letter code for
+    #   the privilege.)
 
     def remove_user_privilege(channel, nick, privilege)
       channel = normalized_channel_name(channel)
@@ -101,11 +124,16 @@ module Autumn
     # Grants a usermode to an IRC nick, such as making a nick invisible.
     # The stem must have the required privilege level to perform this command.
     # (Generally, one can only change his own usermode unless he is a server
-    # op.) +mode+ can either be a symbol from the Daemon instance or a string
-    # with the letter code for the usermode.
+    # op.)
     #
-    #  grant_usermode 'Spycloak', :invisible
-    #  grant_usermode 'UpMobility', 'os'
+    # @example
+    #   grant_usermode 'Spycloak', :invisible
+    #   grant_usermode 'UpMobility', 'os'
+    #
+    # @param [String] nick The user's nickname.
+    # @param [Symbol, String] property The usermode to set (can either be a
+    #   symbol from the {Daemon} instance or a string with the letter code for
+    #   the usermode.)
 
     def grant_usermode(nick, property)
       propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
@@ -116,8 +144,12 @@ module Autumn
     # Revokes a usermode from an IRC nick, such as removing invisibility. The
     # stem must have the required privilege level to perform this command.
     # (Generally, one can only change his own usermode unless he is a server
-    # op.) +mode+ can either be a symbol from the Daemon instance or a string
-    # with the letter code for the usermode.
+    # op.)
+    #
+    # @param [String] nick The user's nickname.
+    # @param [Symbol, String] property The usermode to remove (can either be a
+    #   symbol from the {Daemon} instance or a string with the letter code for
+    #   the usermode.)
 
     def remove_usermode(nick, property)
       propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
@@ -126,14 +158,18 @@ module Autumn
     end
 
     # Sets a property of a channel, such as moderated. The stem must have the
-    # required privilege level to perform this command. +property+ can either be
-    # a symbol from the Daemon instance or a string with the letter code for the
-    # property. If the property takes an argument (such as when setting a
-    # channel password), pass it as the +argument+ paramter.
+    # required privilege level to perform this command.
     #
-    #  set_channel_property '#mychannel', :secret
-    #  set_channel_property 'mychannel', :keylock, 'mypassword'
-    #  set_channel_property '#mychannel', 'ntr'
+    # @example
+    #   set_channel_property '#mychannel', :secret
+    #   set_channel_property 'mychannel', :keylock, 'mypassword'
+    #   set_channel_property '#mychannel', 'ntr'
+    #
+    # @param [String] channel The channel name.
+    # @param [Symbol, String] property The channel mode to remove (can either be
+    #   a symbol from the {Daemon} instance or a string with the letter code for
+    #   the mode.)
+    # @param [String] argument An argument to provide with the channel mode.
 
     def set_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
@@ -143,10 +179,13 @@ module Autumn
     end
 
     # Removes a property of a channel, such as moderated. The stem must have the
-    # required privilege level to perform this command. +property+ can either be
-    # a symbol from the Daemon instance or a string with the letter code for the
-    # property. If the property takes an argument (such as when removing a
-    # channel password), pass it as the +argument+ paramter.
+    # required privilege level to perform this command.
+    #
+    # @param [String] channel The channel name.
+    # @param [Symbol, String] property The channel mode to remove (can either be
+    #   a symbol from the {Daemon} instance or a string with the letter code for
+    #   the mode.)
+    # @param [String] argument An argument to provide with the channel mode.
 
     def unset_channel_property(channel, property, argument=nil)
       channel = normalized_channel_name(channel)
@@ -156,6 +195,9 @@ module Autumn
     end
 
     # Returns an array of nicks for users that are in a channel.
+    #
+    # @param [String] channel The channel name.
+    # @return [Array<String>] The users in the channel.
 
     def users(channel)
       channel = normalized_channel_name(channel)
@@ -163,12 +205,15 @@ module Autumn
     end
 
     # Returns the privilege level of a channel member. The privilege level will
-    # be a symbol from the Daemon instance. Returns nil if the channel member
-    # doesn't exist or if the bot is not on the given channel. Returns an array
-    # of privileges if the server supports multiple privileges per user, and the
-    # user has more than one privilege.
+    # be a symbol from the {Daemon} instance. Returns `nil` if the channel
+    # member doesn't exist or if the bot is not on the given channel. Returns an
+    # array of privileges if the server supports multiple privileges per user,
+    # and the user has more than one privilege.
     #
-    # +user+ can be a nick or a sender hash.
+    # @param [String] channel A channel name.
+    # @param [String, Hash] user The user nick or sender hash.
+    # @return [Symbol, Array<Symbol>, nil] The privilege or privileges this user
+    #   has.
 
     def privilege(channel, user)
       user = user[:nick] if user.kind_of? Hash

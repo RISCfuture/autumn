@@ -1,23 +1,30 @@
 #!/usr/bin/env ruby
 #
-# === Synopsis
+# Synopsis
+# --------
 #
 # Destroys the files for leaves, seasons, and other objects of the Autumn
 # framework.
 #
-# === Usage
+# Usage
+# -----
 #
+# ```` sh
 # script/destroy <options> <object> <name>
+# ````
 #
-# <object>:: The object type to destroy. Valid types are "leaf" and "season".
-# <name>:: The name of the object to destroy. For example, you can call
-#          "script/destroy leaf Scorekeeper" to remove a leaf named Scorekeeper.
+# |          |                                                                                                                                    |
+# |:---------|:-----------------------------------------------------------------------------------------------------------------------------------|
+# | `object` | The object type to destroy. Valid types are "leaf" and "season".                                                                   |
+# | `name`   | The name of the object to destroy. For example, you can call `script/destroy leaf Scorekeeper` to remove a leaf named Scorekeeper. |
 #
-# === Options
+# Options
+# -------
 #
-# --help, -h:: Displays this usage information.
-# --vcs, -c:: Remove any created files or directories from the project's version
-#             control system. (Autodetects CVS and Subversion.)
+# |                |                                                                                                       |
+# |:---------------|:------------------------------------------------------------------------------------------------------|
+# | `--help`, `-h` | Displays this usage information.                                                                      |
+# | `--vcs`, `-c`  | Add any created files or directories to the project's version control system (normally auto-detects). |
 
 $: << Dir.getwd
 require 'libs/script'

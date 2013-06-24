@@ -1,13 +1,10 @@
-# Defines the Autumn::Coder class and its subclasses, which generate template
-# code for the script/generate utility.
-
 module Autumn
 
   # Helper class that generates shell Ruby code. This class knows how to
   # generate Ruby code for template classes and methods.
 
   class Coder # :nodoc:
-    # The generated code string.
+    # @return [String] The generated code string.
     attr :output
 
     # Creates a new instance with an indent level of 0 and an empty output
@@ -22,14 +19,25 @@ module Autumn
     # which you can populate with the contents of the class, if you wish.
     # Example:
     #
-    #  gen.klass("Foo") { |foo| foo.method("bar") }
+    # ```` ruby
+    # gen.klass("Foo") { |foo| foo.method("bar") }
+    # ````
     #
     # produces:
     #
+    # ````
     #  class Foo
     #    def bar
     #    end
     #  end
+    # ````
+    #
+    # @param [String] name The class name.
+    # @param [String] superclass The superclass name, if any.
+    # @yield [generator] Executes this block in the context of this class's
+    #   contents.
+    # @yieldparam [Coder] A Coder in the context of this class's contents.
+    # @return [String] The class code.
 
     def klass(name, superclass=nil)
       if superclass
@@ -59,12 +67,27 @@ module Autumn
     # This method yields another Generator, which you can populate with the
     # contents of the method, if you wish. Example:
     #
-    #  gen.method("test", :required, { optional: 'default' })
+    # ```` ruby
+    # gen.method("test", :required, { optional: 'default' })
+    # ````
     #
     # produces:
     #
-    #  def test(required, optional="default")
-    #  end
+    # ````
+    # def test(required, optional="default")
+    # end
+    # ````
+    #
+    # @overload method(name, param1, ..., :param2 => default, ...)
+    #   @param [String] name The method name.
+    #   @param [String] param2 A parameter name (with no default).
+    #   @param [String] param2 A parameter name (with default value).
+    #   @param [Object] default A default value for the parameter.
+    #   @yield [coder] Executes this block in the context of this class's
+    #     contents.
+    #   @yieldparam [Coder] coder A Coder in the context of this method's
+    #     contents.
+    #   @return [String] The method code.
 
     def method(name, *params)
       if params.empty?
@@ -87,26 +110,33 @@ module Autumn
     end
 
     # Increases the indent level for all future lines of code appended to this
-    # Generator.
+    # Coder.
 
     def indent!
       @indent = @indent + 1
     end
 
     # Decreases the indent level for all future lines of code appended to this
-    # Generator.
+    # Coder.
 
     def unindent!
       @indent = @indent - 1 unless @indent == 0
     end
 
     # Adds a line of code to this Generator, sequentially.
+    #
+    # @param [String] str The line of code.
 
     def <<(str)
       str.split(/\n/).each do |line|
         @output << "#{tab}#{line}\n"
       end
     end
+
+    # Sets this method's documentation and prepends it to the output as a
+    # comment.
+    #
+    # @param [String] str The method documentation.
 
     def doc=(str)
       doc_lines = str.line_wrap(80 - tab.size - 2).split("\n")
@@ -148,7 +178,9 @@ module Autumn
 
   class TemplateCoder < Coder # :nodoc:
 
-    # Generates an Leaf subclass with the given name.
+    # Generates a Leaf subclass with the given name.
+    #
+    # @param [String] name The Leaf name.
 
     def leaf(name)
       controller     = klass('Controller', 'Autumn::Leaf') do |leaf|

@@ -1,17 +1,14 @@
-# Defines the Autumn::Generator class, which generates and destroys files and
-# directories of Autumn objects for script/generate.
-
 require 'yaml'
 require 'libs/coder'
 
 module Autumn
 
   # Generates the files for Autumn templates such as leaves and seasons. The
-  # contents of these template files are populated by an LeafCoder instance.
+  # contents of these template files are populated by a {Coder} instance.
 
-  class Generator # :nodoc:
-                  # The names of the required files in a season's directory, and example
-                  # for each file.
+  class Generator
+    # The names of the required files in a season's directory, and example for
+    # each file.
     SEASON_FILES = {
         'leaves.yml' => {
             'Scorekeeper'   => {
@@ -50,12 +47,15 @@ module Autumn
       @coder = Autumn::TemplateCoder.new
     end
 
-    # Generates the files for a new leaf with the given name. Options:
+    # Generates the files for a new Leaf with the given name.
     #
-    # +verbose+:: Print to standard output every action that is taken.
-    # +vcs+:: The version control system used by this project. The files and
-    #         directories created by this method will be added to the project's
-    #         VCS.
+    # @param [String] name The Leaf name.
+    # @param [Hash] options Leaf options.
+    # @option options [true, false] :verbose (false) If `true`, prints to
+    #   standard output every action that is taken.
+    # @option options [:cvs, :svn, :git, nil] :vcs The version control system
+    #   used by this project. The files and directories created by this method
+    #   will be added to the project's VCS.
 
     def leaf(name, options={})
       lpath = Pathname.new('leaves').join(name.snakecase)
@@ -123,12 +123,16 @@ module Autumn
       end
     end
 
-    # Removes the files for a new leaf with the given name. Options:
+    # Removes the files for a new leaf with the given name.
     #
-    # +verbose+:: Print to standard output every action that is taken.
-    # +vcs+:: The version control system used by this project. The files and
-    #         directories removed by this method will be removed from the
-    #         project's VCS.
+    # @param [String] name The Leaf name.
+    # @param [Hash] options Leaf options.
+    # @option options [true, false] :verbose (false) If `true`, prints to
+    #   standard output every action that is taken.
+    # @option options [:cvs, :svn, :git, nil] :vcs The version control system
+    #   used by this project. The files and directories created by this method
+    #   will be removed from the project's VCS.
+
 
     def unleaf(name, options={})
       lpath = Pathname.new('leaves').join(name.snakecase)
@@ -157,10 +161,12 @@ module Autumn
     # Generates the files and directories for a new season with the given name.
     # Options:
     #
-    # +verbose+:: Print to standard output every action that is taken.
-    # +vcs+:: The version control system used by this project. The files and
-    #         directories created by this method will be added to the project's
-    #         VCS.
+    # @param [String] name The season name.
+    # @param [Hash] options Season options.
+    # @option options [true, false] :verbose (false) If `true`, prints to
+    #   standard output every action that is taken.
+    # @option see #leaf
+
 
     def season(name, options={})
       dname = Pathname.new('config').join('seasons', name.snakecase)
@@ -186,10 +192,11 @@ module Autumn
     # Removes the files and directories for a season with the given name.
     # Options:
     #
-    # +verbose+:: Print to standard output every action that is taken.
-    # +vcs+:: The version control system used by this project. The files and
-    #         directories removed by this method will be removed from the
-    #         project's VCS.
+    # @param [String] name The season name.
+    # @param [Hash] options Season options.
+    # @option options [true, false] :verbose (false) If `true`, prints to
+    #   standard output every action that is taken.
+    # @option see #unleaf
 
     def unseason(name, options={})
       dname = Pathname.new('config').join('seasons', name.snakecase)

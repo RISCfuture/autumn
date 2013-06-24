@@ -1,10 +1,8 @@
-# Defines the Autum::CTCP class, which implements CTCP support.
-
 module Autumn
 
-  # A listener for a Stem that listens for and handles CTCP requests. You can
+  # A listener for a {Stem} that listens for and handles CTCP requests. You can
   # add CTCP support for your IRC client by instantiating this object and
-  # passing it to the Stem#add_listener method.
+  # passing it to the {Stem#add_listener} method.
   #
   # CTCP stands for Client-to-Client Protocol and is a way that IRC clients and
   # servers can request and transmit more information about each other. Modern
@@ -12,7 +10,8 @@ module Autumn
   # their clients support CTCP. CTCP is also used as a basis for further
   # extensions to IRC, such as DCC and XDCC.
   #
-  # This class implements the spec defined at http://www.invlogic.com/irc/ctcp.html
+  # This class implements the spec defined at
+  # http://www.invlogic.com/irc/ctcp.html.
   #
   # Because some IRC servers will disconnect clients that send a large number of
   # messages in a short period of time, this listener will only send one CTCP
@@ -25,43 +24,44 @@ module Autumn
   # when appropriate.
   #
   # To respond to incoming CTCP requests, you should implement methods of the
-  # form <tt>ctcp_*_request</tt>, where "*" is replaced with the lowercase name
-  # of the CTCP command. (For example, to handle VERSION requests, implement
-  # +ctcp_version_request+). This method will be invoked whenever a request is
+  # form `ctcp_*_request`, where "*" is replaced with the lowercase name of the
+  # CTCP command. (For example, to handle `VERSION` requests, implement
+  # `ctcp_version_request`). This method will be invoked whenever a request is
   # received by the IRC client. It will be given the following parameters:
   #
   # 1. the CTCP instance that parsed the request,
   # 2. the Stem instance that received the request,
   # 3. the person who sent the request (a hash in the form of that used by Stem;
-  #    see Stem#add_listener for more information), and
-  # 4. an array of arguments passed along with the request.
+  #    see {Stem#add_listener} for more information), and
+  # 4. an array of string arguments passed along with the request.
   #
-  # In addition, you can implement +ctcp_request_received+, which will then be
+  # In addition, you can implement `ctcp_request_received`, which will then be
   # invoked for any and all incoming CTCP requests. It is passed the following
   # arguments:
   #
   # 1. the name of the request, as a lowercase symbol,
   # 2. the CTCP instance that parsed the request,
   # 3. the Stem instance that received the request,
-  # 4. the person who sent the request (a sender hash -- see the Leaf docs), and
-  # 5. an array of arguments passed along with the request.
+  # 4. the person who sent the request (a sender hash -- see the {Leaf} docs),
+  #    and
+  # 5. an array of string arguments passed along with the request.
   #
   # This class will by default respond to some incoming CTCP requests and
   # generate appropriate replies; however, it does not implement any specific
   # behavior for parsing incoming replies. If you wish to parse replies, you
-  # should implement methods in your listener of the form
-  # <tt>ctcp_*_response</tt>, with the "*" character replaced as above. This
-  # method will be invoked whenever a reply is received by this listener. You
-  # can also implement <tt>ctcp_response_received</tt> just as above. The
-  # parameters for these methods are the same as those listed above.
+  # should implement methods in your listener of the form `ctcp_*_response`,
+  # with the "*" character replaced as above. This method will be invoked
+  # whenever a reply is received by this listener. You can also implement
+  # `ctcp_response_received` just as above. The parameters for these methods are
+  # the same as those listed above.
   #
-  # Responses are assumed to be any CTCP messages that are sent as a NOTICE (as
-  # opposed to a PRIVMSG). Because they are NOTICEs, your program should not
-  # send a message in response.
+  # Responses are assumed to be any CTCP messages that are sent as a `NOTICE`
+  # (as opposed to a `PRIVMSG`). Because they are `NOTICE`s, your program should
+  # not send a message in response.
   #
   # In addition to responding to incoming CTCP requests and replies, your
-  # listener can use its stem to send CTCP requests and replies. See the added
-  # method for more detail.
+  # listener can use its stem to send CTCP requests and replies. See the
+  # {#added} method for more detail.
 
   class CTCP
     extend Anise::Annotations
@@ -72,12 +72,14 @@ module Autumn
     # opposed to other commands, whose arguments are plaintext).
     ENCODED_COMMANDS = %w(VERSION PING)
 
-    # Creates a new CTCP parser. Options are:
+    # Creates a new CTCP parser.
     #
-    # +reply_queue_size+:: The maximum number of pending replies to store in the
-    #                      queue, after which new CTCP requests are ignored.
-    # +reply_rate+:: The minimum time, in seconds, between consecutive CTCP
-    #                replies.
+    # @param [Hash] options Additional options.
+    # @option options [Integer] :reply_queue_size (10) The maximum number of
+    #   pending replies to store in the queue, after which new CTCP requests are
+    #   ignored.
+    # @option options [Float] :reply_rate (0.25) The minimum time, in seconds,
+    #   between consecutive CTCP replies.
 
     def initialize(options={})
       @options                    = options
@@ -97,9 +99,9 @@ module Autumn
       end
     end
 
-    # Parses CTCP requests in a PRIVMSG event.
+    # @private Parses CTCP requests in a PRIVMSG event.
 
-    def irc_privmsg_event(stem, sender, arguments) # :nodoc:
+    def irc_privmsg_event(stem, sender, arguments)
       arguments[:message].scan(CTCP_REQUEST).flatten.each do |ctcp|
         ctcp_args = ctcp.split(' ')
         request   = ctcp_args.shift
@@ -110,9 +112,9 @@ module Autumn
       end
     end
 
-    # Parses CTCP responses in a NOTICE event.
+    # @private Parses CTCP responses in a NOTICE event.
 
-    def irc_notice_event(stem, sender, arguments) # :nodoc:
+    def irc_notice_event(stem, sender, arguments)
       arguments[:message].scan(CTCP_REQUEST).flatten.each do |ctcp|
         ctcp_args = ctcp.split(' ')
         request   = ctcp_args.shift
@@ -123,12 +125,12 @@ module Autumn
       end
     end
 
-    # Replies to a CTCP CLIENTINFO request by sending a list of supported CTCP
+    # Replies to a CTCP `CLIENTINFO` request by sending a list of supported CTCP
     # commands. This list is generated by introspecting on matching methods.
     #
-    # If a CLIENTINFO request is received with a valid command as an argument,
+    # If a `CLIENTINFO` request is received with a valid command as an argument,
     # information on that argument is returned. This is obtained by checking the
-    # corresponding method's @description@ annotation.
+    # corresponding method's `description` annotation.
 
     def ctcp_clientinfo_request(handler, stem, sender, arguments)
       return unless handler == self
@@ -146,21 +148,17 @@ module Autumn
     end
     ann :ctcp_clientinfo_request, description: "Returns a list of valid CTCP commands, or information on a specific CTCP command."
 
-    # Replies to a CTCP VERSION request by sending:
+    # Replies to a CTCP `VERSION` request by sending:
     #
     # * the name of the IRC client ("Autumn, a Ruby IRC framework"),
     # * the operating system name and version, and
     # * the home page URL for Autumn.
     #
-    # To determine the OS name and version, this method runs the <tt>uname
-    # -sr</tt> command; if your operating system does not support this command,
-    # you should override this method.
-    #
-    # Although the CTCP spec states that the VERSION response should be three
+    # Although the CTCP spec states that the `VERSION` response should be three
     # encoded strings (as shown above), many modern clients expect one plaintext
     # string. If you'd prefer compatibility with those clients, you should
     # override this method to return a single plaintext string and remove the
-    # VERSION command from +ENCODED_COMMANDS+.
+    # `VERSION` command from {ENCODED_COMMANDS}.
 
     def ctcp_version_request(handler, stem, sender, _)
       return unless handler == self
@@ -168,8 +166,8 @@ module Autumn
     end
     ann :ctcp_version_request, description: "Returns information on this IRC client."
 
-    # Replies to a CTCP PING request by sending back the same arguments as a
-    # PONG reply.
+    # Replies to a CTCP `PING` request by sending back the same arguments as a
+    # `PONG` reply.
 
     def ctcp_ping_request(handler, stem, sender, arguments)
       return unless handler == self
@@ -177,7 +175,7 @@ module Autumn
     end
     ann :ctcp_ping_request, description: "Returns a PING response."
 
-    # Replies to a CTCP TIME request by sending back the local time in RFC-822
+    # Replies to a CTCP `TIME` request by sending back the local time in RFC 822
     # format.
 
     def ctcp_time_request(handler, stem, sender, _)
@@ -186,7 +184,7 @@ module Autumn
     end
     ann :ctcp_time_request, description: "Returns the current client time, in RFC 822 (XML) format."
 
-    # Replies to a CTCP SOURCE request by sending the Autumn GitHub repository
+    # Replies to a CTCP `SOURCE` request by sending the Autumn GitHub repository
     # home page.
 
     def ctcp_source_request(handler, stem, sender, _)
@@ -202,8 +200,13 @@ module Autumn
     # by space characters, as specified in the CTCP white paper. The arguments
     # should all be strings.
     #
-    # +recipient+ can be a nick, a channel name, or a sender hash, as necessary.
-    # Encoding of arguments is only done for commands in +ENCODED_COMMANDS+.
+    # @param [Stem] stem The Stem that will be sending the reply.
+    # @param [String, Hash] recipient The channel name, nickname, or sender hash
+    #   to send the reply to.
+    # @param [String] command The CTCP command being replied to.
+    # @param [Array] arguments Additional arguments to encode as part of the
+    #   reply. Encoding of arguments is only done for commands in
+    #   {ENCODED_COMMANDS}.
 
     def send_ctcp_reply(stem, recipient, command, *arguments)
       recipient = recipient[:nick] if recipient.kind_of? Hash
@@ -211,30 +214,36 @@ module Autumn
     end
 
     # When this listener is added to a stem, the stem gains the ability to send
-    # CTCP messages directly. Methods of the form <tt>ctcp_*</tt>, where "*" is
-    # the lowercase name of a CTCP action, will be forwarded to this listener,
-    # which will send the CTCP message. The first parameter of the method is the
-    # nick of one or more recipients; all other parameters are parameters for
-    # the CTCP command. See the CTCP spec for more information on the different
+    # CTCP messages directly. Methods of the form `ctcp_*`, where "*" is the
+    # lowercase name of a CTCP action, will be forwarded to this listener, which
+    # will send the CTCP message. The first parameter of the method is the nick
+    # of one or more recipients; all other parameters are parameters for the
+    # CTCP command. See the CTCP spec for more information on the different
     # commands and parameters available.
     #
     # For example, to send an action (such as "/me is cold") to a channel:
     #
-    #  stem.ctcp_action "#channel", "is cold"
+    # ```` ruby
+    # stem.ctcp_action "#channel", "is cold"
+    # ````
     #
     # In addition, the stem gains the ability to send CTCP replies. Replies are
     # messages that are added to this class's reply queue, adding flood abuse
     # prevention. To send a reply, call a Stem method of the form
-    # <tt>ctcp_reply_*</tt>, where "*" is the command name you are replying to,
-    # in lowercase. Pass first the nick or sender hash of the recipient, then
+    # `ctcp_reply_*`, where "*" is the command name you are replying to, in
+    # lowercase. Pass first the nick or sender hash of the recipient, then any
     # any parameters as specified by the CTCP spec. For example, to respond to a
-    # CTCP VERSION request:
+    # CTCP `VERSION` request:
     #
-    #  stem.ctcp_reply_version sender, 'Bot Name', 'Computer Name', 'Other Info'
+    # ```` ruby
+    # stem.ctcp_reply_version sender, 'Bot Name', 'Computer Name', 'Other Info'
+    # ````
     #
     # (Note that responding to VERSION requests is already handled by this class
-    # so you'll need to either override or delete the ctcp_version_request
+    # so you'll need to either override or delete the {#ctcp_version_request}
     # method to do this.)
+    #
+    # @param [Stem] stem The stem this listener was added to.
 
     def added(stem)
       stem.instance_variable_set :@ctcp, self
@@ -251,9 +260,11 @@ module Autumn
       end
     end
 
+    # @private
+    #
     # Creates a CTCP-formatted message with the given command (uppercase string)
     # and arguments (strings). The string returned is suitable for transmission
-    # over IRC using the PRIVMSG command.
+    # over IRC using the `PRIVMSG` command.
 
     def make_ctcp_message(command, *arguments)
       arguments = arguments.map { |arg| quote arg } if ENCODED_COMMANDS.include? command

@@ -59,7 +59,7 @@ class Controller < Autumn::Leaf
     var version: Autumn::Config.version
   end
 
-  # Suppress the !commands command; don't want to publicize the administrative
+  # Suppress the "!commands" command; don't want to publicize the administrative
   # features.
 
   def commands_command(_, _, _, _)

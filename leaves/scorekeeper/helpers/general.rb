@@ -1,6 +1,8 @@
 # Utility methods used by Scorekeeper.
 
 module GeneralHelper
+  private
+
   def parse_date(str)
     date = nil
     begin

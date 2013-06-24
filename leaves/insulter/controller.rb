@@ -16,6 +16,7 @@ class Controller < Autumn::Leaf
 
   private
 
+  # @private
   ADJECTIVES = [
       'an artless', 'a bawdy', 'a beslubbering', 'a bootless', 'a churlish',
       'a clouted', 'a cockered', 'a craven', 'a currish', 'a dankish',
@@ -29,6 +30,7 @@ class Controller < Autumn::Leaf
       'a warped', 'a wayward', 'a weedy', 'a yeasty'
   ]
 
+  # @private
   PARTICIPLES = %w(base-court bat-fowling beef-witted beetle-headed boil-brained
                    clapper-clawed clay-brained common-kissing crook-pated
                    dismal-dreaming dizzy-eyed doghearted dread-bolted
@@ -41,6 +43,7 @@ class Controller < Autumn::Leaf
                    sheep-biting spur-galled swag-bellied tardy-gaited
                    tickle-brained toad-spotted urchin-snouted weather-bitten)
 
+  # @private
   NOUNS = %w(apple-john baggage barnacle bladder boar-pig bugbear bum-bailey
              canker-blossom clack-dish clotpole codpiece coxcomb death-token
              dewberry flap-dragon flax-wench flirt-gill foot-licker fustilarian

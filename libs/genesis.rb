@@ -1,19 +1,16 @@
-# Defines the Autumn::Genesis class, which bootstraps the Autumn environment
-# and starts the Foliater.
-
 require 'yaml'
 
 Autumn::Config.version = '3.0 (7-4-08)'
 
-module Autumn # :nodoc:
+module Autumn
 
   # Oversight class responsible for initializing the Autumn environment. To boot
   # the Autumn environment start all configured leaves, you make an instance of
-  # this class and run the boot! method. Leaves will each run in their own
+  # this class and run the {#boot!} method. Leaves will each run in their own
   # thread, monitored by an oversight thread spawned by this class.
 
-  class Genesis # :nodoc:
-    # The Speciator singleton.
+  class Genesis
+    # @return [Speciator] The Speciator singleton.
     attr_reader :config
 
     # Creates a new instance that can be used to boot Autumn.
@@ -23,8 +20,10 @@ module Autumn # :nodoc:
       @config = Speciator.instance
     end
 
-    # Bootstraps the Autumn environment, and begins the stems' execution threads
-    # if +invoke+ is set to true.
+    # Bootstraps the Autumn environment.
+    #
+    # @param [true, false] invoke If `true`, the leaves will be started, each in
+    #   their own thread. Use `false` for console environments.
 
     def boot!(invoke=true)
       load_global_settings
@@ -38,9 +37,9 @@ module Autumn # :nodoc:
       invoke_foliater(invoke)
     end
 
-    # Loads the settings in the global.yml file.
+    # Loads the settings in the `global.yml` file.
     #
-    # PREREQS: None
+    # **Prereqs**: None
 
     def load_global_settings
       begin
@@ -54,7 +53,7 @@ module Autumn # :nodoc:
 
     # Loads the files and gems that do not require an instantiated Speciator.
     #
-    # PREREQS: None
+    # **Prereqs**: None
 
     def load_pre_config_files
       require 'singleton'
@@ -65,6 +64,7 @@ module Autumn # :nodoc:
       Bundler.require :pre_config
 
       require 'facets/pathname'
+      require 'active_support/core_ext/numeric'
 
       require 'libs/misc'
       require 'libs/speciator'
@@ -72,7 +72,7 @@ module Autumn # :nodoc:
 
     # Loads the files and gems that require an instantiated Speciator.
     #
-    # PREREQS: load_global_settings
+    # **Prereqs**: load_global_settings
 
     def load_post_config_files
       require 'set'
@@ -91,9 +91,9 @@ module Autumn # :nodoc:
       require 'libs/formatting'
     end
 
-    # Loads the settings for the current season in its season.yml file.
+    # Loads the settings for the current season in its `season.yml` file.
     #
-    # PREREQS: load_global_settings
+    # **Prereqs**: {#load_global_settings}
 
     def load_season_settings
       @season_dir = Autumn::Config.root.join('config', 'seasons', config.global(:season))
@@ -107,7 +107,7 @@ module Autumn # :nodoc:
 
     # Loads Autumn library objects.
     #
-    # PREREQS: load_global_settings
+    # **Prereqs**: {#load_global_settings}
 
     def load_libraries
       require 'libs/inheritable_attributes'
@@ -123,7 +123,7 @@ module Autumn # :nodoc:
 
     # Initializes the system-level logger.
     #
-    # PREREQS: load_libraries
+    # **Prereqs**: {#load_libraries}
 
     def init_system_logger
       config.global logfile: Logger.new(log_name, config.global(:log_history) || 10, 1024*1024)
@@ -137,10 +137,10 @@ module Autumn # :nodoc:
       @logger = config.global(:system_logger)
     end
 
-    # Instantiates Daemons from YAML files in resources/daemons. The daemons are
-    # named after their YAML files.
+    # Instantiates {Daemon Daemons} from YAML files in `resources/daemons`. The
+    # daemons are named after their YAML files.
     #
-    # PREREQS: load_libraries
+    # **Prereqs**: {#load_libraries}
 
     def load_daemon_info
       Autumn::Config.root.join('resources', 'daemons').glob('*.yml').each do |yml_file|
@@ -150,6 +150,8 @@ module Autumn # :nodoc:
     end
 
     # Loads Ruby code in the shared directory.
+    #
+    # **Prereqs**: None
 
     def load_shared_code
       Pathname.glob(Autumn::Config.root.join('shared', '**', '*.rb')).each { |lib| load lib }
@@ -157,7 +159,7 @@ module Autumn # :nodoc:
 
     # Creates connections to databases using the DataMapper gem.
     #
-    # PREREQS: load_season_settings
+    # **Prereqs**: {#load_season_settings}
 
     def load_databases
       db_file = @season_dir.join('database.yml')
@@ -175,12 +177,13 @@ module Autumn # :nodoc:
       end
     end
 
-    # Invokes the Foliater.load method. Spawns a new thread to oversee the
+    # Invokes the {Foliater#load} method. Spawns a new thread to oversee the
     # stems' threads. This thread will exit when all leaves have terminated.
-    # Stems will not be started if +invoke+ is set to false.
     #
-    # PREREQS: load_databases, load_season_settings, load_libraries,
-    # init_system_logger
+    # **Prereqs**: {#load_databases}, {#load_season_settings},
+    # {#load_libraries}, {#init_system_logger}
+    #
+    # @param (see #initialize)
 
     def invoke_foliater(invoke=true)
       begin

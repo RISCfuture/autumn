@@ -1,23 +1,22 @@
-# Defines the Autumn::Stem class, an IRC client library.
-
 module Autumn
 
   # A connection to an IRC server. The stem acts as the IRC client on which a
   # Leaf runs. It receives messages from the IRC server and sends messages to
   # the server. Stem is compatible with many IRC daemons; details of the IRC
-  # protocol are handled by a Daemon instance. (See "Compatibility with
-  # Different Server Types," below).
+  # protocol are handled by a Daemon instance. (See **Compatibility with
+  # Different Server Types**, below).
   #
-  # Generally stems are initialized by the Foliater, but should you want to
+  # Generally stems are initialized by the {Foliater}, but should you want to
   # instantiate one yourself, a Stem is instantiated with a server to connect to
-  # and a nickname to acquire (see the initialize method docs). Once you
-  # initialize a Stem, you should call add_listener one or more times to
+  # and a nickname to acquire (see the {#initialize} method docs). Once you
+  # initialize a Stem, you should call {#add_listener} one or more times to
   # indicate to the stem what objects are interested in working with it.
   #
-  # == Listeners and Listener Plug-Ins
+  # Listeners and Listener Plug-Ins
+  # -------------------------------
   #
   # An object that functions as a listener should conform to an implicit
-  # protocol. See the add_listener docs for more infortmation on what methods
+  # protocol. See the {#add_listener} docs for more information on what methods
   # you can implement to listen for IRC events. Duck typing is used -- you need
   # not implement every method of the protocol, only those you are concerned
   # with.
@@ -25,91 +24,101 @@ module Autumn
   # Listeners can also act as plugins: Such listeners add functionality to
   # other listeners (for example, a CTCP listener that adds CTCP support to
   # other listeners, such as a Leaf instance). For more information, see the
-  # add_listener docs.
+  # {#add_listener} docs.
   #
-  # == Starting the IRC Session
+  # Starting the IRC Session
+  # ------------------------
   #
   # Once you have finished configuring your stem and you are ready to begin the
-  # IRC session, call the start method. This method blocks until the the socket
-  # has been closed, so it should be run in a thread. Once the connection has
-  # been made, you are free to send and receive IRC commands until you close the
-  # connection, which is done with the quit method.
+  # IRC session, call the {#start} method. This method blocks until the the
+  # socket has been closed, so it should be run in a thread. Once the connection
+  # has been made, you are free to send and receive IRC commands until you close
+  # the connection, which is done with the `quit` method.
   #
-  # == Receiving and Sending IRC Commands
+  # Receiving and Sending IRC Commands
+  # ----------------------------------
   #
-  # Receiving events is explained in the add_listener docs. To send an IRC
+  # Receiving events is explained in the {#add_listener} docs. To send an IRC
   # command, simply call a method named after the command name. For instance, if
-  # you wish to PRIVMSG another nick, call the +privmsg+ method. If you wish to
-  # JOIN a channel, call the +join+ method. The parameters should be specified
-  # in the same order as the IRC command expects.
+  # you wish to `PRIVMSG` another nick, call the `privmsg` method. If you wish
+  # to `JOIN` a channel, call the `join` method. The parameters should be
+  # specified in the same order as the IRC command expects.
+  #
+  # (That being said, you should _actually_ use the {StemFacade#join_channel}
+  # method to join channels, because it is better.)
   #
   # For more information on what IRC commands are "method-ized", see the
-  # +IRC_COMMANDS+ constant. For more information on the proper way to use these
-  # commands (and thus, the methods that call them), consult the Daemon class.
+  # {IRC_COMMANDS} constant. For more information on the proper way to use these
+  # commands (and thus, the methods that call them), consult the {Daemon} class.
   #
-  # == Compatibility with Different Server Types
+  # Compatibility with Different Server Types
+  # -----------------------------------------
   #
   # Many different IRC server daemons exist, and each one has a slightly
   # different IRC implementation. To manage this, there is an option called
-  # +server_type+, which is set automatically by the stem if it can determine
+  # `server_type`, which is set automatically by the stem if it can determine
   # the IRC software that the server is running. Server types are instances of
-  # the Daemon class, and are associated with a name. A stem's server type
+  # the {Daemon} class, and are associated with a name. A stem's server type
   # affects things like response codes, user modes, and channel modes, as these
   # vary from server to server.
   #
   # If the stem is unsure what IRC daemon your server is running, it will use
-  # the default Daemon instance. This default server type will be compatible
-  # with nearly every server out there. You may not be able to leverage some of
-  # the more esoteric IRC features of your particular server, but for the most
-  # common uses of IRC (sending and receiving messages, for example), it will
-  # suffice.
+  # the {Daemon.default default} Daemon instance. This default server type will
+  # be compatible with nearly every server out there. You may not be able to
+  # leverage some of the more esoteric IRC features of your particular server,
+  # but for the most common uses of IRC (sending and receiving messages, for
+  # example), it will suffice.
   #
   # If you'd like to manually specify a server type, you can pass its name for
-  # the +server_type+ initialization option. Consult the resources/daemons
+  # the `server_type` initialization option. Consult the `resources/daemons`
   # directory for valid Daemon names and hints on how to make your own Daemon
   # specification, should you desire.
   #
-  # == Channel Names
+  # Channel Names
+  # -------------
   #
   # The convention for Autumn channel names is: When you specify a channel to
-  # an Autumn stem, you can (but don't have to) prefix it with the '\#'
+  # an Autumn stem, you can (but don't have to) prefix it with the '#'
   # character, if it's a normal IRC channel. When an Autumn stem gives a channel
   # name to you, it will always start with the '#' character (assuming it's a
   # normal IRC channel, of course). If your channel is prefixed with a different
   # character (say, '&'), you will need to include that prefix every time you
   # pass a channel name to a stem method.
   #
-  # So, if you would like your stem to send a message to the "\#kittens"
-  # channel, you can omit the '\#' character; but if it's a server-local channel
-  # called "&kittens", you will have to provide the '&' character. Likewise, if
-  # you are overriding a hook method, you can be guaranteed that the channel
-  # given to you will always be called "\#kittens", and not "kittens".
+  # So, if you would like your stem to send a message to the "#kittens" channel,
+  # you can omit the '#' character; but if it's a server-local channel called
+  # "&kittens", you will have to provide the '&' character. Likewise, if you are
+  # overriding a hook method, you can be guaranteed that the channel given to
+  # you will always be called "#kittens", and not "kittens".
   #
-  # == Synchronous Methods
+  # Synchronous Methods
+  # -------------------
   #
   # Because new messages are received and processed in separate threads, methods
   # can sometimes receive messages out of order (for instance, if a first
   # message takes a long time to process and a second message takes a short time
   # to process). In the event that you require a guarantee that your method will
   # receive messages in order, and that it will only be invoked in a single
-  # thread, annotate your method with the +stem_sync+ property.
+  # thread, annotate your method with the `stem_sync` property.
   #
   # For instance, you might want to ensure that you are finished processing 353
-  # messages (replies to NAMES commands) before you tackle 366 messages (end of
-  # NAMES list). To ensure these methods are invoked in the correct order:
+  # messages (replies to `NAMES` commands) before you tackle 366 messages (end
+  # of `NAMES` list). To ensure these methods are invoked in the correct order:
   #
-  #  class MyListener
-  #    def irc_rpl_namreply_response(stem, sender, recipient, arguments, msg)
-  #      [...]
-  #    end
-  #    
-  #    def irc_rpl_endofnames_response(stem, sender, recipient, arguments, msg)
-  #      [...]
-  #    end
-  #    
-  #    ann :irc_rpl_namreply_response, stem_sync: true
-  #    ann :irc_rpl_endofnames_response, stem_sync: true
-  #  end
+  # ```` ruby
+  # class MyListener
+  #   def irc_rpl_namreply_response(stem, sender, recipient, arguments, msg)
+  #     [...]
+  #   end
+  #
+  #   def irc_rpl_endofnames_response(stem, sender, recipient, arguments, msg)
+  #     [...]
+  #   end
+  #
+  #   ann :irc_rpl_namreply_response, stem_sync: true
+  #   ann :irc_rpl_endofnames_response, stem_sync: true
+  # end
+  # ````
   #
   # All such methods will be run in a single thread, and will receive server
   # messages in order. Because of this, it is important that synchronized
@@ -127,20 +136,21 @@ module Autumn
   # the stem's channel data is consistent and "in sync" for the moment of time
   # that the message was received.
   #
-  # == Throttling
+  # Throttling
+  # ----------
   #
-  # If you send a message with the +privmsg+ command, it will not be throttled.
+  # If you send a message with the `privmsg` command, it will not be throttled.
   # (Most IRC servers have some form of flood control that throttles rapid
-  # privmsg commands, however.)
+  # `PRIVMSG` commands, however.)
   #
   # If your IRC server does not have flood control, or you want to use
-  # client-side flood control, you can enable the +throttling+ option. The stem
+  # client-side flood control, you can enable the `throttling` option. The stem
   # will throttle large numbers of simultaneous messages, sending them with
   # short pauses in between.
   #
-  # The +privmsg+ command will still _not_ be throttled (since it is a facade
-  # for the pure IRC command), but the StemFacade#message command will gain the
-  # ability to throttle its messages.
+  # The `privmsg` command will still _not_ be throttled (since it is a facade
+  # for the pure IRC command), but the {StemFacade#message} command will gain
+  # the ability to throttle its messages.
   #
   # By default, the stem will begin throttling when there are five or more
   # messages queued to be sent. It will continue throttling until the queue is
@@ -153,14 +163,13 @@ module Autumn
     extend Anise::Annotations
 
     # Describes all possible channel names. Omits the channel prefix, as that
-    # can vary from server to server. (See channel?)
+    # can vary from server to server. (See {#channel?})
     CHANNEL_REGEX = "[^\\s\\x7,:]+"
     # The default regular expression for IRC nicknames.
     NICK_REGEX    = "[a-zA-Z][a-zA-Z0-9\\-_\\[\\]\\{\\}\\\\|`\\^]+"
 
-    # A parameter in an IRC command.
-
-    class Parameter # :nodoc:
+    # @private A parameter in an IRC command.
+    class Parameter
       attr_reader :name, :required, :colonize, :list, :truncatable, :splittable
 
       def initialize(newname, options={})
@@ -173,7 +182,8 @@ module Autumn
       end
     end
 
-    def self.param(name, opts={}) # :nodoc:
+    # @private
+    def self.param(name, opts={})
       Parameter.new(name, opts)
     end
 
@@ -213,86 +223,95 @@ module Autumn
         pong:    [param('code', required: false, colonize: true)]
     }
 
-    # The address of the server this stem is connected to.
+    # @return [String] The hostname of the server this stem is connected to.
     attr :server
-    # The remote port that this stem is connecting to.
+    # @return [Integer] The remote port that this stem is connecting to.
     attr :port
-    # The local IP to bind to (virtual hosting).
+    # @return [Integer] The local IP to bind to (for virtual hosting).
     attr :local_ip
-    # The global configuration options plus those for the current season and
-    # this stem.
+    # @return [Hash<Symbol, Object>] The global configuration options plus those
+    #   for the current season and this stem.
     attr :options
-    # The channels that this stem is a member of.
+    # @return [Array<String>] The channels that this stem is a member of.
     attr :channels
-    # The LogFacade instance handling this stem.
+    # @return [LogFacade] The logger instance handling this stem.
     attr :logger
-    # A Proc that will be called if a nickname is in use. It should take one
-    # argument, the nickname that was unavailable, and return a new nickname to
-    # try. The default Proc appends an underscore to the nickname to produce a
-    # new one, or GHOSTs the nick if possible. This block should return nil if
-    # you do not want another NICK attempt to be made.
+    # @return [#call] A Proc that will be called if a nickname is in use. It
+    #   should take one argument, the nickname that was unavailable, and return
+    #   a new nickname to try. The default Proc appends an underscore to the
+    #   nickname to produce a new one, or `GHOST`s the nick if possible. This
+    #   Proc should return `nil` if you do not want another `NICK` attempt to be
+    #   made.
     attr :nick_generator
-    # The regular expression for valid nicks, as a string. By default it's equal
-    # to NICK_REGEX.
+    # @return [Regexp] The regular expression for valid nicks, as a string. By
+    #   default it's equal to {NICK_REGEX}.
     attr :nick_regex
-    # The Daemon instance that describes the IRC server this client is connected
-    # to.
+    # @return [Daemon] The Daemon instance that describes the IRC server this
+    #   client is connected to.
     attr :server_type
-    # A hash of channel members by channel name.
+    # @return [Hash<String, Array<String>] A hash of channel members by channel
+    #   name.
     attr :channel_members
 
     # Creates an instance that connects to a given IRC server and requests a
-    # given nick. Valid options:
+    # given nick.
     #
-    # +port+:: The port that the IRC client should connect on (default 6667).
-    # +local_ip+:: Set this if you want to bind to an IP other than your default
-    #              (for virtual hosting).
-    # +logger+:: Specifies a logger instance to use. If none is specified, a new
-    #            LogFacade instance is created for the current season.
-    # +ssl+:: If true, indicates that the connection will be made over SSL.
-    # +user+:: The username to transmit to the IRC server (by default it's the
-    #          user's nick).
-    # +name+:: The real name to transmit to the IRC server (by default it's the
-    #          user's nick).
-    # +server_password+:: The server password (not the nick password), if
-    #                     necessary.
-    # +password+:: The password to send to NickServ, if your leaf's nick is
-    #              registered.
-    # +channel+:: The name of a channel to join.
-    # +channels+:: An array of channel names to join.
-    # +sever_type+:: The name of the server type. (See Daemon). If left blank,
-    #                the default Daemon instance is used.
-    # +rejoin+:: If true, the stem will rejoin a channel it is kicked from.
-    # +case_sensitive_channel_names+:: If true, indicates to the IRC client that
-    #                                  this IRC server uses case-sensitive
-    #                                  channel names.
-    # +dont_ghost+:: If true, does not issue a /ghost command if the stem's nick
-    #                is taken. (This is only relevant if the nick is registered
-    #                and +password+ is specified.) <b>You should use this on IRC
-    #                servers that don't use "NickServ" -- otherwise someone may
-    #                change their nick to NickServ and discover your
-    #                password!</b>
-    # +ghost_without_password+:: Set this to true if your IRC server uses
-    #                            hostname authentication instead of password
-    #                            authentication for GHOST commands.
-    # +throttle+:: If enabled, the stem will throttle large amounts of
-    #              simultaneous messages.
-    # +throttle_rate+:: Sets the number of seconds that pass between consecutive
-    #                   PRIVMSG's when the leaf's output is throttled.
-    # +throttle_threshold+:: Sets the number of simultaneous messages that must
-    #                        be queued before the leaf begins throttling output.
-    # +max_message_length+:: Maximum number of characters in any message
-    #                        transmitted to the server. Defaults to 500.
-    # +when_long+:: What to do when the length of a message exceeds
-    #               +max_message_length+. When +send+ (default), does not change
-    #               the message. When +cut+, truncates the message. When
-    #               +split+, splits the message into multiple messages (if
-    #               applicable, truncates it otherwise).
-    # +detailed_errors+:: Turn this on to have the bot announce the actual
-    #                     exceptions that are raised in-channel. (By default it
-    #                     only informs you that an error occurred with no other
-    #                     information.) Leave _off_ for live environments, as
-    #                     DataMapper exceptions can include passwords.
+    # @param [String] server The server hostname.
+    # @param [String] newnick The nick to use.
+    # @param [Hash] opts Additional options.
+    # @option opts [Integer] :port (6667) The port that the IRC client should
+    #   connect on.
+    # @option opts [Integer] :local_ip Set this if you want to bind to an IP
+    #   other than your default (for virtual hosting).
+    # @option opts [LogFacade] :logger Specifies a logger instance to use. If
+    #   none is specified, a new LogFacade instance is created for the current
+    #   season.
+    # @option opts [true, false] :ssl If true, indicates that the connection
+    #   will be made over SSL.
+    # @option opts [String] :user The username to transmit to the IRC server.
+    #   (By default it's the user's nick.)
+    # @option opts [String] :name The real name to transmit to the IRC server.
+    #   (By default it's the user's nick).
+    # @option opts [String] :server_password The server password (not the nick
+    #   password), if necessary.
+    # @option opts [String] :password The password to send to NickServ, if your
+    #   leaf's nick is registered.
+    # @option opts [String] :channel The name of a channel to join.
+    # @option opts [Array<String>] :channels An array of channel names to join.
+    # @option opts [String] :sever_type The name of the server type (see
+    #   {Daemon}). If left blank, the default Daemon instance is used.
+    # @option opts [true, false] :rejoin If `true`, the stem will rejoin a
+    #   channel it is kicked from.
+    # @option opts [true, false] :case_sensitive_channel_names If `true`,
+    #   indicates to the IRC client that this IRC server uses case-sensitive
+    #   channel names.
+    # @option opts [true, false] :dont_ghost If `true`, does not issue a
+    #   `/ghost` command if the stem's nick is taken. (This is only relevant if
+    #   the nick is registered and `:password` is specified.) **You should use
+    #   this on IRC servers that don't use "NickServ" -- otherwise someone may
+    #  change their nick to NickServ and discover your password!**
+    # @option opts [true, false] :ghost_without_password Set this to `true` if
+    #   your IRC server uses hostname authentication instead of password
+    #   authentication for `GHOST` commands.
+    # @option opts [true, false] :throttle If enabled, the stem will throttle
+    #   large amounts of simultaneous messages.
+    # @option opts [Integer] :throttle_rate (1) Sets the number of seconds that
+    #   pass between consecutive `PRIVMSG`s when the leaf's output is throttled.
+    # @option opts [Integer] :throttle_threshold (5) Sets the number of
+    #   simultaneous messages that must be queued before the leaf begins
+    #   throttling output.
+    # @option opts [Integer] :max_message_length (500) Maximum number of
+    #   characters in any message transmitted to the server.
+    # @option opts [:send, :split, :cut] :when_long (:send) What to do when the
+    #   length of a message exceeds `:max_message_length`. When `:send`, does
+    #   not change the message. When `:cut`, truncates the message. When
+    #   `:split`, splits the message into multiple messages (if applicable,
+    #   truncates it otherwise).
+    # @option opts [true, false] :detailed_errors Turn this on to have the bot
+    #   announce the actual exceptions that are raised in-channel. (By default
+    #   it only informs you that an error occurred with no other information.)
+    #   **Leave off for live environments, as DataMapper exceptions can include
+    #   passwords.**
     #
     # Any channel name can be a one-item hash, in which case it is taken to be
     # a channel name-channel password association.
@@ -372,53 +391,62 @@ module Autumn
 
     # Adds an object that will receive notifications of incoming IRC messages.
     # For each IRC event that the listener is interested in, the listener should
-    # implement a method in the form <tt>irc_[event]_event</tt>, where [event]
-    # is the name of the event, as taken from the +IRC_COMMANDS+ hash. For
-    # example, to register interest in PRIVMSG events, implement the method:
+    # implement a method in the form `irc_[event]_event`, where `event` is the
+    # name of the event, as taken from the {IRC_COMMANDS} hash. For example, to
+    # register interest in `PRIVMSG` events, implement the method:
     #
-    #  irc_privmsg_event(stem, sender, arguments)
+    # ```` ruby
+    # irc_privmsg_event(stem, sender, arguments)
+    # ````
     #
     # If you wish to perform an operation each time any IRC event is received,
     # you can implement the method:
     #
-    #  irc_event(stem, command, sender, arguments)
+    # ```` ruby
+    # irc_event(stem, command, sender, arguments)
+    # ````
     #
     # The parameters for both methods are as follows:
     #
-    # +stem+:: This Stem instance.
-    # +sender+:: A sender hash (see the Leaf docs).
-    # +arguments+:: A hash whose keys depend on the IRC command. Keys can be,
-    #               for example, <tt>:recipient</tt>, <tt>:channel</tt>,
-    #               <tt>:mode</tt>, or <tt>:message</tt>. Any can be nil.
+    # |             |      |                                                                                                                                            |
+    # |:------------|:-----|:-------------------------------------------------------------------------------------------------------------------------------------------|
+    # | `stem`      | Stem | This Stem instance.                                                                                                                        |
+    # | `sender`    | Hash | A sender hash (see the {Leaf} docs).                                                                                                       |
+    # | `arguments` | Hash | A hash whose keys depend on the IRC command. Keys can be, for example, `:recipient`, `:channel`, `:mode`, or `:message`. Any can be `nil`. |
     #
-    # The +irc_event+ method also receives the command name as a symbol.
+    # The `irc_event` method also receives the command name as a symbol.
     #
     # In addition to events, the Stem will also pass IRC server responses along
     # to its listeners. Known responses (those specified by the Daemon) are
-    # translated to programmer-friendly symbols using the Daemon.event hash. The
-    # rest are left in numerical form.
+    # translated to programmer-friendly symbols using the {Daemon#event} hash.
+    # The rest are left in numerical form.
     #
     # If you wish to register interest in a response code, implement a method of
-    # the form <tt>irc_[response]_response</tt>, where [response] is the symbol
-    # or numerical form of the response. For instance, to register interest in
+    # the form `irc_[response]_response`, where `response` is the symbol or
+    # numerical form of the response. For instance, to register interest in
     # channel-full errors, you'd implement:
     #
-    #  irc_err_channelisfull_response(stem, sender, recipient, arguments, msg)
+    # ```` ruby
+    # irc_err_channelisfull_response(stem, sender, recipient, arguments, msg)
+    # ````
     #
     # You can also register an interest in all server responses by implementing:
     #
-    #  irc_response(stem, response, sender, recipient, arguments, msg)
+    # ```` ruby
+    # irc_response(stem, response, sender, recipient, arguments, msg)
+    # ````
     #
     # This method is invoked when the server sends a response message. The
     # parameters for both methods are:
     #
-    # +sender+:: The server's address.
-    # +recipient+:: The nick of the recipient (sometimes "*" if no nick has been
-    #               assigned yet).
-    # +arguments+:: Array of response arguments, as strings.
-    # +message+:: An additional message attached to the end of the response.
+    # |             |                                                                             |                       |
+    # |:------------|:----------------------------------------------------------------------------|:----------------------|
+    # | `sender`    | String                                                                      | The server's address. |
+    # | `recipient` | The nick of the recipient (sometimes "*" if no nick has been assigned yet). |
+    # | `arguments` | Array of response arguments, as strings.                                    |
+    # | `message`   | An additional message attached to the end of the response.                  |
     #
-    # The +irc_server_response+ method additionally receives the response code
+    # The `irc_server_response` method additionally receives the response code
     # as a symbol or numerical parameter.
     #
     # Please note that there are hundreds of possible responses, and IRC servers
@@ -429,36 +457,51 @@ module Autumn
     # If your listener is interested in IRC server notices, implement the
     # method:
     #
-    #  irc_server_notice(stem, server, sender, msg)
+    # ```` ruby
+    # irc_server_notice(stem, server, sender, msg)
+    # ````
     #
     # This method will be invoked for notices from the IRC server. Its
     # parameters are:
     #
-    # +server+:: The server's address.
-    # +sender+:: The message originator (e.g., "Auth" for authentication-related
-    #            messages).
-    # +msg+:: The notice.
+    # |          |        |                                                                            |
+    # |:---------|:-------|:---------------------------------------------------------------------------|
+    # | `server` | String | The server's address.                                                      |
+    # | `sender` | String | The message originator (e.g., "Auth" for authentication-related messages). |
+    # | `msg`    | String | The notice.                                                                |
     #
     # If your listener is interested in IRC server errors, implement the method:
     #
-    #  irc_server_error(stem, msg)
+    # ```` ruby
+    # irc_server_error(stem, msg)
+    # ````
     #
     # This method will be invoked whenever an IRC server reports an error, and
     # is passed the error message. Server errors differ from normal server
     # responses, which themselves can sometimes indicate errors.
     #
-    # Some listeners can act as listener plugins; see the broadcast method for
-    # more information.
+    # Some listeners can act as listener plugins; see the {#broadcast} method
+    # for more information.
     #
     # If you'd like your listener to perform actions after it's been added to a
-    # Stem, implement a method called +added+. This method will be called when
+    # Stem, implement a method called `added`. This method will be called when
     # the listener is added to a stem, and will be passed the Stem instance it
     # was added to. You can use this method, for instance, to add additional
-    # methods to the stem.
+    # methods to the stem:
     #
-    # Your listener can implement the +stem_ready+ method, which will be called
+    # ```` ruby
+    # added(stem)
+    # `````
+    #
+    # Your listener can implement the `stem_ready` method, which will be called
     # once the stem has started up, connected to the server, and joined all its
-    # channels. This method is passed the stem instance.
+    # channels. This method is passed the stem instance:
+    #
+    # ```` ruby
+    # stem_ready(stem)
+    # ````
+    #
+    # @param [Object] obj The object to set as a class listener.
 
     def add_listener(obj)
       @listeners << obj
@@ -466,11 +509,10 @@ module Autumn
       obj.respond :added, self
     end
 
-    # Sends the method with the name +meth+ (a symbol) to all listeners that
-    # respond to that method. You can optionally specify one or more arguments.
-    # This method is meant for use by <b>listener plugins</b>: listeners that
-    # add features to other listeners by allowing them to implement optional
-    # methods.
+    # Sends the method with the name `meth` to all listeners that respond to
+    # that method. You can optionally specify one or more arguments. This method
+    # is meant for use by **listener plugins**: listeners that add features to
+    # other listeners by allowing them to implement optional methods.
     #
     # For example, you might have a listener plugin that adds CTCP support to
     # stems. Such a method would parse incoming messages for CTCP commands, and
@@ -478,10 +520,13 @@ module Autumn
     # Other listeners who want to use CTCP support can implement the methods
     # that your listener plugin broadcasts.
     #
-    # <b>Note:</b> Each method call will be executed in its own thread, and all
-    # exceptions will be caught and reported. This method will only invoke
-    # listener methods that have _not_ been marked as synchronized. (See
-    # "Synchronous Methods" in the class docs.)
+    # @note Each method call will be executed in its own thread, and all
+    #   exceptions will be caught and reported. This method will only invoke
+    #   listener methods that have _not_ been marked as synchronized. (See
+    #   **Synchronous Methods** in the class docs.)
+    #
+    # @param [Symbol] meth The method to broadcast.
+    # @param [Array] args Arguments for that method.
 
     def broadcast(meth, *args)
       asynchronous_listeners_for_method(meth).each do |listener|
@@ -502,8 +547,10 @@ module Autumn
       end
     end
 
-    # Same as the broadcast method, but only invokes listener methods that
+    # Same as the {#broadcast} method, but only invokes listener methods that
     # _have_ been marked as synchronized.
+    #
+    # @param (see #broadcast)
 
     def broadcast_sync(meth, *args)
       synchronous_listeners_for_method(meth).each { |listener| listener.respond meth, *args }
@@ -514,7 +561,7 @@ module Autumn
     # will terminate when the connection is closed. No messages should be
     # transmitted, nor will messages be received, until this method is called.
     #
-    # In the event that the nick is unavailable, the +nick_generator+ proc will
+    # In the event that the nick is unavailable, the `nick_generator` Proc will
     # be called.
 
     def start
@@ -551,19 +598,23 @@ module Autumn
       end
     end
 
-    # Returns true if this stem has started up completely, connected to the IRC
-    # server, and joined all its channels. A period of 10 seconds is allowed to
-    # join all channels, after which the stem will report ready even if some
-    # channels could not be joined.
+    # @return [true, false] `true` if this stem has started up completely,
+    #   connected to the IRC server, and joined all its channels. A period of
+    #   10 seconds is allowed to join all channels, after which the stem will
+    #   report ready even if some channels could not be joined.
 
     def ready?
       @ready
     end
 
-    # Normalizes a channel name by placing a "\#" character before the name if no
+    # Normalizes a channel name by placing a "#" character before the name if no
     # channel prefix is otherwise present. Also converts the name to lowercase
-    # if the +case_sensitive_channel_names+ option is false. You can suppress
-    # the automatic prefixing by passing false for +add_prefix+.
+    # if the `case_sensitive_channel_names` option is `false`.
+    #
+    # @param [String] channel A channel name.
+    # @param [true, false] add_prefix If `false`, does not add the prefix to the
+    #   channel name if it's missing.
+    # @return [String] The normalized channel name.
 
     def normalized_channel_name(channel, add_prefix=true)
       norm_chan = channel.dup
@@ -572,7 +623,8 @@ module Autumn
       return norm_chan
     end
 
-    def method_missing(meth, *args) # :nodoc:
+    # @private
+    def method_missing(meth, *args)
       if IRC_COMMANDS.include? meth
         messages = build_irc_message(meth, args)
         messages.each { |message| transmit message }
@@ -581,118 +633,55 @@ module Autumn
       end
     end
 
-    def build_irc_message(meth, args)
-      param_info        = IRC_COMMANDS[meth]
-      command_arguments = Array.new
-      size              = meth.to_s.size # accumulator of message length
-
-      param_info.each do |param|
-        raise ArgumentError, "#{param.name} is required" if args.empty? && param.required
-        arg = args.shift.presence
-        arg = (param.list && arg.kind_of?(Array)) ? arg.map(&:to_s).join(',') : arg.to_s
-        arg = ":#{arg}" if param.colonize
-        command_arguments << arg
-        size += (arg.size + 1) # include the space
-      end
-      raise ArgumentError, "Too many parameters" unless args.empty?
-
-      if @when_long == :split
-        messages = apply_split_strategy(param_info, command_arguments, size).map { |subargs| "#{meth.to_s.upcase} #{subargs.join(' ')}" }
-      elsif @when_long == :cut
-        command_arguments = apply_cut_strategy(meth, param_info, command_arguments, size)
-        messages          = ["#{meth.to_s.upcase} #{command_arguments.join(' ')}"]
-      else
-        messages = ["#{meth.to_s.upcase} #{command_arguments.join(' ')}"]
-      end
-
-      return messages
-    end
-
-    def apply_split_strategy(param_info, args, size)
-      # we're only going to split on the last splittable index
-      index_to_split = (0..(param_info.size - 1)).select { |index| param_info[index].splittable }.last
-      return [args] if index_to_split.nil? # nothing to split, so don't split
-
-      size_of_param = args[index_to_split].size
-      size_of_param -= 1 if param_info[index_to_split].colonize # colon doesn't count
-
-      # if we're over maxlength even without the splittable param, then it's hopeless
-      size_without_param = size - size_of_param
-      return args if size_without_param > @max_message_length
-
-      # otherwise let's word_wrap that parameter and build new param strings
-      parts = args[index_to_split].word_wrap(@max_message_length - size_without_param).split("\n")
-      return parts.map do |part|
-        subargs                 = args.dup
-        subargs[index_to_split] = part
-        subargs
-      end
-    end
-
-    def apply_cut_strategy(meth, param_info, args, size)
-      while size > @max_message_length
-        over                      = size - @max_message_length
-        truncatable_param_indexes = (0..(param_info.size - 1)).select { |index| param_info[index].truncatable }
-
-        # start from the last and truncate our way back down
-        index_to_truncate         = truncatable_param_indexes.pop
-        break if index_to_truncate.nil?
-        size_of_param = args[index_to_truncate].size
-        size_of_param -= 1 if param_info[index_to_truncate].colonize # colon doesn't count
-
-        if size_of_param <= over
-          # if truncating it all the way down wouldn't get us below maxlength,
-          # then just remove it
-          args[index_to_truncate] = nil
-        else
-          # otherwise truncate it
-          args[index_to_truncate].slice!(size_of_param - over, over + 1)
-        end
-
-        size = meth.to_s.size + args.compact.inject(0) { |sum, cur| sum + cur.size + 1 }
-      end
-
-      return args
-    end
-
     # Given a full channel name, returns the channel type as a symbol. Values
-    # can be found in the Daemons instance. Returns <tt>:unknown</tt> for
-    # unknown channel types.
+    # can be found in the {Daemon} instance.
+    #
+    # @param [String] channel A channel name with prefix.
+    # @return [Symbol] The channel type from its prefix, or `:unknown` if the
+    #   prefix is unrecognized.
 
     def channel_type(channel)
       type = server_type.channel_prefix[channel[0, 1]]
       type ? type : :unknown
     end
 
-    # Returns true if the string appears to be a channel name.
+    # Returns `true` if the string appears to be a channel name.
+    #
+    # @param [String] str A string.
+    # @return [true, false] Whether the string appears to be a channel name (as
+    #   opposed to a nickname, for example).
 
     def channel?(str)
       prefixes = Regexp.escape(server_type.channel_prefix.keys.join)
       str.match("[#{prefixes}]#{CHANNEL_REGEX}") != nil
     end
 
-    # Returns true if the string appears to be a nickname.
+    # Returns `true` if the string appears to be a nickname.
+    #
+    # @param [String] str A string.
+    # @return [true, false] Whether the string appears to be a nickname (as
+    #   opposed to a channel name, for example).
 
     def nick?(str)
       str.match(nick_regex) != nil
     end
 
-    # Returns the nick this stem is using.
+    # @return [String] The nick this stem is using.
+    def nickname() @nick end
 
-    def nickname
-      @nick
-    end
-
-    def inspect # :nodoc:
+    # @private
+    def inspect
       "#<#{self.class.to_s} #{server}:#{port}>"
     end
 
-    def irc_ping_event(_, _, arguments) # :nodoc:
+    # @private
+    def irc_ping_event(_, _, arguments)
       arguments[:message].nil? ? pong : pong(arguments[:message])
     end
     ann :irc_ping_event, stem_sync: true # To avoid overhead of a whole new thread just for a pong
 
-    def irc_rpl_yourhost_response(_, _, _, _, msg) # :nodoc:
+    # @private
+    def irc_rpl_yourhost_response(_, _, _, _, msg)
       return if options[:server_type]
       type = nil
       Daemon.each_name do |name|
@@ -710,31 +699,37 @@ module Autumn
     end
     ann :irc_rpl_yourhost_response, stem_sync: true # So methods that synchronize can be guaranteed the host is known ASAP
 
-    def irc_err_nicknameinuse_response(_, _, _, arguments, _) # :nodoc:
+    # @private
+    def irc_err_nicknameinuse_response(_, _, _, arguments, _)
       return unless nick_generator
       newnick = nick_generator.call(arguments[0])
       nick newnick if newnick
     end
 
-    def irc_rpl_endofmotd_response(_, _, _, _, _) # :nodoc:
+    # @private
+    def irc_rpl_endofmotd_response(_, _, _, _, _)
       post_startup
     end
 
-    def irc_err_nomotd_response(_, _, _, _, _) # :nodoc:
+    # @private
+    def irc_err_nomotd_response(_, _, _, _, _)
       post_startup
     end
 
-    def irc_rpl_namreply_response(_, _, _, arguments, msg) # :nodoc:
+    # @private
+    def irc_rpl_namreply_response(_, _, _, arguments, msg)
       update_names_list normalized_channel_name(arguments[1]), msg.words unless arguments[1] == "*" # "*" refers to users not on a channel
     end
     ann :irc_rpl_namreply_response, stem_sync: true # So endofnames isn't processed before namreply
 
-    def irc_rpl_endofnames_response(_, _, _, arguments, _) # :nodoc:
+    # @private
+    def irc_rpl_endofnames_response(_, _, _, arguments, _)
       finish_names_list_update normalized_channel_name(arguments[0])
     end
     ann :irc_rpl_endofnames_response, stem_sync: true # so endofnames isn't processed before namreply
 
-    def irc_kick_event(_, _, arguments) # :nodoc:
+    # @private
+    def irc_kick_event(_, _, arguments)
       if arguments[:recipient] == @nick
         old_pass = @channel_passwords[arguments[:channel]]
         @chan_mutex.synchronize do
@@ -751,12 +746,14 @@ module Autumn
     end
     ann :irc_kick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_mode_event(_, _, arguments) # :nodoc:
+    # @private
+    def irc_mode_event(_, _, arguments)
       names arguments[:channel] if arguments[:parameter] && server_type.privilege_mode?(arguments[:mode])
     end
     ann :irc_mode_event, stem_sync: true # To avoid overhead of a whole new thread for a names reply
 
-    def irc_join_event(_, sender, arguments) # :nodoc:
+    # @private
+    def irc_join_event(_, sender, arguments)
       if sender[:nick] == @nick
         should_broadcast = false
         @chan_mutex.synchronize do
@@ -792,7 +789,8 @@ module Autumn
     end
     ann :irc_join_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_part_event(_, sender, arguments) # :nodoc:
+    # @private
+    def irc_part_event(_, sender, arguments)
       @chan_mutex.synchronize do
         if sender[:nick] == @nick
           drop_channel arguments[:channel]
@@ -804,7 +802,8 @@ module Autumn
     end
     ann :irc_part_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_nick_event(_, sender, arguments) # :nodoc:
+    # @private
+    def irc_nick_event(_, sender, arguments)
       @nick = arguments[:nick] if sender[:nick] == @nick
       @chan_mutex.synchronize do
         @channel_members.each { |chan, members| members[arguments[:nick]] = members.delete(sender[:nick]) }
@@ -813,7 +812,8 @@ module Autumn
     end
     ann :irc_nick_event, stem_sync: true # So methods that synchronize can be guaranteed the channel variables are up to date
 
-    def irc_quit_event(_, sender, _) # :nodoc:
+    # @private
+    def irc_quit_event(_, sender, _)
       @chan_mutex.synchronize do
         @channel_members.each { |chan, members| members.delete sender[:nick] }
         #TODO what should we do if we are in the middle of receiving NAMES replies?
@@ -962,6 +962,80 @@ module Autumn
       meths[method]     = [self, sender, arguments]
       meths[:irc_event] = [self, command, sender, arguments]
       return meths
+    end
+
+    def build_irc_message(meth, args)
+      param_info        = IRC_COMMANDS[meth]
+      command_arguments = Array.new
+      size              = meth.to_s.size # accumulator of message length
+
+      param_info.each do |param|
+        raise ArgumentError, "#{param.name} is required" if args.empty? && param.required
+        arg = args.shift.presence
+        arg = (param.list && arg.kind_of?(Array)) ? arg.map(&:to_s).join(',') : arg.to_s
+        arg = ":#{arg}" if param.colonize
+        command_arguments << arg
+        size += (arg.size + 1) # include the space
+      end
+      raise ArgumentError, "Too many parameters" unless args.empty?
+
+      if @when_long == :split
+        messages = apply_split_strategy(param_info, command_arguments, size).map { |subargs| "#{meth.to_s.upcase} #{subargs.join(' ')}" }
+      elsif @when_long == :cut
+        command_arguments = apply_cut_strategy(meth, param_info, command_arguments, size)
+        messages          = ["#{meth.to_s.upcase} #{command_arguments.join(' ')}"]
+      else
+        messages = ["#{meth.to_s.upcase} #{command_arguments.join(' ')}"]
+      end
+
+      return messages
+    end
+
+    def apply_split_strategy(param_info, args, size)
+      # we're only going to split on the last splittable index
+      index_to_split = (0..(param_info.size - 1)).select { |index| param_info[index].splittable }.last
+      return [args] if index_to_split.nil? # nothing to split, so don't split
+
+      size_of_param = args[index_to_split].size
+      size_of_param -= 1 if param_info[index_to_split].colonize # colon doesn't count
+
+      # if we're over maxlength even without the splittable param, then it's hopeless
+      size_without_param = size - size_of_param
+      return args if size_without_param > @max_message_length
+
+      # otherwise let's word_wrap that parameter and build new param strings
+      parts = args[index_to_split].word_wrap(@max_message_length - size_without_param).split("\n")
+      return parts.map do |part|
+        subargs                 = args.dup
+        subargs[index_to_split] = part
+        subargs
+      end
+    end
+
+    def apply_cut_strategy(meth, param_info, args, size)
+      while size > @max_message_length
+        over                      = size - @max_message_length
+        truncatable_param_indexes = (0..(param_info.size - 1)).select { |index| param_info[index].truncatable }
+
+        # start from the last and truncate our way back down
+        index_to_truncate         = truncatable_param_indexes.pop
+        break if index_to_truncate.nil?
+        size_of_param = args[index_to_truncate].size
+        size_of_param -= 1 if param_info[index_to_truncate].colonize # colon doesn't count
+
+        if size_of_param <= over
+          # if truncating it all the way down wouldn't get us below maxlength,
+          # then just remove it
+          args[index_to_truncate] = nil
+        else
+          # otherwise truncate it
+          args[index_to_truncate].slice!(size_of_param - over, over + 1)
+        end
+
+        size = meth.to_s.size + args.compact.inject(0) { |sum, cur| sum + cur.size + 1 }
+      end
+
+      return args
     end
 
     def split_out_message(arg_str)

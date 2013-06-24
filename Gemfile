@@ -10,6 +10,11 @@ group :pre_config do
   gem 'facets'
 end
 
+group :documentation do
+  gem 'redcarpet'
+  gem 'yard'
+end
+
 # Only loaded if a database.yml file exists for a season
 group :datamapper do
   gem 'dm-sqlite-adapter', '< 1.1.0' # Change this to whatever adapter you need for your database

@@ -1,23 +1,30 @@
 #!/usr/bin/env ruby
 #
-# === Synopsis
+# Synopsis
+# --------
 #
 # Generates template files for leaves, seasons, and other Autumn objects.
 #
-# === Usage
+# Usage
+# -----
 #
+#
+# ```` sh
 # script/generate <options> <template> <name>
+# ````
 #
-# <template>:: The template to create. Valid templates are "leaf" and "season".
-# <name>:: The name to give the created template. For example, you can call
-#          "script/generate leaf Scorekeeper" to create a leaf named
-#          Scorekeeper.
+# |            |                                                                                                                                         |
+# |:-----------|:----------------------------------------------------------------------------------------------------------------------------------------|
+# | `template` | The template to create. Valid templates are "leaf" and "season".                                                                        |
+# | `name`     | The name to give the created template. For example, you can call `script/generate leaf Scorekeeper` to create a leaf named Scorekeeper. |
 #
-# === Options
+# Options
+# -------
 #
-# --help, -h:: Displays this usage information.
-# --vcs, -c:: Add any created files or directories to the project's version
-#             control system. (Autodetects CVS and Subversion.)
+# |                |                                                                                                       |
+# |:---------------|:------------------------------------------------------------------------------------------------------|
+# | `--help`, `-h` | Displays this usage information.                                                                      |
+# | `--vcs`, `-c`  | Add any created files or directories to the project's version control system (normally auto-detects). |
 
 $: << Dir.getwd
 require 'libs/script'

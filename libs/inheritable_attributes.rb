@@ -1,4 +1,4 @@
-# This source file, originating from Ruby on Rails, extends the +Class+ class to
+# This source file, originating from Ruby on Rails, extends the `Class` class to
 # allows attributes to be shared within an inheritance hierarchy, but where each
 # descendant gets a copy of their parents' attributes, instead of just a pointer
 # to the same. This means that the child can add elements to, for example, an
@@ -13,7 +13,7 @@
 # that copy without affecting the superclass's filter chain.
 #
 # Copyright (c)2004 David Heinemeier Hansson
-# 
+#
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
 # "Software"), to deal in the Software without restriction, including
@@ -24,6 +24,8 @@
 # The above copyright notice and this permission notice shall be
 # included in all copies or substantial portions of the Software.
 
+# @private
+#
 # Allows attributes to be shared within an inheritance hierarchy, but where each descendant gets a copy of
 # their parents' attributes, instead of just a pointer to the same. This means that the child can add elements
 # to, for example, an array without those additions being shared with either their parent, siblings, or
