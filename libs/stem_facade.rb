@@ -122,7 +122,7 @@ module Autumn
     def remove_usermode(nick, property)
       propcode = server_type.usermode.key(property).chr if server_type.usermode.value? property
       propcode ||= property
-      mode nick, "-#{property}"
+      mode nick, "-#{propcode}"
     end
 
     # Sets a property of a channel, such as moderated. The stem must have the
