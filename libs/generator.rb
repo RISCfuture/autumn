@@ -109,8 +109,8 @@ module Autumn
 
       dname = lpath.join('views')
       unless File.directory?(dname)
-	Dir.mkdir(dname)
-	created dname, options
+        Dir.mkdir(dname)
+        created dname, options
       end
            
       vname = lpath.join('views', 'about.txt.erb')
