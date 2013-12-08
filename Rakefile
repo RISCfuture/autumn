@@ -2,6 +2,7 @@ require 'bundler'
 Bundler.require :pre_config, :default, :documentation
 
 require 'rake'
+require 'pathname'
 require 'facets/pathname'
 
 $: << Dir.getwd

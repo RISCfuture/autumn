@@ -1,4 +1,5 @@
 source 'https://rubygems.org'
+require 'pathname'
 
 gem 'daemons'
 gem 'anise'
