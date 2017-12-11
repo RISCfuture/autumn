@@ -1,18 +1,18 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    activesupport (4.0.2)
-      i18n (~> 0.6, >= 0.6.4)
-      minitest (~> 4.2)
-      multi_json (~> 1.3)
-      thread_safe (~> 0.1)
-      tzinfo (~> 0.3.37)
-    addressable (2.3.5)
+    activesupport (5.1.4)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (~> 0.7)
+      minitest (~> 5.1)
+      tzinfo (~> 1.1)
+    addressable (2.5.2)
+      public_suffix (>= 2.0.2, < 4.0)
     anise (0.7.0)
-    atomic (1.1.14)
     chronic (0.10.2)
-    daemons (1.1.9)
-    data_objects (0.10.13)
+    concurrent-ruby (1.0.5)
+    daemons (1.2.5)
+    data_objects (0.10.17)
       addressable (~> 2.1)
     dm-ar-finders (1.0.2)
       dm-core (~> 1.0.2)
@@ -31,19 +31,20 @@ GEM
       dm-core (~> 1.0.2)
     dm-validations (1.0.2)
       dm-core (~> 1.0.2)
-    do_sqlite3 (0.10.13)
-      data_objects (= 0.10.13)
+    do_sqlite3 (0.10.17)
+      data_objects (= 0.10.17)
     extlib (0.9.16)
-    facets (2.9.3)
-    i18n (0.6.9)
-    minitest (4.7.5)
-    multi_json (1.8.2)
-    rake (10.1.0)
-    redcarpet (3.0.0)
-    thread_safe (0.1.3)
-      atomic
-    tzinfo (0.3.38)
-    yard (0.8.7.3)
+    facets (3.1.0)
+    i18n (0.9.1)
+      concurrent-ruby (~> 1.0)
+    minitest (5.10.3)
+    public_suffix (3.0.1)
+    rake (12.3.0)
+    redcarpet (3.4.0)
+    thread_safe (0.3.6)
+    tzinfo (1.2.4)
+      thread_safe (~> 0.1)
+    yard (0.9.12)
 
 PLATFORMS
   ruby
@@ -64,3 +65,6 @@ DEPENDENCIES
   rake
   redcarpet
   yard
+
+BUNDLED WITH
+   1.16.0

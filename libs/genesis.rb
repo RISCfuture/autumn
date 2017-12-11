@@ -64,6 +64,7 @@ module Autumn
       Bundler.require :pre_config
 
       require 'facets/pathname'
+      require 'active_support/dependencies/autoload'
       require 'active_support/core_ext/numeric'
 
       require 'libs/misc'
