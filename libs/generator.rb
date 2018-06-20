@@ -1,6 +1,7 @@
 require 'yaml'
 require 'pathname'
 require 'libs/coder'
+require 'pathname' 
 
 module Autumn
 
@@ -107,6 +108,12 @@ module Autumn
         end
       end
 
+      dname = lpath.join('views')
+      unless File.directory?(dname)
+        Dir.mkdir(dname)
+        created dname, options
+      end
+           
       vname = lpath.join('views', 'about.txt.erb')
       if vname.exist?
         exists cname, options

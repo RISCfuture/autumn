@@ -155,7 +155,7 @@ module Autumn
     def parameterize(params)
       param_strs = Array.new
       params.each do |param|
-        if param.kind_of? Hash && param.size == 1
+        if param.kind_of?(Hash) && param.size == 1
           name    = param.keys.only
           default = param.values.only
           raise ArgumentError, "Invalid parameter #{name.inspect}" unless name.respond_to?(:to_s) && !name.to_s.empty?
