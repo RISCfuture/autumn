@@ -780,7 +780,7 @@ module Autumn
     def command_exec(name, stem, channel, sender, msg, reply_to)
       cmd_sym = "#{name}_command".to_sym
       return unless respond_to? cmd_sym
-      msg = nil if msg.presence
+      msg = msg.presence
 
       return unless authenticated?(name, stem, channel, sender)
       return unless run_before_filters(name, stem, channel, sender, name, msg)
